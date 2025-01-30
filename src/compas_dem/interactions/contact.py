@@ -40,28 +40,21 @@ class FrictionContact(Contact):
 
     Parameters
     ----------
-    points
-    frame
-    size
-    name
+    forces : list[dict[Literal["c_np", "c_nn", "c_u", "c_v"], float]], optional
+        The forces at the corners of the contact.
 
     Attributes
     ----------
-    points : list[:class:`compas.geometry.Point`]
-        The corner points of the interface polygon.
-    size : float
-        The area of the interface polygon.
-    frame : :class:`Frame`
-        The local coordinate frame of the interface polygon.
-    polygon : :class:`compas.geometry.Polygon`
-        The polygon defining the contact interface.
-    kern : :class:`compas.geometry.Polygon`
-        The "kern" part of the interface polygon.
-    forces : list[dict]
+    forces : list[dict[Literal["c_np", "c_nn", "c_u", "c_v"], float]]
         A dictionary of force components per interface point.
         Each dictionary contains the following items: ``{"c_np": ..., "c_nn": ...,  "c_u": ..., "c_v": ...}``.
-    stressdistribution : ???
-        ???
+    points2
+    polygon2
+    M0
+    M1
+    M2
+    kern
+    stressdistribution
     normalforces : list[:class:`compas.geometry.Line`]
         A list of lines representing the normal components of the contact forces at the corners of the interface.
         The length of each line is proportional to the magnitude of the corresponding force.
@@ -69,17 +62,21 @@ class FrictionContact(Contact):
         A list of lines representing the compression components of the normal contact forces
         at the corners of the interface.
         The length of each line is proportional to the magnitude of the corresponding force.
+    compressiondata
     tensionforces : list[:class:`compas.geometry.Line`]
         A list of lines representing the tension components of the normal contact forces
         at the corners of the interface.
         The length of each line is proportional to the magnitude of the corresponding force.
+    tensiondata
     frictionforces : list[:class:`compas.geometry.Line`]
         A list of lines representing the friction or tangential components of the contact forces
         at the corners of the interface.
         The length of each line is proportional to the magnitude of the corresponding force.
+    frictiondata
     resultantforce : list[:class:`compas.geometry.Line`]
         A list with a single line representing the resultant of all the contact forces at the corners of the interface.
         The length of the line is proportional to the magnitude of the resultant force.
+    resultantdata
     resultantpoint : :class:`compas.geometry.Point`
         The point of application of the resultant force on the interface.
 
@@ -97,6 +94,11 @@ class FrictionContact(Contact):
         self._points2 = None
         self._polygon2 = None
         self._forces = forces
+
+        self._compressiondata = None
+        self._tensiondata = None
+        self._frictiondata = None
+        self._resultantdata = None
 
     # =============================================================================
     # Structural
@@ -201,6 +203,17 @@ class FrictionContact(Contact):
         return lines
 
     @property
+    def compressiondata(self) -> list[list[float]]:
+        if not self._compressiondata:
+            self._compressiondata = []
+            vector = list(self.frame.zaxis)
+            for point, force in zip(self.points, self.forces):
+                force = force["c_np"] - force["c_nn"]
+                if force > 0:
+                    self._compressiondata.append(list(point) + vector + [0.5 * force])
+        return self._compressiondata
+
+    @property
     def tensionforces(self) -> list[Line]:
         lines = []
         if not self.forces:
@@ -216,6 +229,17 @@ class FrictionContact(Contact):
         return lines
 
     @property
+    def tensiondata(self) -> list[list[float]]:
+        if not self._tensiondata:
+            self._tensiondata = []
+            vector = list(self.frame.zaxis)
+            for point, force in zip(self.points, self.forces):
+                force = force["c_np"] - force["c_nn"]
+                if force < 0:
+                    self._tensiondata.append(list(point) + vector + [0.5 * force])
+        return self._tensiondata
+
+    @property
     def frictionforces(self) -> list[Line]:
         lines = []
         if not self.forces:
@@ -228,6 +252,16 @@ class FrictionContact(Contact):
             p2 = point - ft_uv
             lines.append(Line(p1, p2))
         return lines
+
+    @property
+    def frictiondata(self) -> list[list[float]]:
+        if not self._frictiondata:
+            self._frictiondata = []
+            u, v = list(self.frame.xaxis), list(self.frame.yaxis)
+            for point, force in zip(self.points, self.forces):
+                xyz = list(point)
+                self._frictiondata.append(xyz + u + v + [force["c_u"], force["c_v"]])
+        return self._frictiondata
 
     @property
     def resultantpoint(self) -> list[float]:
@@ -252,3 +286,17 @@ class FrictionContact(Contact):
         p1 = position + forcevector
         p2 = position - forcevector
         return [Line(p1, p2)]
+
+    @property
+    def resultantdata(self) -> list[float]:
+        if not self._resultantdata:
+            normalcomponents = [f["c_np"] - f["c_nn"] for f in self.forces]
+            sum_n = sum(normalcomponents)
+            sum_u = sum(f["c_u"] for f in self.forces)
+            sum_v = sum(f["c_v"] for f in self.forces)
+            position = centroid_points_weighted(self.points, normalcomponents)
+            u, v, w = self.frame.xaxis, self.frame.yaxis, self.frame.zaxis
+            forcevector = u * sum_u + v * sum_v + w * sum_n
+            direction = list(forcevector.unitized())
+            self._resultantdata = position + direction + [0.5 * forcevector.length]
+        return self._resultantdata

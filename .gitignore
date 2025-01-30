@@ -115,11 +115,7 @@ generated/
 *.3dmbak
 *.rhl
 
-libs/**
-!libs/PLACEHOLDER
-
 temp/**
-!temp/PLACEHOLDER
 
 src/.build/**
 
@@ -138,3 +134,5 @@ docs/api/generated/
 scripts/
 
 .ruff_cache
+
+webviewer/**
