@@ -14,4 +14,3 @@ compas_dem
     compas_dem.models
     compas_dem.notebook
     compas_dem.templates
-    compas_dem.viewers
