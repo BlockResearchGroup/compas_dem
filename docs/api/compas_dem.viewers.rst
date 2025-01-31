@@ -1,16 +1,15 @@
 ********************************************************************************
-analysis
+viewers
 ********************************************************************************
 
-.. currentmodule:: compas_dem.analysis
+.. currentmodule:: compas_dem.viewers
 
 
-Functions
-=========
+Classes
+=======
 
 .. autosummary::
     :toctree: generated/
     :nosignatures:
 
-    cra_penalty_solve
-    rbe_solve
+    BlockModelViewer

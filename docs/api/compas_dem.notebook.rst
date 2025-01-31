@@ -1,8 +1,8 @@
 ********************************************************************************
-analysis
+notebook
 ********************************************************************************
 
-.. currentmodule:: compas_dem.analysis
+.. currentmodule:: compas_dem.notebook
 
 
 Functions
@@ -12,5 +12,14 @@ Functions
     :toctree: generated/
     :nosignatures:
 
-    cra_penalty_solve
-    rbe_solve
+    buffers.meshes_to_edgesbuffer
+    buffers.meshes_to_facesbuffer
+
+Classes
+=======
+
+.. autosummary::
+    :toctree: generated/
+    :nosignatures:
+
+    ThreeBlockModelObject

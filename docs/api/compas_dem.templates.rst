@@ -1,16 +1,17 @@
 ********************************************************************************
-analysis
+templates
 ********************************************************************************
 
-.. currentmodule:: compas_dem.analysis
+.. currentmodule:: compas_dem.templates
 
 
-Functions
-=========
+Classes
+=======
 
 .. autosummary::
     :toctree: generated/
     :nosignatures:
 
-    cra_penalty_solve
-    rbe_solve
+    ArchTemplate
+    BarrelVaultTemplate
+    DomeTemplate

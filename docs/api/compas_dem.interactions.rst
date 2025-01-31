@@ -1,9 +1,15 @@
 ********************************************************************************
-algorithms
+interactions
 ********************************************************************************
 
-.. currentmodule:: compas_dem.algorithms
+.. currentmodule:: compas_dem.interactions
 
 
-.. toctree::
-    :maxdepth: 1
+Classes
+=======
+
+.. autosummary::
+    :toctree: generated/
+    :nosignatures:
+
+    FrictionContact

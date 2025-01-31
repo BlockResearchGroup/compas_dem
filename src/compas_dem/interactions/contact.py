@@ -206,11 +206,12 @@ class FrictionContact(Contact):
     def compressiondata(self) -> list[list[float]]:
         if not self._compressiondata:
             self._compressiondata = []
-            vector = list(self.frame.zaxis)
-            for point, force in zip(self.points, self.forces):
-                force = force["c_np"] - force["c_nn"]
-                if force > 0:
-                    self._compressiondata.append(list(point) + vector + [0.5 * force])
+            if self.forces:
+                vector = list(self.frame.zaxis)
+                for point, force in zip(self.points, self.forces):
+                    force = force["c_np"] - force["c_nn"]
+                    if force > 0:
+                        self._compressiondata.append(list(point) + vector + [0.5 * force])
         return self._compressiondata
 
     @property
@@ -232,11 +233,12 @@ class FrictionContact(Contact):
     def tensiondata(self) -> list[list[float]]:
         if not self._tensiondata:
             self._tensiondata = []
-            vector = list(self.frame.zaxis)
-            for point, force in zip(self.points, self.forces):
-                force = force["c_np"] - force["c_nn"]
-                if force < 0:
-                    self._tensiondata.append(list(point) + vector + [0.5 * force])
+            if self.forces:
+                vector = list(self.frame.zaxis)
+                for point, force in zip(self.points, self.forces):
+                    force = force["c_np"] - force["c_nn"]
+                    if force < 0:
+                        self._tensiondata.append(list(point) + vector + [0.5 * force])
         return self._tensiondata
 
     @property
@@ -257,10 +259,11 @@ class FrictionContact(Contact):
     def frictiondata(self) -> list[list[float]]:
         if not self._frictiondata:
             self._frictiondata = []
-            u, v = list(self.frame.xaxis), list(self.frame.yaxis)
-            for point, force in zip(self.points, self.forces):
-                xyz = list(point)
-                self._frictiondata.append(xyz + u + v + [force["c_u"], force["c_v"]])
+            if self.forces:
+                u, v = list(self.frame.xaxis), list(self.frame.yaxis)
+                for point, force in zip(self.points, self.forces):
+                    xyz = list(point)
+                    self._frictiondata.append(xyz + u + v + [force["c_u"], force["c_v"]])
         return self._frictiondata
 
     @property
@@ -290,13 +293,14 @@ class FrictionContact(Contact):
     @property
     def resultantdata(self) -> list[float]:
         if not self._resultantdata:
-            normalcomponents = [f["c_np"] - f["c_nn"] for f in self.forces]
-            sum_n = sum(normalcomponents)
-            sum_u = sum(f["c_u"] for f in self.forces)
-            sum_v = sum(f["c_v"] for f in self.forces)
-            position = centroid_points_weighted(self.points, normalcomponents)
-            u, v, w = self.frame.xaxis, self.frame.yaxis, self.frame.zaxis
-            forcevector = u * sum_u + v * sum_v + w * sum_n
-            direction = list(forcevector.unitized())
-            self._resultantdata = position + direction + [0.5 * forcevector.length]
+            if self.forces:
+                normalcomponents = [f["c_np"] - f["c_nn"] for f in self.forces]
+                sum_n = sum(normalcomponents)
+                sum_u = sum(f["c_u"] for f in self.forces)
+                sum_v = sum(f["c_v"] for f in self.forces)
+                position = centroid_points_weighted(self.points, normalcomponents)
+                u, v, w = self.frame.xaxis, self.frame.yaxis, self.frame.zaxis
+                forcevector = u * sum_u + v * sum_v + w * sum_n
+                direction = list(forcevector.unitized())
+                self._resultantdata = position + direction + [0.5 * forcevector.length]
         return self._resultantdata

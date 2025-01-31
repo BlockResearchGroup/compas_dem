@@ -14,6 +14,8 @@ from compas_dem.templates import Template
 
 
 class BlockModel(Model):
+    """Variation of COMPAS Model specifically designed for working with Discrete Element Models in the context of masonry construction."""
+
     def __init__(self, name=None):
         super().__init__(name)
 
@@ -201,7 +203,7 @@ class BlockModel(Model):
                 for contact in contacts:
                     yield contact
 
-    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2, k=2) -> None:
+    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2) -> None:
         """Compute the contacts between the block elements of this model.
 
         Parameters
@@ -210,8 +212,6 @@ class BlockModel(Model):
             The distance tolerance.
         minimum_area : float, optional
             The minimum contact size.
-        k : int, optional
-            The number of element neighbours to consider.
 
         Returns
         -------
@@ -222,7 +222,6 @@ class BlockModel(Model):
 
         for element in self.elements():
             u = element.graphnode
-            # nnbrs = self.element_nnbrs(element, k=k)
             nnbrs = self.bvh.nearest_neighbors(element)
             for nbr in nnbrs:
                 v = nbr.graphnode

@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 import pythreejs as three
 from compas.colors import Color
@@ -8,24 +6,24 @@ from compas.geometry import Polygon
 from compas.geometry import earclip_polygon
 
 
-def mesh_to_edgesbuffer(mesh: Mesh, color: Color) -> tuple[list[list[float]], list[Color]]:
-    positions = []
-    colors = []
-
-    for u, v in mesh.edges():
-        positions.append(mesh.vertex_coordinates(u))
-        positions.append(mesh.vertex_coordinates(v))
-        colors.append(color)
-        colors.append(color)
-
-    return positions, colors
-
-
 def meshes_to_edgesbuffer(
     meshes: list[Mesh],
     color: Color,
-    material: Optional[three.LineBasicMaterial] = None,
 ) -> three.LineSegments:
+    """Convert the combined edges of a collection of meshes to one line segment buffer.
+
+    Parameters
+    ----------
+    meshes : list[:class:`compas.datastructures.Mesh`]
+        The mesh collection.
+    color : :class:`compas.colors.Color`
+        The color of the edges.
+
+    Returns
+    -------
+    pythreejs.LineSegments
+
+    """
     positions = []
     colors = []
 
@@ -44,10 +42,66 @@ def meshes_to_edgesbuffer(
         }
     )
 
-    if not material:
-        material = three.LineBasicMaterial(vertexColors="VertexColors")
+    material = three.LineBasicMaterial(vertexColors="VertexColors")
 
     return three.LineSegments(geometry, material)
+
+
+def meshes_to_facesbuffer(
+    meshes: list[Mesh],
+    color: Color,
+) -> three.Mesh:
+    """Convert the combined faces of a collection of meshes to one mesh buffer.
+
+    Parameters
+    ----------
+    meshes : list[:class:`compas.datastructures.Mesh`]
+        The mesh collection.
+    color : :class:`compas.colors.Color`
+        The color of the faces.
+
+    Returns
+    -------
+    pythreejs.Mesh
+
+    """
+    positions = []
+    colors = []
+
+    for mesh in meshes:
+        buffer = mesh_to_facesbuffer(mesh, color)
+        positions += buffer[0]
+        colors += buffer[1]
+
+    positions = np.array(positions, dtype=np.float32)
+    colors = np.array(colors, dtype=np.float32)
+
+    geometry = three.BufferGeometry(
+        attributes={
+            "position": three.BufferAttribute(positions, normalized=False),
+            "color": three.BufferAttribute(colors, normalized=False, itemSize=3),
+        }
+    )
+
+    material = three.MeshBasicMaterial(
+        side="DoubleSide",
+        vertexColors="VertexColors",
+    )
+
+    return three.Mesh(geometry, material)
+
+
+def mesh_to_edgesbuffer(mesh: Mesh, color: Color) -> tuple[list[list[float]], list[Color]]:
+    positions = []
+    colors = []
+
+    for u, v in mesh.edges():
+        positions.append(mesh.vertex_coordinates(u))
+        positions.append(mesh.vertex_coordinates(v))
+        colors.append(color)
+        colors.append(color)
+
+    return positions, colors
 
 
 def mesh_to_facesbuffer(mesh: Mesh, color: Color) -> tuple[list[list[float]], list[Color]]:
@@ -90,35 +144,3 @@ def mesh_to_facesbuffer(mesh: Mesh, color: Color) -> tuple[list[list[float]], li
                 colors.append(color)
 
     return positions, colors
-
-
-def meshes_to_facesbuffer(
-    meshes: list[Mesh],
-    color: Color,
-    material: Optional[three.MeshBasicMaterial] = None,
-) -> three.Mesh:
-    positions = []
-    colors = []
-
-    for mesh in meshes:
-        buffer = mesh_to_facesbuffer(mesh, color)
-        positions += buffer[0]
-        colors += buffer[1]
-
-    positions = np.array(positions, dtype=np.float32)
-    colors = np.array(colors, dtype=np.float32)
-
-    geometry = three.BufferGeometry(
-        attributes={
-            "position": three.BufferAttribute(positions, normalized=False),
-            "color": three.BufferAttribute(colors, normalized=False, itemSize=3),
-        }
-    )
-
-    if not material:
-        material = three.MeshBasicMaterial(
-            side="DoubleSide",
-            vertexColors="VertexColors",
-        )
-
-    return three.Mesh(geometry, material)

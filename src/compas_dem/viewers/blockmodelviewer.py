@@ -143,14 +143,16 @@ class BlockModelViewer(Viewer):
             show_faces=True,
             facecolor=self.color_support,
             linecolor=self.color_support.contrast,
+            linewidth=2,
         )
         self.blocks = self.scene.add(
             blocks,
             name="Blocks",
             show_points=False,
-            show_faces=True,
+            show_faces=False,
             facecolor=self.color_block,
             linecolor=self.color_block.contrast,
+            linewidth=2,
         )
 
     # =============================================================================
@@ -317,6 +319,8 @@ class BlockModelViewer(Viewer):
     def init_resultant(self):
         resultant_data = [contact.resultantdata for contact in self.model.contacts()]
         if not resultant_data:
+            return
+        if not all(d for d in resultant_data):
             return
 
         self.resultant_data = np.array(resultant_data)

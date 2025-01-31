@@ -5,5 +5,13 @@ elements
 .. currentmodule:: compas_dem.elements
 
 
-.. toctree::
-    :maxdepth: 1
+Classes
+=======
+
+.. autosummary::
+    :toctree: generated/
+    :nosignatures:
+
+    BlockElement
+    BlockFeature
+    BlockMesh

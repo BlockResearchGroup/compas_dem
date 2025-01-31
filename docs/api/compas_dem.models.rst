@@ -1,16 +1,15 @@
 ********************************************************************************
-analysis
+models
 ********************************************************************************
 
-.. currentmodule:: compas_dem.analysis
+.. currentmodule:: compas_dem.models
 
 
-Functions
-=========
+Classes
+=======
 
 .. autosummary::
     :toctree: generated/
     :nosignatures:
 
-    cra_penalty_solve
-    rbe_solve
+    BlockModel
