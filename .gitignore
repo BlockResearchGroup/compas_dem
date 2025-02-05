@@ -131,7 +131,7 @@ data/
 
 docs/api/generated/
 
-scripts/
+scripts/__testing
 
 .ruff_cache
 
