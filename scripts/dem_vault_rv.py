@@ -50,15 +50,82 @@ def break_boundary(mesh: Mesh, breakpoints: list[int]) -> tuple[list[list[int]],
     return borders, breakpoints
 
 
-def make_block():
-    pass
+def make_block(basemesh: Mesh, idos: Mesh, face: int) -> Mesh:
+    vertices = basemesh.face_vertices(face)
+    normals = [basemesh.vertex_normal(vertex) for vertex in vertices]
+    thickness = basemesh.vertices_attribute("thickness", keys=vertices)
+
+    bottom = idos.vertices_points(vertices)
+    top = [point + vector * t for point, vector, t in zip(bottom, normals, thickness)]
+
+    frame = Frame(*bestfit_frame_numpy(top))
+    plane = Plane.from_frame(frame)
+
+    flattop = []
+    for a, b in zip(bottom, top):
+        b = plane.intersection_with_line(Line(a, b))
+        flattop.append(b)
+
+    sides = []
+    for (a, b), (aa, bb) in zip(pairwise(bottom + bottom[:1]), pairwise(flattop + flattop[:1])):
+        sides.append([a, b, bb, aa])
+
+    polygons = [bottom[::-1], flattop] + sides
+
+    block: Mesh = Mesh.from_polygons(polygons)
+    block.update_default_face_attributes(is_support=False, is_interface=False)
+    block.attributes["frame"] = frame
+    block.attributes["is_support"] = False
+
+    return block
 
 
-def make_block_referenced():
-    pass
+def make_block_referenced(basemesh: Mesh, idos: Mesh, face: int) -> Mesh:
+    N = basemesh._max_vertex + 1
+
+    vertices = basemesh.face_vertices(face)
+    normals = [basemesh.vertex_normal(vertex) for vertex in vertices]
+    thickness = basemesh.vertices_attribute("thickness", keys=vertices)
+
+    bottom = idos.vertices_points(vertices)
+    top = [point + vector * t for point, vector, t in zip(bottom, normals, thickness)]
+
+    frame = Frame(*bestfit_frame_numpy(top))
+    plane = Plane.from_frame(frame)
+
+    flattop = []
+    for a, b in zip(bottom, top):
+        b = plane.intersection_with_line(Line(a, b))
+        flattop.append(b)
+
+    block: Mesh = Mesh()
+
+    for vertex, point in zip(vertices, bottom):
+        # use the same identifiers for the vertices of the bottom face
+        key = vertex
+        block.add_vertex(key=key, x=point[0], y=point[1], z=point[2])
+
+    for vertex, point in zip(vertices, flattop):
+        # offset the identifiers of the top face by "N"
+        key = vertex + N
+        block.add_vertex(key=key, x=point[0], y=point[1], z=point[2])
+
+    block.add_face(vertices[::-1])
+    block.add_face([vertex + N for vertex in vertices])
+
+    for u, v in pairwise(vertices + vertices[:1]):
+        block.add_face([u, v, v + N, u + N])
+
+    block.update_default_face_attributes(is_support=False, is_interface=False)
+
+    block.attributes["n"] = N
+    block.attributes["frame"] = frame
+    block.attributes["is_support"] = False
+
+    return block
 
 
-def trimesh_remesh_python_with_projection(trimesh: Mesh):
+def trimesh_remesh_python_with_projection(trimesh: Mesh, target_length: float, kmax: int = 300) -> None:
     def project(mesh: Mesh, k: int, args) -> None:
         for vertex in mesh.vertices():
             if mesh.is_vertex_on_boundary(vertex):
@@ -82,8 +149,8 @@ def trimesh_remesh_python_with_projection(trimesh: Mesh):
 
     trimesh_remesh_python(
         trimesh,
-        length,
-        kmax=300,
+        target_length,
+        kmax=kmax,
         callback=project,
     )
 
@@ -101,6 +168,23 @@ thrustobject = rv_scene.find_by_name("ThrustDiagram")
 thrustdiagram: FormDiagram = thrustobject.mesh
 
 # =============================================================================
+# Global Parameters
+# =============================================================================
+
+THICKNESS_SUPPORTS1 = 30
+THICKNESS_SUPPORTS2 = 20
+THICKNESS_BORDER = 10
+THICKNESS_TOP = 10
+
+LENGTH_FACTOR = 0.9
+
+MAX_CHAMFER_ANGLE = 145
+CHAMFER_OFFSET = 2
+
+SUPPORT_PADDING = 5
+SUPPORT_DEPTH = 70
+
+# =============================================================================
 # Mesh
 #
 # - make a copy of the thrustdiagram
@@ -113,7 +197,7 @@ mesh: Mesh = thrustdiagram.copy(cls=Mesh)
 for face in list(mesh.faces_where(_is_loaded=False)):
     mesh.delete_face(face)
 
-length = sum(mesh.edge_length(edge) for edge in mesh.edges()) / mesh.number_of_edges()
+average_length = sum(mesh.edge_length(edge) for edge in mesh.edges()) / mesh.number_of_edges()
 
 # =============================================================================
 # Mesh: Borders
@@ -142,8 +226,14 @@ trimesh.quads_to_triangles()
 # - use a percentage of the average edge length of the original mesh as target length
 # =============================================================================
 
+target_edge_length = LENGTH_FACTOR * average_length
+
 M = trimesh.to_vertices_and_faces()
-V, F = trimesh_remesh(M, target_edge_length=0.9 * length, number_of_iterations=100)
+V, F = trimesh_remesh(
+    M,
+    target_edge_length=target_edge_length,
+    number_of_iterations=100,
+)
 
 trimesh = Mesh.from_vertices_and_faces(V, F)
 
@@ -151,7 +241,9 @@ trimesh = Mesh.from_vertices_and_faces(V, F)
 # Trimesh: Remeshing w/o CGAL
 # =============================================================================
 
-# trimesh_remesh_python_with_projection(trimesh)
+# target_edge_length = 1.0 * average_length
+
+# trimesh_remesh_python_with_projection(trimesh, target_edge_length)
 
 # =============================================================================
 # Dual
@@ -298,23 +390,23 @@ supports_by_height = sorted(mesh.attributes["supports"], key=lambda v: mesh.vert
 
 for support in supports_by_height[:4]:
     points.append(mesh.vertex_attributes(support, "xy"))
-    values.append(50)
+    values.append(THICKNESS_SUPPORTS1)
 
 for support in supports_by_height[4:]:
     points.append(mesh.vertex_attributes(support, "xy"))
-    values.append(30)
+    values.append(THICKNESS_SUPPORTS2)
 
 for border in mesh.attributes["borders"]:
     if len(border) > 4:
         midspan = border[len(border) // 2]
         points.append(mesh.vertex_attributes(midspan, "xy"))
-        values.append(15)
+        values.append(THICKNESS_BORDER)
 
 vertices_by_height = sorted(mesh.vertices(), key=lambda v: mesh.vertex_attribute(v, "z"))
 
 for vertex in vertices_by_height[-5:]:
     points.append(mesh.vertex_attributes(vertex, "xy"))
-    values.append(10)
+    values.append(THICKNESS_TOP)
 
 # =============================================================================
 # Blocks: Thickness interpolation sampling
@@ -327,7 +419,7 @@ for vertex, t in zip(dual.vertices(), thickness):
     dual.vertex_attribute(vertex, "thickness", t)
 
 # =============================================================================
-# Blocks
+# Blocks: Idos
 # =============================================================================
 
 idos: Mesh = dual.copy()
@@ -337,79 +429,31 @@ for vertex in idos.vertices():
     thickness = dual.vertex_attribute(vertex, name="thickness")
     idos.vertex_attributes(vertex, names="xyz", values=point - normal * (0.5 * thickness))
 
+# =============================================================================
+# Blocks
+# =============================================================================
+
 blocks: list[Mesh] = []
 
 for face in dual.faces():
-    vertices = dual.face_vertices(face)
-    normals = [dual.vertex_normal(vertex) for vertex in vertices]
-    thickness = dual.vertices_attribute("thickness", keys=vertices)
-
-    bottom = idos.vertices_points(vertices)
-    top = [point + vector * t for point, vector, t in zip(bottom, normals, thickness)]
-
-    frame = Frame(*bestfit_frame_numpy(top))
-    plane = Plane.from_frame(frame)
-
-    flattop = []
-    for a, b in zip(bottom, top):
-        b = plane.intersection_with_line(Line(a, b))
-        flattop.append(b)
-
-    # make the block
-    # this is a more complicated version of making a block
-    # it keeps the vertex keys of the bottom face the same as the ones of the corresponding face of the dual
-    # and uses vertex + max_vertex + 1 for the top
-    n = dual._max_vertex + 1
-
-    block: Mesh = Mesh()
-
-    for vertex, point in zip(vertices, bottom):
-        key = block.add_vertex(key=vertex, x=point[0], y=point[1], z=point[2])
-
-    for vertex, point in zip(vertices, flattop):
-        key = block.add_vertex(key=vertex + n, x=point[0], y=point[1], z=point[2])
-
-    block.add_face(vertices[::-1])
-    block.add_face([vertex + n for vertex in vertices])
-    for u, v in pairwise(vertices + vertices[:1]):
-        uu = u + n
-        vv = v + n
-        block.add_face([u, v, vv, uu])
-
-    block.update_default_edge_attributes(is_vertical=False)
-    block.update_default_face_attributes(is_support=False, is_interface=False)
-    block.attributes["n"] = n
-    block.attributes["frame"] = frame
-    block.attributes["is_support"] = False
-
+    block = make_block(dual, idos, face)
     dual.face_attribute(face, name="block", value=block)
 
-    # identify support faces
+    # identify support faces and interfaces
+    vertices = dual.face_vertices(face)
     for index, (u, v) in enumerate(pairwise(vertices + vertices[:1])):
+        # the first two faces are bottom and top
+        # then come the side faces in same order as the cycle of pairwise vertices
+        # => face = index + 2
+        face = index + 2
+
         is_support = dual.edge_attribute((u, v), name="is_support")
-        if is_support:
-            face = 2 + index
-            block.face_attribute(face, name="is_support", value=True)
-            block.attributes["is_support"] = True
-
-    # identify interfaces
-    for index, (u, v) in enumerate(pairwise(vertices + vertices[:1])):
         is_interface = dual.edge_attribute((u, v), name="is_interface")
-        if is_interface:
-            face = 2 + index
-            block.face_attribute(face, name="is_interface", value=True)
 
-    # identify vertical edges
-    vertices = block.face_vertices(0)
-    for vertex in vertices:
-        nbrs = block.vertex_neighbors(vertex)
-        nbr = None
-        for test in nbrs:
-            if test not in vertices:
-                nbr = test
-                break
-        if nbr is not None:
-            block.edge_attribute((vertex, nbr), name="is_vertical", value=True)
+        block.face_attribute(face, name="is_support", value=is_support)
+        block.face_attribute(face, name="is_interface", value=is_interface)
+
+        block.attributes["is_support"] = True
 
     blocks.append(block)
 
@@ -435,11 +479,11 @@ for vertex in dual.vertices():
         right = plane.projected_point(dual.vertex_point(nbr))
         v1 = (left - plane.point).unitized()
         v2 = (right - plane.point).unitized()
-        if v1.angle(v2, degrees=True) > 120:
+        if v1.angle(v2, degrees=True) > MAX_CHAMFER_ANGLE:
             continue
 
         direction = (v1 + v2).unitized()
-        cutter = Plane(plane.point, direction).offset(1)
+        cutter = Plane(plane.point, direction).offset(CHAMFER_OFFSET)
 
         face = dual.halfedge_face((vertex, nbr))
         temp: Mesh = face_block[face]
@@ -490,7 +534,7 @@ for border in dual.attributes["borders"]:
         yaxis = zaxis.cross(xaxis)
         frame = Frame(point, xaxis, yaxis)
         plane = Plane.from_frame(frame)
-        offset = plane.offset(70)
+        offset = plane.offset(SUPPORT_DEPTH)
 
         bottom = [
             P0 + dual.vertex_normal(border[0]) * 0.5 * dual.vertex_attribute(border[0], name="thickness"),
@@ -498,7 +542,7 @@ for border in dual.attributes["borders"]:
             P1 - dual.vertex_normal(border[-1]) * 0.5 * dual.vertex_attribute(border[-1], name="thickness"),
             P0 - dual.vertex_normal(border[0]) * 0.5 * dual.vertex_attribute(border[0], name="thickness"),
         ]
-        bottom = offset_polygon(bottom, -5)
+        bottom = offset_polygon(bottom, -SUPPORT_PADDING)
         top = [
             offset.intersection_with_line(Line.from_point_and_vector(bottom[0], R0)),
             offset.intersection_with_line(Line.from_point_and_vector(bottom[1], R1)),
@@ -539,11 +583,15 @@ viewer = Viewer(config=config)
 # Viz: Reactions
 # =============================================================================
 
+reactions = []
+
 for vertex in mesh.vertices_where(is_support=True):
     point = mesh.vertex_point(vertex)
     residual = Vector(*mesh.vertex_attributes(vertex, names=["_rx", "_ry", "_rz"]))
     reaction = Line.from_point_and_vector(point, residual * 0.001)
-    viewer.scene.add(reaction, linewidth=5, linecolor=Color.green())
+    reactions.append(reaction)
+
+viewer.scene.add(reactions, linewidth=5, linecolor=Color.green(), name="Reactions")
 
 # =============================================================================
 # Viz: Blocks
@@ -574,7 +622,7 @@ viewer.scene.add(supports, facecolor=Color.blue(), name="Supports")
 # Viz: Cut blocks
 # =============================================================================
 
-viewer.scene.add(list(face_block.values()))
+viewer.scene.add(list(face_block.values()), name="Chamfered Blocks")
 
 # =============================================================================
 # Viz: Show
