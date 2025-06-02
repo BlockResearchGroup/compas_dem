@@ -8,11 +8,13 @@ import compas
 from compas.colors import Color
 from compas.datastructures import Mesh
 from compas.datastructures.mesh.remesh import trimesh_remesh as trimesh_remesh_python  # noqa: F401
+from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import KDTree
 from compas.geometry import Line
 from compas.geometry import NurbsCurve
 from compas.geometry import Plane
+from compas.geometry import Sphere
 from compas.geometry import Transformation
 from compas.geometry import Vector
 from compas.geometry import bestfit_frame_numpy
@@ -184,6 +186,8 @@ CHAMFER_OFFSET = 2
 SUPPORT_PADDING = 5
 SUPPORT_DEPTH = 70
 
+NOTCH_RADIUS = 2
+
 # =============================================================================
 # Mesh
 #
@@ -228,9 +232,8 @@ trimesh.quads_to_triangles()
 
 target_edge_length = LENGTH_FACTOR * average_length
 
-M = trimesh.to_vertices_and_faces()
 V, F = trimesh_remesh(
-    M,
+    trimesh.to_vertices_and_faces(),
     target_edge_length=target_edge_length,
     number_of_iterations=100,
 )
@@ -255,7 +258,7 @@ trimesh = Mesh.from_vertices_and_faces(V, F)
 
 dual: Mesh = trimesh.dual(include_boundary=True)
 
-dual.update_default_edge_attributes(is_support=False)
+dual.update_default_edge_attributes(is_support=False, is_interface=False)
 dual.update_default_face_attributes(number=None, batch=None, block=None)
 dual.update_default_vertex_attributes(thickness=0, is_corner=False, is_support=False)
 
@@ -358,7 +361,7 @@ for u, v in tocollapse:
     dual.collapse_edge((u, v), allow_boundary=True)
 
 # =============================================================================
-# Dual: Borders
+# Dual: Support edges
 # =============================================================================
 
 corners = list(dual.vertices_where(is_corner=True))
@@ -475,10 +478,13 @@ for vertex in dual.vertices():
 
     for index, nbr in enumerate(nbrs):
         ancestor = nbrs[index - 1]
+
         left = plane.projected_point(dual.vertex_point(ancestor))
         right = plane.projected_point(dual.vertex_point(nbr))
+
         v1 = (left - plane.point).unitized()
         v2 = (right - plane.point).unitized()
+
         if v1.angle(v2, degrees=True) > MAX_CHAMFER_ANGLE:
             continue
 
@@ -493,6 +499,35 @@ for vertex in dual.vertices():
 # =============================================================================
 # Blocks: Notches
 # =============================================================================
+
+face_brep: dict[int, Brep] = {}
+
+# for face in dual.faces():
+#     block = dual.face_attribute(face, "block")
+#     brep = Brep.from_mesh(block)
+#     face_brep[face] = brep
+
+# for edge in dual.edges_where(is_interface=True):
+#     line = dual.edge_line(edge)
+#     if line.length < 5 * 2 * NOTCH_RADIUS:
+#         continue
+
+#     p1 = line.start + 1 * line.vector / 3
+#     p2 = line.start + 2 * line.vector / 3
+#     ball1 = Sphere(radius=NOTCH_RADIUS, point=p1).to_brep()
+#     ball2 = Sphere(radius=NOTCH_RADIUS, point=p2).to_brep()
+
+#     for face in dual.edge_faces(edge):
+#         brep = face_brep[face]
+#         brep.make_solid()
+
+#         try:
+#             brep = brep - ball1
+#             brep = brep - ball2
+#         except:  # noqa: E722
+#             print("notch failed")
+
+#         face_brep[face] = brep
 
 # =============================================================================
 # Blocks: Batches
@@ -513,9 +548,11 @@ for block in blocks:
 # Supports (this is independent from the blocks)
 # =============================================================================
 
-gkey_reaction = {
-    TOL.geometric_key(mesh.vertex_point(vertex), 1): Vector(*mesh.vertex_attributes(vertex, names=["_rx", "_ry", "_rz"])) for vertex in mesh.vertices_where(is_support=True)
-}
+gkey_reaction: dict[str, Vector] = {}
+for vertex in mesh.vertices_where(is_support=True):
+    gkey = TOL.geometric_key(mesh.vertex_point(vertex), 1)
+    rx, ry, rz = mesh.vertex_attributes(vertex, names=["_rx", "_ry", "_rz"])
+    gkey_reaction[gkey] = Vector(rx, ry, rz)
 
 supports = []
 
@@ -523,26 +560,27 @@ for border in dual.attributes["borders"]:
     if len(border) < 5:
         P0 = dual.vertex_point(border[0])
         P1 = dual.vertex_point(border[-1])
+
         R0 = gkey_reaction[TOL.geometric_key(P0, 1)]
         R1 = gkey_reaction[TOL.geometric_key(P1, 1)]
-        P = centroid_points_weighted([P0, P1], [R0.length, R1.length])
-        R = R0 + R1
 
-        point = P
+        point = centroid_points_weighted([P0, P1], [R0.length, R1.length])
         xaxis = P0 - P1
-        zaxis = R
+        zaxis = R0 + R1
         yaxis = zaxis.cross(xaxis)
         frame = Frame(point, xaxis, yaxis)
         plane = Plane.from_frame(frame)
         offset = plane.offset(SUPPORT_DEPTH)
 
-        bottom = [
-            P0 + dual.vertex_normal(border[0]) * 0.5 * dual.vertex_attribute(border[0], name="thickness"),
-            P1 + dual.vertex_normal(border[-1]) * 0.5 * dual.vertex_attribute(border[-1], name="thickness"),
-            P1 - dual.vertex_normal(border[-1]) * 0.5 * dual.vertex_attribute(border[-1], name="thickness"),
-            P0 - dual.vertex_normal(border[0]) * 0.5 * dual.vertex_attribute(border[0], name="thickness"),
-        ]
+        t0 = dual.vertex_attribute(border[0], name="thickness")
+        t1 = dual.vertex_attribute(border[-1], name="thickness")
+
+        v0 = dual.vertex_normal(border[0]) * 0.5 * t0
+        v1 = dual.vertex_normal(border[-1]) * 0.5 * t1
+
+        bottom = [P0 + v0, P1 + v1, P1 - v1, P0 - v0]
         bottom = offset_polygon(bottom, -SUPPORT_PADDING)
+
         top = [
             offset.intersection_with_line(Line.from_point_and_vector(bottom[0], R0)),
             offset.intersection_with_line(Line.from_point_and_vector(bottom[1], R1)),
@@ -558,7 +596,6 @@ for border in dual.attributes["borders"]:
         support = Mesh.from_polygons(polygons)
         supports.append(support)
 
-
 # =============================================================================
 # Visualisation
 # =============================================================================
@@ -569,6 +606,9 @@ config.camera.position = [500, -500, 100]
 config.camera.near = 1
 config.camera.far = 10000
 config.renderer.gridsize = (1000, 10, 1000, 10)
+
+TOL.lineardeflection = 1
+TOL.angulardeflection = 0.5
 
 viewer = Viewer(config=config)
 
@@ -622,7 +662,18 @@ viewer.scene.add(supports, facecolor=Color.blue(), name="Supports")
 # Viz: Cut blocks
 # =============================================================================
 
-viewer.scene.add(list(face_block.values()), name="Chamfered Blocks")
+viewer.scene.add(
+    list(face_block.values()),
+    show_faces=True,
+    show_lines=True,
+    name="Chamfered Blocks",
+)
+
+# =============================================================================
+# Viz: Notches blocks
+# =============================================================================
+
+# viewer.scene.add(list(face_brep.values()), name="Notched Blocks")
 
 # =============================================================================
 # Viz: Show
