@@ -6,8 +6,7 @@ from compas_viewer.components.lineedit import LineEdit
 from compas_viewer.scene import BufferGeometry
 from compas_viewer.scene import GroupObject
 
-from compas_dem.elements import BlockElement
-from compas_dem.elements import BlockMesh
+from compas_dem.elements import Block
 from compas_dem.models import BlockModel
 
 
@@ -57,9 +56,9 @@ class BlockModelViewer(Viewer):
 
         self.model: BlockModel = blockmodel
 
-        self.supports: GroupObject = None
-        self.blocks: GroupObject = None
-        self.interfaces: GroupObject = None
+        self.supports = None
+        self.blocks = None
+        self.interfaces = None
 
         self.color_block: Color = Color(0.9, 0.9, 0.9)
         self.color_support: Color = Color.red().lightened(75)
@@ -126,11 +125,11 @@ class BlockModelViewer(Viewer):
 
     def init_blocks(self):
         """Initialise the blocks."""
-        supports: list[BlockMesh] = []
-        blocks: list[BlockMesh] = []
+        supports: list[tuple] = []
+        blocks: list[tuple] = []
 
         for element in self.model.elements():
-            element: BlockElement
+            element: Block
             if element.is_support:
                 supports.append((element.modelgeometry, {"name": f"Support_{len(supports)}"}))
             else:

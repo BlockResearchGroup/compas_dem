@@ -1,9 +1,7 @@
-from .block import BlockMesh
 from .block import BlockFeature
-from .block import BlockElement
+from .block import Block
 
 __all__ = [
-    "BlockElement",
+    "Block",
     "BlockFeature",
-    "BlockMesh",
 ]

@@ -3,28 +3,25 @@ from compas_assembly.datastructures import Block
 from compas_cra.equilibrium import cra_penalty_solve as _cra_penalty_solve
 from compas_cra.equilibrium import rbe_solve as _rbe_solve
 
-from compas_dem.elements import BlockElement
-from compas_dem.interactions import FrictionContact
 from compas_dem.models import BlockModel
 
 
 def _blockmodel_to_assembly(model: BlockModel) -> Assembly:
-    element: BlockElement
     element_block: dict[int, int] = {}
 
     assembly = Assembly()
 
     for element in model.elements():
         block: Block = element.modelgeometry.copy(cls=Block)
-        x, y, z = block.centroid()
+        x, y, z = element.point
         node = assembly.add_block(block, x=x, y=y, z=z, is_support=element.is_support)
         element_block[element.graphnode] = node
 
     for edge in model.graph.edges():
-        u = element_block[edge[0]]
+        u = element_block[edge[0]]  # type: ignore
         v = element_block[edge[1]]
 
-        contacts: list[FrictionContact] = model.graph.edge_attribute(edge, name="contacts")
+        contacts = model.graph.edge_attribute(edge, name="contacts")  # type: ignore
         assembly.graph.add_edge(u, v, interfaces=contacts)
 
     return assembly
@@ -60,3 +57,9 @@ def cra_penalty_solve(
         verbose=verbose,
         timer=timer,
     )
+    for edge in assembly.graph.edges():
+        interfaces = assembly.graph.edge_attribute(edge, name="interfaces")
+        contacts = model.graph.edge_attribute(edge, name="contacts")
+        if interfaces and contacts:
+            for interface, contact in zip(interfaces, contacts):
+                contact.forces = interface.forces
