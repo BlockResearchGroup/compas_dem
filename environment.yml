@@ -1,3 +1,4 @@
+name: masonry-dev
 channels:
   - conda-forge
 dependencies:
