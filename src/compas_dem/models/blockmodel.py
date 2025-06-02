@@ -1,13 +1,16 @@
 from typing import Generator
+from typing import Iterator
+from typing import Type
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Frame
 from compas.geometry import Polyhedron
 from compas.geometry import Transformation
+from compas_model.interactions import Contact
 from compas_model.models import Model
 
-from compas_dem.elements.block import BlockElement
+from compas_dem.elements import Block
 from compas_dem.interactions import FrictionContact
 from compas_dem.templates import BarrelVaultTemplate
 from compas_dem.templates import Template
@@ -18,6 +21,12 @@ class BlockModel(Model):
 
     def __init__(self, name=None):
         super().__init__(name)
+
+    def elements(self) -> Iterator[Block]:
+        return super().elements()  # type: ignore
+
+    def contacts(self) -> Generator[FrictionContact, None, None]:
+        return super().contacts()  # type: ignore
 
     # =============================================================================
     # Factory methods
@@ -39,7 +48,7 @@ class BlockModel(Model):
         """
         model = cls()
         for box in boxes:
-            element = BlockElement.from_box(box)
+            element = Block.from_box(box)
             model.add_element(element)
         return model
 
@@ -59,7 +68,7 @@ class BlockModel(Model):
         """
         model = cls()
         for polyhedron in polyhedrons:
-            element = BlockElement.from_polyhedron(polyhedron)
+            element = Block.from_polyhedron(polyhedron)
             model.add_element(element)
         return model
 
@@ -79,6 +88,7 @@ class BlockModel(Model):
         """
         raise NotImplementedError
 
+    @classmethod
     def from_rhinomeshes(cls, guids):
         """Construct a model from Rhino meshes.
 
@@ -127,13 +137,13 @@ class BlockModel(Model):
         """"""
         model = cls()
         for mesh in template.blocks():
-            origin = mesh.face_polygon(5).frame.point
-            frame = Frame(origin, mesh.vertex_point(0) - mesh.vertex_point(2), mesh.vertex_point(4) - mesh.vertex_point(2))
-            xform = Transformation.from_frame_to_frame(frame, Frame.worldXY())
-            mesh_xy: Mesh = mesh.transformed(xform)
-            block: BlockElement = BlockElement.from_mesh(mesh_xy)
-            block.is_support = mesh_xy.attributes["is_support"]
-            block.transformation = xform.inverted()
+            # origin = mesh.face_polygon(5).frame.point
+            # frame = Frame(origin, mesh.vertex_point(0) - mesh.vertex_point(2), mesh.vertex_point(4) - mesh.vertex_point(2))
+            # xform = Transformation.from_frame_to_frame(frame, Frame.worldXY())
+            # mesh_xy: Mesh = mesh.transformed(xform)
+            block: Block = Block.from_mesh(mesh)
+            # block.is_support = mesh_xy.attributes["is_support"]
+            # block.transformation = xform.inverted()
             model.add_element(block)
         return model
 
@@ -162,102 +172,53 @@ class BlockModel(Model):
     # =============================================================================
 
     def add_block_from_mesh(self, mesh: Mesh) -> int:
-        block = BlockElement.from_mesh(mesh)
+        block = Block.from_mesh(mesh)
         block.is_support = False
         self.add_element(block)
         return block.graphnode
 
     def add_support_from_mesh(self, mesh: Mesh) -> int:
-        block = BlockElement.from_mesh(mesh)
+        block = Block.from_mesh(mesh)
         block.is_support = True
         self.add_element(block)
         return block.graphnode
 
     # =============================================================================
-    # Collisions
+    # Blocks & Supports
     # =============================================================================
 
-    def collisions(self) -> Generator:
-        """"""
-        raise NotImplementedError
+    def supports(self) -> Generator[Block, None, None]:
+        """Iterate over the support blocks of this model.
 
-    def compute_collisions(self):
-        """"""
-        raise NotImplementedError
+        Yields
+        ------
+        :class:`Block`
+
+        """
+        for element in self.elements():
+            if element.is_support:
+                yield element
+
+    def blocks(self) -> Generator[Block, None, None]:
+        """Iterate over the regular blocks of this model.
+
+        Yields
+        ------
+        :class:`Block`
+
+        """
+        for element in self.elements():
+            if not element.is_support:
+                yield element
 
     # =============================================================================
     # Contacts
     # =============================================================================
 
-    def contacts(self) -> Generator[FrictionContact, None, None]:
-        """Iterate over the contact interactions of this model.
-
-        Yields
-        ------
-        :class:`Contact`
-
-        """
-        for edge in self.graph.edges():
-            contacts = self.graph.edge_attribute(edge, name="contacts")
-            if contacts:
-                for contact in contacts:
-                    yield contact
-
-    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2) -> None:
-        """Compute the contacts between the block elements of this model.
-
-        Parameters
-        ----------
-        tolerance : float, optional
-            The distance tolerance.
-        minimum_area : float, optional
-            The minimum contact size.
-
-        Returns
-        -------
-        None
-
-        """
-        element: BlockElement
-
-        for element in self.elements():
-            u = element.graphnode
-            nnbrs = self.bvh.nearest_neighbors(element)
-            for nbr in nnbrs:
-                v = nbr.graphnode
-                if not self.graph.has_edge((u, v), directed=False):
-                    contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)
-                    # this is a hack
-                    contacts = [FrictionContact(size=contact.size, points=contact.points, frame=contact.frame) for contact in contacts]
-                    if contacts:
-                        self.graph.add_edge(u, v, contacts=contacts)
-
-    # =============================================================================
-    # Blocks & Supports
-    # =============================================================================
-
-    def supports(self) -> Generator[BlockElement, None, None]:
-        """Iterate over the support blocks of this model.
-
-        Yields
-        ------
-        :class:`BlockElement`
-
-        """
-        element: BlockElement
-        for element in self.elements():
-            if element.is_support:
-                yield element
-
-    def blocks(self) -> Generator[BlockElement, None, None]:
-        """Iterate over the regular blocks of this model.
-
-        Yields
-        ------
-        :class:`BlockElement`
-
-        """
-        element: BlockElement
-        for element in self.elements():
-            if not element.is_support:
-                yield element
+    def compute_contacts(
+        self,
+        tolerance=0.000001,
+        minimum_area=0.01,
+        contacttype: Type[Contact] = FrictionContact,
+    ) -> None:
+        return super().compute_contacts(tolerance, minimum_area, contacttype)
