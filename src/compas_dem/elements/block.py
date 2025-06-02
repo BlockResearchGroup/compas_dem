@@ -2,113 +2,11 @@ from typing import Optional
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
-from compas.geometry import Plane
 from compas.geometry import Point
 from compas.geometry import Polyhedron
-from compas.geometry import Polyline
 from compas.geometry import Transformation
-from compas.geometry import boolean_difference_mesh_mesh
-from compas.geometry import boolean_intersection_mesh_mesh
-from compas.geometry import boolean_union_mesh_mesh
-from compas.geometry import convex_hull_numpy
-from compas.geometry import oriented_bounding_box_numpy
-
-# from compas.geometry import trimesh_slice
 from compas_model.elements import Element
 from compas_model.elements import Feature
-
-
-class BlockMesh(Mesh):
-    """Extension of default mesh with API similar to Brep."""
-
-    @property
-    def aabb(self) -> Box:
-        points = self.vertices_attributes("xyz")
-        return Box.from_points(points)
-
-    @property
-    def convex_hull(self) -> Mesh:
-        points = self.vertices_attributes("xyz")
-        vertices, faces = convex_hull_numpy(points)
-        vertices = [points[index] for index in vertices]
-        return Mesh.from_vertices_and_faces(vertices, faces)
-
-    @property
-    def obb(self) -> Box:
-        points = self.vertices_points(self.vertices())
-        return Box.from_bounding_box(oriented_bounding_box_numpy(points))
-
-    def boolean_difference(self, *others: "BlockMesh") -> "BlockMesh":
-        """Return the boolean difference of this mesh and one or more other meshes.
-
-        Parameters
-        ----------
-        others : :class:`BlockMesh` | list[:class:`BlockMesh`]
-            One or more meshes to subtract.
-
-        Returns
-        -------
-        :class:`BlockMesh`
-
-        """
-        A = self.to_vertices_and_faces()
-        if not isinstance(others, list):
-            others = [others]
-        for mesh in others:
-            B = mesh.to_vertices_and_faces()
-            A = boolean_difference_mesh_mesh(A, B)
-        return type(self).from_vertices_and_faces(*A)
-
-    def boolean_intersection(self, *others: "BlockMesh") -> "BlockMesh":
-        """Return the boolean intersection between this mesh and one or more other meshes.
-
-        Parameters
-        ----------
-        others : :class:`BlockMesh` | list[:class:`BlockMesh`]
-            One or more intersection meshes.
-
-        Returns
-        -------
-        :class:`BlockMesh`
-
-        """
-        A = self.to_vertices_and_faces()
-        if not isinstance(others, list):
-            others = [others]
-        for mesh in others:
-            B = mesh.to_vertices_and_faces()
-            A = boolean_intersection_mesh_mesh(A, B)
-        return type(self).from_vertices_and_faces(*A)
-
-    def boolean_union(self, *others: "BlockMesh") -> "BlockMesh":
-        """Return the boolean union of this mesh and one or more other meshes.
-
-        Parameters
-        ----------
-        others : :class:`BlockMesh` | list[:class:`BlockMesh`]
-            One or more meshes to add.
-
-        Returns
-        -------
-        :class:`BlockMesh`
-
-        """
-        A = self.to_vertices_and_faces()
-        if not isinstance(others, list):
-            others = [others]
-        for mesh in others:
-            B = mesh.to_vertices_and_faces()
-            A = boolean_union_mesh_mesh(A, B)
-        return type(self).from_vertices_and_faces(*A)
-
-    def slice(self, plane: Plane) -> list["Polyline"]:
-        pass
-
-    def split(self, plane: Plane) -> list["BlockMesh"]:
-        pass
-
-    def trim(self, plane: Plane) -> None:
-        pass
 
 
 # A block could have features like notches,
@@ -120,7 +18,7 @@ class BlockFeature(Feature):
     pass
 
 
-class BlockElement(Element):
+class Block(Element):
     """Class representing block elements.
 
     Parameters
@@ -147,28 +45,25 @@ class BlockElement(Element):
 
     """
 
-    elementgeometry: BlockMesh
-    modelgeometry: BlockMesh
+    _geometry: Mesh
 
     @property
     def __data__(self) -> dict:
         data = super().__data__
-        data["shape"] = self.shape
-        data["features"] = self.features
+        data["geometry"] = self._geometry
         data["is_support"] = self.is_support
         return data
 
     def __init__(
         self,
-        shape: BlockMesh,
+        geometry: Mesh,
         features: Optional[list[BlockFeature]] = None,
-        is_support: bool = False,
         transformation: Optional[Transformation] = None,
         name: Optional[str] = None,
+        is_support: bool = False,
     ) -> None:
-        super().__init__(transformation=transformation, features=features, name=name)
+        super().__init__(geometry=geometry, transformation=transformation, features=features, name=name)
 
-        self.shape = shape
         self.is_support = is_support
 
     # =============================================================================
@@ -176,7 +71,7 @@ class BlockElement(Element):
     # =============================================================================
 
     @classmethod
-    def from_box(cls, box: Box) -> "BlockElement":
+    def from_box(cls, box: Box, **kwargs) -> "Block":
         """Construct a block element from a box.
 
         Parameters
@@ -186,13 +81,13 @@ class BlockElement(Element):
 
         Returns
         -------
-        :class:`BlockElement`
+        :class:`Block`
 
         """
-        return cls(shape=BlockMesh.from_shape(box))
+        return cls(geometry=Mesh.from_shape(box), **kwargs)
 
     @classmethod
-    def from_polyhedron(cls, polyhedron: Polyhedron) -> "BlockElement":
+    def from_polyhedron(cls, polyhedron: Polyhedron, **kwargs) -> "Block":
         """Construct a block element from a polyhedron.
 
         Parameters
@@ -202,13 +97,13 @@ class BlockElement(Element):
 
         Returns
         -------
-        :class:`BlockElement`
+        :class:`Block`
 
         """
-        return cls(shape=BlockMesh.from_shape(polyhedron))
+        return cls(geometry=Mesh.from_polyhedron(polyhedron), **kwargs)
 
     @classmethod
-    def from_mesh(cls, mesh: Mesh) -> "BlockElement":
+    def from_mesh(cls, mesh: Mesh, **kwargs) -> "Block":
         """Construct a block element from a mesh.
 
         Parameters
@@ -218,42 +113,35 @@ class BlockElement(Element):
 
         Returns
         -------
-        :class:`BlockElement`
+        :class:`Block`
 
         """
-        return cls(shape=mesh.copy(cls=BlockMesh))
+        return cls(geometry=mesh.copy(cls=Mesh), **kwargs)
 
     # =============================================================================
     # Implementations of abstract methods
     # =============================================================================
 
-    def compute_elementgeometry(self) -> BlockMesh:
-        geometry = self.shape
-        self._geometry = geometry
-        return geometry
+    def compute_elementgeometry(self, include_features: bool = False) -> Mesh:
+        return self._geometry
 
-    def compute_aabb(self, inflate=None) -> Box:
-        box = self.modelgeometry.aabb
-        if inflate and inflate != 1.0:
-            box.xsize += inflate
-            box.ysize += inflate
-            box.zsize += inflate
+    def compute_aabb(self, inflate: float = 1.0) -> Box:
+        box: Box = self.modelgeometry.aabb()
+        if inflate != 1.0:
+            box.xsize *= inflate
+            box.ysize *= inflate
+            box.zsize *= inflate
         self._aabb = box
         return box
 
-    def compute_obb(self, inflate=None) -> Box:
-        box = self.modelgeometry.obb
-        if inflate and inflate != 1.0:
-            box.xsize += inflate
-            box.ysize += inflate
-            box.zsize += inflate
+    def compute_obb(self, inflate: float = 1.0) -> Box:
+        box: Box = self.modelgeometry.obb()
+        if inflate != 1.0:
+            box.xsize *= inflate
+            box.ysize *= inflate
+            box.zsize *= inflate
         self._obb = box
         return box
-
-    def compute_collision_mesh(self) -> Mesh:
-        mesh = self.modelgeometry.convex_hull
-        self._collision_mesh = mesh
-        return mesh
 
     def compute_point(self) -> Point:
         return Point(*self.modelgeometry.centroid())
