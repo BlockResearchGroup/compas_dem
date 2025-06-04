@@ -1,5 +1,3 @@
 compas >= 2.4
-compas_assembly
-compas_cra
 compas_gmsh
 compas_model
