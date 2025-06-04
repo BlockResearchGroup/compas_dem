@@ -4,7 +4,7 @@ import random
 from compas.geometry import Box
 
 from compas_dem.analysis import cra_penalty_solve
-from compas_dem.elements import BlockElement
+from compas_dem.elements import Block
 from compas_dem.models import BlockModel
 from compas_dem.viewers import BlockModelViewer
 
@@ -39,7 +39,7 @@ model.compute_contacts()
 # Supports
 # =============================================================================
 
-bottom: BlockElement = sorted(model.elements(), key=lambda e: e.point.z)[0]
+bottom = sorted(model.elements(), key=lambda e: e.point.z)[0]
 bottom.is_support = True
 
 # =============================================================================
