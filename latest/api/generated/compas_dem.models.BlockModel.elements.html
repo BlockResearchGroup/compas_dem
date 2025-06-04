@@ -472,11 +472,9 @@ document.write(`
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.html">compas_dem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.analysis.html">analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.elements.html">elements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.interactions.html">interactions</a></li>
 <li class="toctree-l3 current active"><a class="reference internal" href="../compas_dem.models.html">models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.notebook.html">notebook</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.templates.html">templates</a></li>
 </ul>
 </li>
@@ -559,11 +557,11 @@ document.write(`
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_dem.models.BlockModel.elements">
 <span class="sig-prename descclassname"><span class="pre">BlockModel.</span></span><span class="sig-name descname"><span class="pre">elements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Yield all the elements contained in the model.</p>
+<dd><p>Iterate over the elements contained in the model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Yields<span class="colon">:</span></dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code></dt><dd></dd>
+<dt>Iterator[Element]</dt><dd></dd>
 </dl>
 </dd>
 </dl>

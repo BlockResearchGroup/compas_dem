@@ -59,7 +59,7 @@
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="BlockModel.add_elements" href="compas_dem.models.BlockModel.add_elements.html" />
+    <link rel="next" title="BlockModel.add_group" href="compas_dem.models.BlockModel.add_group.html" />
     <link rel="prev" title="BlockModel.ToString" href="compas_dem.models.BlockModel.ToString.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -472,11 +472,9 @@ document.write(`
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.html">compas_dem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.analysis.html">analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.elements.html">elements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.interactions.html">interactions</a></li>
 <li class="toctree-l3 current active"><a class="reference internal" href="../compas_dem.models.html">models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.notebook.html">notebook</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.templates.html">templates</a></li>
 </ul>
 </li>
@@ -565,8 +563,8 @@ document.write(`
 <dd class="field-odd"><dl>
 <dt><strong>element</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code></span></dt><dd><p>The element to add.</p>
 </dd>
-<dt><strong>parent</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementNode</span></code>, optional</span></dt><dd><p>The parent group node of the element.
-If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the element will be added directly under the root node.</p>
+<dt><strong>parent</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code>, optional</span></dt><dd><p>The parent element of the element.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the element will be added directly under the root element.</p>
 </dd>
 <dt><strong>material</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code>, optional</span></dt><dd><p>A material to assign to the element.
 Note that the material should have already been added to the model before it can be assigned.</p>
@@ -575,7 +573,7 @@ Note that the material should have already been added to the model before it can
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Elementnode</span></code></dt><dd><p>The tree node containing the element in the hierarchy.</p>
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code></dt><dd><p>The element added to the model.</p>
 </dd>
 </dl>
 </dd>

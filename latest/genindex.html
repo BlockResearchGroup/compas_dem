@@ -465,11 +465,9 @@ document.write(`
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.html">compas_dem</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.analysis.html">analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/compas_dem.elements.html">elements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/compas_dem.interactions.html">interactions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/compas_dem.models.html">models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.notebook.html">notebook</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/compas_dem.templates.html">templates</a></li>
 </ul>
 </li>
@@ -520,7 +518,6 @@ document.write(`
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
- | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#M"><strong>M</strong></a>
@@ -529,31 +526,32 @@ document.write(`
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#V"><strong>V</strong></a>
- | <a href="#Y"><strong>Y</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.add.html#compas_dem.notebook.ThreeBlockModelObject.add">add() (compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_block_from_mesh.html#compas_dem.models.BlockModel.add_block_from_mesh">add_block_from_mesh() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_element.html#compas_dem.models.BlockModel.add_element">add_element() (compas_dem.models.BlockModel method)</a>
 </li>
-      <li><a href="api/generated/compas_dem.models.BlockModel.add_elements.html#compas_dem.models.BlockModel.add_elements">add_elements() (compas_dem.models.BlockModel method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.add_feature.html#compas_dem.elements.Block.add_feature">add_feature() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.add_group.html#compas_dem.models.BlockModel.add_group">add_group() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_interaction.html#compas_dem.models.BlockModel.add_interaction">add_interaction() (compas_dem.models.BlockModel method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_material.html#compas_dem.models.BlockModel.add_material">add_material() (compas_dem.models.BlockModel method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_modifier.html#compas_dem.models.BlockModel.add_modifier">add_modifier() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_support_from_mesh.html#compas_dem.models.BlockModel.add_support_from_mesh">add_support_from_mesh() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.elements.BlockFeature.apply.html#compas_dem.elements.BlockFeature.apply">apply() (compas_dem.elements.BlockFeature method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.apply_features.html#compas_dem.elements.Block.apply_features">apply_features() (compas_dem.elements.Block method)</a>
 </li>
       <li><a href="api/generated/compas_dem.templates.ArchTemplate.html#compas_dem.templates.ArchTemplate">ArchTemplate (class in compas_dem.templates)</a>
 </li>
@@ -566,6 +564,8 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_dem.templates.BarrelVaultTemplate.html#compas_dem.templates.BarrelVaultTemplate">BarrelVaultTemplate (class in compas_dem.templates)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.html#compas_dem.elements.Block">Block (class in compas_dem.elements)</a>
 </li>
       <li><a href="api/generated/compas_dem.elements.BlockFeature.html#compas_dem.elements.BlockFeature">BlockFeature (class in compas_dem.elements)</a>
 </li>
@@ -589,38 +589,56 @@ document.write(`
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.clear.html#compas_dem.notebook.ThreeBlockModelObject.clear">clear() (compas_dem.notebook.ThreeBlockModelObject method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_aabb.html#compas_dem.elements.Block.compute_aabb">compute_aabb() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.models.BlockModel.compute_aabb.html#compas_dem.models.BlockModel.compute_aabb">(compas_dem.models.BlockModel method)</a>
 </li>
-      <li><a href="api/generated/compas_dem.models.BlockModel.collisions.html#compas_dem.models.BlockModel.collisions">collisions() (compas_dem.models.BlockModel method)</a>
-</li>
-      <li><a href="api/generated/compas_dem.models.BlockModel.compute_aabb.html#compas_dem.models.BlockModel.compute_aabb">compute_aabb() (compas_dem.models.BlockModel method)</a>
-</li>
+      </ul></li>
       <li><a href="api/generated/compas_dem.models.BlockModel.compute_bvh.html#compas_dem.models.BlockModel.compute_bvh">compute_bvh() (compas_dem.models.BlockModel method)</a>
 </li>
-      <li><a href="api/generated/compas_dem.models.BlockModel.compute_collisions.html#compas_dem.models.BlockModel.compute_collisions">compute_collisions() (compas_dem.models.BlockModel method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_collision_mesh.html#compas_dem.elements.Block.compute_collision_mesh">compute_collision_mesh() (compas_dem.elements.Block method)</a>
 </li>
-      <li><a href="api/generated/compas_dem.models.BlockModel.compute_contacts.html#compas_dem.models.BlockModel.compute_contacts">compute_contacts() (compas_dem.models.BlockModel method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_contacts.html#compas_dem.elements.Block.compute_contacts">compute_contacts() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.models.BlockModel.compute_contacts.html#compas_dem.models.BlockModel.compute_contacts">(compas_dem.models.BlockModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_elementgeometry.html#compas_dem.elements.Block.compute_elementgeometry">compute_elementgeometry() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_femesh2.html#compas_dem.elements.Block.compute_femesh2">compute_femesh2() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_femesh3.html#compas_dem.elements.Block.compute_femesh3">compute_femesh3() (compas_dem.elements.Block method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.compute_kdtree.html#compas_dem.models.BlockModel.compute_kdtree">compute_kdtree() (compas_dem.models.BlockModel method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.models.BlockModel.compute_obb.html#compas_dem.models.BlockModel.compute_obb">compute_obb() (compas_dem.models.BlockModel method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_modelgeometry.html#compas_dem.elements.Block.compute_modelgeometry">compute_modelgeometry() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_modeltransformation.html#compas_dem.elements.Block.compute_modeltransformation">compute_modeltransformation() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_obb.html#compas_dem.elements.Block.compute_obb">compute_obb() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.models.BlockModel.compute_obb.html#compas_dem.models.BlockModel.compute_obb">(compas_dem.models.BlockModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_point.html#compas_dem.elements.Block.compute_point">compute_point() (compas_dem.elements.Block method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.contacts.html#compas_dem.models.BlockModel.contacts">contacts() (compas_dem.models.BlockModel method)</a>
 </li>
-      <li><a href="api/generated/compas_dem.elements.BlockFeature.copy.html#compas_dem.elements.BlockFeature.copy">copy() (compas_dem.elements.BlockFeature method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.copy.html#compas_dem.elements.Block.copy">copy() (compas_dem.elements.Block method)</a>
 
       <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.copy.html#compas_dem.elements.BlockFeature.copy">(compas_dem.elements.BlockFeature method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.copy.html#compas_dem.interactions.FrictionContact.copy">(compas_dem.interactions.FrictionContact method)</a>
 </li>
         <li><a href="api/generated/compas_dem.models.BlockModel.copy.html#compas_dem.models.BlockModel.copy">(compas_dem.models.BlockModel method)</a>
 </li>
-        <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.copy.html#compas_dem.notebook.ThreeBlockModelObject.copy">(compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
       </ul></li>
-      <li><a href="api/generated/compas_dem.analysis.cra_penalty_solve.html#compas_dem.analysis.cra_penalty_solve">cra_penalty_solve() (in module compas_dem.analysis)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -628,28 +646,6 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_dem.templates.DomeTemplate.html#compas_dem.templates.DomeTemplate">DomeTemplate (class in compas_dem.templates)</a>
-</li>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.draw.html#compas_dem.notebook.ThreeBlockModelObject.draw">draw() (compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.draw_blockedges.html#compas_dem.notebook.ThreeBlockModelObject.draw_blockedges">draw_blockedges() (compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.draw_blockfaces.html#compas_dem.notebook.ThreeBlockModelObject.draw_blockfaces">draw_blockfaces() (compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.draw_blocks.html#compas_dem.notebook.ThreeBlockModelObject.draw_blocks">draw_blocks() (compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.draw_contactedges.html#compas_dem.notebook.ThreeBlockModelObject.draw_contactedges">draw_contactedges() (compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.draw_contactfaces.html#compas_dem.notebook.ThreeBlockModelObject.draw_contactfaces">draw_contactfaces() (compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.draw_contacts.html#compas_dem.notebook.ThreeBlockModelObject.draw_contacts">draw_contacts() (compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.draw_supportedges.html#compas_dem.notebook.ThreeBlockModelObject.draw_supportedges">draw_supportedges() (compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.draw_supportfaces.html#compas_dem.notebook.ThreeBlockModelObject.draw_supportfaces">draw_supportfaces() (compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.draw_supports.html#compas_dem.notebook.ThreeBlockModelObject.draw_supports">draw_supports() (compas_dem.notebook.ThreeBlockModelObject method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -673,33 +669,39 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.from_barrelvault.html#compas_dem.models.BlockModel.from_barrelvault">from_barrelvault() (compas_dem.models.BlockModel class method)</a>
 </li>
+      <li><a href="api/generated/compas_dem.elements.Block.from_box.html#compas_dem.elements.Block.from_box">from_box() (compas_dem.elements.Block class method)</a>
+</li>
       <li><a href="api/generated/compas_dem.models.BlockModel.from_boxes.html#compas_dem.models.BlockModel.from_boxes">from_boxes() (compas_dem.models.BlockModel class method)</a>
 </li>
-      <li><a href="api/generated/compas_dem.elements.BlockFeature.from_json.html#compas_dem.elements.BlockFeature.from_json">from_json() (compas_dem.elements.BlockFeature class method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.from_json.html#compas_dem.elements.Block.from_json">from_json() (compas_dem.elements.Block class method)</a>
 
       <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.from_json.html#compas_dem.elements.BlockFeature.from_json">(compas_dem.elements.BlockFeature class method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.from_json.html#compas_dem.interactions.FrictionContact.from_json">(compas_dem.interactions.FrictionContact class method)</a>
 </li>
         <li><a href="api/generated/compas_dem.models.BlockModel.from_json.html#compas_dem.models.BlockModel.from_json">(compas_dem.models.BlockModel class method)</a>
 </li>
-        <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.from_json.html#compas_dem.notebook.ThreeBlockModelObject.from_json">(compas_dem.notebook.ThreeBlockModelObject class method)</a>
-</li>
       </ul></li>
-      <li><a href="api/generated/compas_dem.elements.BlockFeature.from_jsonstring.html#compas_dem.elements.BlockFeature.from_jsonstring">from_jsonstring() (compas_dem.elements.BlockFeature class method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.from_jsonstring.html#compas_dem.elements.Block.from_jsonstring">from_jsonstring() (compas_dem.elements.Block class method)</a>
 
       <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.from_jsonstring.html#compas_dem.elements.BlockFeature.from_jsonstring">(compas_dem.elements.BlockFeature class method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.from_jsonstring.html#compas_dem.interactions.FrictionContact.from_jsonstring">(compas_dem.interactions.FrictionContact class method)</a>
 </li>
         <li><a href="api/generated/compas_dem.models.BlockModel.from_jsonstring.html#compas_dem.models.BlockModel.from_jsonstring">(compas_dem.models.BlockModel class method)</a>
 </li>
-        <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.from_jsonstring.html#compas_dem.notebook.ThreeBlockModelObject.from_jsonstring">(compas_dem.notebook.ThreeBlockModelObject class method)</a>
-</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.elements.Block.from_mesh.html#compas_dem.elements.Block.from_mesh">from_mesh() (compas_dem.elements.Block class method)</a>
+</li>
       <li><a href="api/generated/compas_dem.models.BlockModel.from_meshpattern.html#compas_dem.models.BlockModel.from_meshpattern">from_meshpattern() (compas_dem.models.BlockModel class method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.from_nurbssurface.html#compas_dem.models.BlockModel.from_nurbssurface">from_nurbssurface() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.from_polyhedron.html#compas_dem.elements.Block.from_polyhedron">from_polyhedron() (compas_dem.elements.Block class method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.from_polyhedrons.html#compas_dem.models.BlockModel.from_polyhedrons">from_polyhedrons() (compas_dem.models.BlockModel class method)</a>
 </li>
@@ -712,14 +714,6 @@ document.write(`
       <li><a href="api/generated/compas_dem.models.BlockModel.from_template.html#compas_dem.models.BlockModel.from_template">from_template() (compas_dem.models.BlockModel class method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.from_wall.html#compas_dem.models.BlockModel.from_wall">from_wall() (compas_dem.models.BlockModel class method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="G">G</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.geometry_to_objects.html#compas_dem.notebook.ThreeBlockModelObject.geometry_to_objects">geometry_to_objects() (compas_dem.notebook.ThreeBlockModelObject method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -758,12 +752,6 @@ document.write(`
       <li><a href="api/generated/compas_dem.models.BlockModel.materials.html#compas_dem.models.BlockModel.materials">materials() (compas_dem.models.BlockModel method)</a>
 </li>
   </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.notebook.buffers.meshes_to_edgesbuffer.html#compas_dem.notebook.buffers.meshes_to_edgesbuffer">meshes_to_edgesbuffer() (in module compas_dem.notebook.buffers)</a>
-</li>
-      <li><a href="api/generated/compas_dem.notebook.buffers.meshes_to_facesbuffer.html#compas_dem.notebook.buffers.meshes_to_facesbuffer">meshes_to_facesbuffer() (in module compas_dem.notebook.buffers)</a>
-</li>
-  </ul></td>
 </tr></table>
 
 <h2 id="P">P</h2>
@@ -777,16 +765,12 @@ document.write(`
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.analysis.rbe_solve.html#compas_dem.analysis.rbe_solve">rbe_solve() (in module compas_dem.analysis)</a>
-</li>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.remove.html#compas_dem.notebook.ThreeBlockModelObject.remove">remove() (compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
       <li><a href="api/generated/compas_dem.models.BlockModel.remove_element.html#compas_dem.models.BlockModel.remove_element">remove_element() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.remove_interaction.html#compas_dem.models.BlockModel.remove_interaction">remove_interaction() (compas_dem.models.BlockModel method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.models.BlockModel.remove_interaction.html#compas_dem.models.BlockModel.remove_interaction">remove_interaction() (compas_dem.models.BlockModel method)</a>
-</li>
       <li><a href="api/generated/compas_dem.models.BlockModel.rotate.html#compas_dem.models.BlockModel.rotate">rotate() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.rotated.html#compas_dem.models.BlockModel.rotated">rotated() (compas_dem.models.BlockModel method)</a>
@@ -801,14 +785,14 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.scaled.html#compas_dem.models.BlockModel.scaled">scaled() (compas_dem.models.BlockModel method)</a>
 </li>
-      <li><a href="api/generated/compas_dem.elements.BlockFeature.sha256.html#compas_dem.elements.BlockFeature.sha256">sha256() (compas_dem.elements.BlockFeature method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.sha256.html#compas_dem.elements.Block.sha256">sha256() (compas_dem.elements.Block method)</a>
 
       <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.sha256.html#compas_dem.elements.BlockFeature.sha256">(compas_dem.elements.BlockFeature method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.sha256.html#compas_dem.interactions.FrictionContact.sha256">(compas_dem.interactions.FrictionContact method)</a>
 </li>
         <li><a href="api/generated/compas_dem.models.BlockModel.sha256.html#compas_dem.models.BlockModel.sha256">(compas_dem.models.BlockModel method)</a>
-</li>
-        <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.sha256.html#compas_dem.notebook.ThreeBlockModelObject.sha256">(compas_dem.notebook.ThreeBlockModelObject method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -821,8 +805,6 @@ document.write(`
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.html#compas_dem.notebook.ThreeBlockModelObject">ThreeBlockModelObject (class in compas_dem.notebook)</a>
-</li>
       <li><a href="api/generated/compas_dem.templates.ArchTemplate.to_blocks_and_interfaces.html#compas_dem.templates.ArchTemplate.to_blocks_and_interfaces">to_blocks_and_interfaces() (compas_dem.templates.ArchTemplate method)</a>
 
       <ul>
@@ -831,51 +813,57 @@ document.write(`
         <li><a href="api/generated/compas_dem.templates.DomeTemplate.to_blocks_and_interfaces.html#compas_dem.templates.DomeTemplate.to_blocks_and_interfaces">(compas_dem.templates.DomeTemplate method)</a>
 </li>
       </ul></li>
-      <li><a href="api/generated/compas_dem.elements.BlockFeature.to_json.html#compas_dem.elements.BlockFeature.to_json">to_json() (compas_dem.elements.BlockFeature method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.to_json.html#compas_dem.elements.Block.to_json">to_json() (compas_dem.elements.Block method)</a>
 
       <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.to_json.html#compas_dem.elements.BlockFeature.to_json">(compas_dem.elements.BlockFeature method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.to_json.html#compas_dem.interactions.FrictionContact.to_json">(compas_dem.interactions.FrictionContact method)</a>
 </li>
         <li><a href="api/generated/compas_dem.models.BlockModel.to_json.html#compas_dem.models.BlockModel.to_json">(compas_dem.models.BlockModel method)</a>
 </li>
-        <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.to_json.html#compas_dem.notebook.ThreeBlockModelObject.to_json">(compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
       </ul></li>
-      <li><a href="api/generated/compas_dem.elements.BlockFeature.to_jsonstring.html#compas_dem.elements.BlockFeature.to_jsonstring">to_jsonstring() (compas_dem.elements.BlockFeature method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.to_jsonstring.html#compas_dem.elements.Block.to_jsonstring">to_jsonstring() (compas_dem.elements.Block method)</a>
 
       <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.to_jsonstring.html#compas_dem.elements.BlockFeature.to_jsonstring">(compas_dem.elements.BlockFeature method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.to_jsonstring.html#compas_dem.interactions.FrictionContact.to_jsonstring">(compas_dem.interactions.FrictionContact method)</a>
 </li>
         <li><a href="api/generated/compas_dem.models.BlockModel.to_jsonstring.html#compas_dem.models.BlockModel.to_jsonstring">(compas_dem.models.BlockModel method)</a>
 </li>
-        <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.to_jsonstring.html#compas_dem.notebook.ThreeBlockModelObject.to_jsonstring">(compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.elements.BlockFeature.ToString.html#compas_dem.elements.BlockFeature.ToString">ToString() (compas_dem.elements.BlockFeature method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.ToString.html#compas_dem.elements.Block.ToString">ToString() (compas_dem.elements.Block method)</a>
 
       <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.ToString.html#compas_dem.elements.BlockFeature.ToString">(compas_dem.elements.BlockFeature method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.ToString.html#compas_dem.interactions.FrictionContact.ToString">(compas_dem.interactions.FrictionContact method)</a>
 </li>
         <li><a href="api/generated/compas_dem.models.BlockModel.ToString.html#compas_dem.models.BlockModel.ToString">(compas_dem.models.BlockModel method)</a>
 </li>
-        <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.ToString.html#compas_dem.notebook.ThreeBlockModelObject.ToString">(compas_dem.notebook.ThreeBlockModelObject method)</a>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.elements.Block.transform.html#compas_dem.elements.Block.transform">transform() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.models.BlockModel.transform.html#compas_dem.models.BlockModel.transform">(compas_dem.models.BlockModel method)</a>
 </li>
       </ul></li>
-      <li><a href="api/generated/compas_dem.models.BlockModel.transform.html#compas_dem.models.BlockModel.transform">transform() (compas_dem.models.BlockModel method)</a>
-</li>
       <li><a href="api/generated/compas_dem.models.BlockModel.transform_numpy.html#compas_dem.models.BlockModel.transform_numpy">transform_numpy() (compas_dem.models.BlockModel method)</a>
 </li>
-      <li><a href="api/generated/compas_dem.models.BlockModel.transformed.html#compas_dem.models.BlockModel.transformed">transformed() (compas_dem.models.BlockModel method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.transformed.html#compas_dem.elements.Block.transformed">transformed() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.models.BlockModel.transformed.html#compas_dem.models.BlockModel.transformed">(compas_dem.models.BlockModel method)</a>
 </li>
+      </ul></li>
       <li><a href="api/generated/compas_dem.models.BlockModel.transformed_numpy.html#compas_dem.models.BlockModel.transformed_numpy">transformed_numpy() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.translate.html#compas_dem.models.BlockModel.translate">translate() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.translated.html#compas_dem.models.BlockModel.translated">translated() (compas_dem.models.BlockModel method)</a>
-</li>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.traverse.html#compas_dem.notebook.ThreeBlockModelObject.traverse">traverse() (compas_dem.notebook.ThreeBlockModelObject method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -883,24 +871,16 @@ document.write(`
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.elements.BlockFeature.validate_data.html#compas_dem.elements.BlockFeature.validate_data">validate_data() (compas_dem.elements.BlockFeature class method)</a>
+      <li><a href="api/generated/compas_dem.elements.Block.validate_data.html#compas_dem.elements.Block.validate_data">validate_data() (compas_dem.elements.Block class method)</a>
 
       <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.validate_data.html#compas_dem.elements.BlockFeature.validate_data">(compas_dem.elements.BlockFeature class method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.validate_data.html#compas_dem.interactions.FrictionContact.validate_data">(compas_dem.interactions.FrictionContact class method)</a>
 </li>
         <li><a href="api/generated/compas_dem.models.BlockModel.validate_data.html#compas_dem.models.BlockModel.validate_data">(compas_dem.models.BlockModel class method)</a>
 </li>
-        <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.validate_data.html#compas_dem.notebook.ThreeBlockModelObject.validate_data">(compas_dem.notebook.ThreeBlockModelObject class method)</a>
-</li>
       </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="Y">Y</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.notebook.ThreeBlockModelObject.y_to_z.html#compas_dem.notebook.ThreeBlockModelObject.y_to_z">y_to_z() (compas_dem.notebook.ThreeBlockModelObject method)</a>
-</li>
   </ul></td>
 </tr></table>
 

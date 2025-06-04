@@ -472,11 +472,9 @@ document.write(`
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.html">compas_dem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.analysis.html">analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.elements.html">elements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.interactions.html">interactions</a></li>
 <li class="toctree-l3 current active"><a class="reference internal" href="../compas_dem.models.html">models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.notebook.html">notebook</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.templates.html">templates</a></li>
 </ul>
 </li>
@@ -580,7 +578,7 @@ document.write(`
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.elements.html#compas_dem.models.BlockModel.elements" title="compas_dem.models.BlockModel.elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elements</span></code></a></p></td>
-<td><p>Yield all the elements contained in the model.</p></td>
+<td><p>Iterate over the elements contained in the model.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_barrelvault.html#compas_dem.models.BlockModel.from_barrelvault" title="compas_dem.models.BlockModel.from_barrelvault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_barrelvault</span></code></a></p></td>
 <td><p></p></td>
@@ -626,8 +624,8 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.add_element.html#compas_dem.models.BlockModel.add_element" title="compas_dem.models.BlockModel.add_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_element</span></code></a></p></td>
 <td><p>Add an element to the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.add_elements.html#compas_dem.models.BlockModel.add_elements" title="compas_dem.models.BlockModel.add_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_elements</span></code></a></p></td>
-<td><p>Add multiple elements to the model.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.add_group.html#compas_dem.models.BlockModel.add_group" title="compas_dem.models.BlockModel.add_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_group</span></code></a></p></td>
+<td><p>Add a group to the model.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.add_interaction.html#compas_dem.models.BlockModel.add_interaction" title="compas_dem.models.BlockModel.add_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_interaction</span></code></a></p></td>
 <td><p>Add an interaction between two elements of the model.</p></td>
@@ -636,22 +634,16 @@ document.write(`
 <td><p>Add a material to the model.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.add_modifier.html#compas_dem.models.BlockModel.add_modifier" title="compas_dem.models.BlockModel.add_modifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_modifier</span></code></a></p></td>
-<td><p>Add a modifier  between two elements.</p></td>
+<td><p>Add a modifier between two elements, with one the source of the modifier and the other the target.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.assign_material.html#compas_dem.models.BlockModel.assign_material" title="compas_dem.models.BlockModel.assign_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_material</span></code></a></p></td>
 <td><p>Assign a material to an element or a list of elements.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.collisions.html#compas_dem.models.BlockModel.collisions" title="compas_dem.models.BlockModel.collisions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collisions</span></code></a></p></td>
-<td><p>Yield all collision pairs in the model.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.compute_aabb.html#compas_dem.models.BlockModel.compute_aabb" title="compas_dem.models.BlockModel.compute_aabb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_aabb</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.compute_aabb.html#compas_dem.models.BlockModel.compute_aabb" title="compas_dem.models.BlockModel.compute_aabb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_aabb</span></code></a></p></td>
 <td><p>Compute the axis-aligned bounding box of the datastructure.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.compute_bvh.html#compas_dem.models.BlockModel.compute_bvh" title="compas_dem.models.BlockModel.compute_bvh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_bvh</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.compute_bvh.html#compas_dem.models.BlockModel.compute_bvh" title="compas_dem.models.BlockModel.compute_bvh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_bvh</span></code></a></p></td>
 <td><p>Compute the Bounding Volume Hierarchy (BVH) of the elements for fast collision checks.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.compute_collisions.html#compas_dem.models.BlockModel.compute_collisions" title="compas_dem.models.BlockModel.compute_collisions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_collisions</span></code></a></p></td>
-<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.compute_kdtree.html#compas_dem.models.BlockModel.compute_kdtree" title="compas_dem.models.BlockModel.compute_kdtree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_kdtree</span></code></a></p></td>
 <td><p>Compute the KD tree of the elements for fast nearest neighbour queries.</p></td>
@@ -681,7 +673,7 @@ document.write(`
 <td><p>Verify that the model contains a specific material.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.materials.html#compas_dem.models.BlockModel.materials" title="compas_dem.models.BlockModel.materials"><code class="xref py py-obj docutils literal notranslate"><span class="pre">materials</span></code></a></p></td>
-<td><p>Yield all the materials contained in the model.</p></td>
+<td><p>Iterate over the materials stored in the model.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.point_nnbrs.html#compas_dem.models.BlockModel.point_nnbrs" title="compas_dem.models.BlockModel.point_nnbrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">point_nnbrs</span></code></a></p></td>
 <td><p>Find the nearest neighbours to a point.</p></td>

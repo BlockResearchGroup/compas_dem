@@ -60,7 +60,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="BlockModel.add_material" href="compas_dem.models.BlockModel.add_material.html" />
-    <link rel="prev" title="BlockModel.add_elements" href="compas_dem.models.BlockModel.add_elements.html" />
+    <link rel="prev" title="BlockModel.add_group" href="compas_dem.models.BlockModel.add_group.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -472,11 +472,9 @@ document.write(`
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.html">compas_dem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.analysis.html">analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.elements.html">elements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.interactions.html">interactions</a></li>
 <li class="toctree-l3 current active"><a class="reference internal" href="../compas_dem.models.html">models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.notebook.html">notebook</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.templates.html">templates</a></li>
 </ul>
 </li>
@@ -558,7 +556,7 @@ document.write(`
 <h1>BlockModel.add_interaction</h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_dem.models.BlockModel.add_interaction">
-<span class="sig-prename descclassname"><span class="pre">BlockModel.</span></span><span class="sig-name descname"><span class="pre">add_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span></dt>
+<span class="sig-prename descclassname"><span class="pre">BlockModel.</span></span><span class="sig-name descname"><span class="pre">add_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Add an interaction between two elements of the model.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -582,6 +580,12 @@ document.write(`
 </dl>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>In future implementations, adding an interaction should implicitly take care of adding modifiers
+onto the interaction edges, based on the registered modifiers of the source nodes.</p>
+<p>In the current implementation, modifiers have to be added explicitly using <code class="xref py py-meth docutils literal notranslate"><span class="pre">add_modifiers()</span></code>.
+This method will add an interaction edge from the source of the modifier to its target if needed
+and store the modifier object on it.</p>
 </dd></dl>
 
 </section>

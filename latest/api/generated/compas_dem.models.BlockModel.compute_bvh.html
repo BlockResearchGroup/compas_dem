@@ -59,7 +59,7 @@
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="BlockModel.compute_collisions" href="compas_dem.models.BlockModel.compute_collisions.html" />
+    <link rel="next" title="BlockModel.compute_kdtree" href="compas_dem.models.BlockModel.compute_kdtree.html" />
     <link rel="prev" title="BlockModel.compute_aabb" href="compas_dem.models.BlockModel.compute_aabb.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -472,11 +472,9 @@ document.write(`
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.html">compas_dem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.analysis.html">analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.elements.html">elements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.interactions.html">interactions</a></li>
 <li class="toctree-l3 current active"><a class="reference internal" href="../compas_dem.models.html">models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.notebook.html">notebook</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.templates.html">templates</a></li>
 </ul>
 </li>
@@ -558,7 +556,7 @@ document.write(`
 <h1>BlockModel.compute_bvh</h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_dem.models.BlockModel.compute_bvh">
-<span class="sig-prename descclassname"><span class="pre">BlockModel.</span></span><span class="sig-name descname"><span class="pre">compute_bvh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodetype=&lt;class</span> <span class="pre">'compas_model.models.bvh.ElementOBBNode'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leafsize=1</span></span></em><span class="sig-paren">)</span></dt>
+<span class="sig-prename descclassname"><span class="pre">BlockModel.</span></span><span class="sig-name descname"><span class="pre">compute_bvh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodetype=&lt;class</span> <span class="pre">'compas_model.models.bvh.ElementAABBNode'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leafsize=1</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Compute the Bounding Volume Hierarchy (BVH) of the elements for fast collision checks.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

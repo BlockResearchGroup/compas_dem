@@ -472,11 +472,9 @@ document.write(`
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.html">compas_dem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.analysis.html">analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.elements.html">elements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.interactions.html">interactions</a></li>
 <li class="toctree-l3 current active"><a class="reference internal" href="../compas_dem.models.html">models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.notebook.html">notebook</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.templates.html">templates</a></li>
 </ul>
 </li>
@@ -558,27 +556,34 @@ document.write(`
 <h1>BlockModel.add_modifier</h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_dem.models.BlockModel.add_modifier">
-<span class="sig-prename descclassname"><span class="pre">BlockModel.</span></span><span class="sig-name descname"><span class="pre">add_modifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifier_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Add a modifier  between two elements.</p>
+<span class="sig-prename descclassname"><span class="pre">BlockModel.</span></span><span class="sig-name descname"><span class="pre">add_modifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifier</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Add a modifier between two elements, with one the source of the modifier and the other the target.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>edge</strong><span class="classifier">tuple[int, int]</span></dt><dd><p>The edge of the interaction graph representing the interaction between the two elements.
-Order matters: interaction is applied from node V0 to node V1.
-The first element create and instance of the interaction.</p>
+<dt><strong>source</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></span></dt><dd><p>The source element.</p>
 </dd>
-<dt><strong>modifier_type</strong><span class="classifier">type[<code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.interactions.Modifier</span></code>] | None</span></dt><dd><p>The type of modifier interaction. Modifiers are defined at the element level.</p>
+<dt><strong>target</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></span></dt><dd><p>The target element.</p>
 </dd>
-<dt><strong>**kwargs</strong></dt><dd><p>Additional keyword arguments to pass to the modifier.</p>
+<dt><strong>modifiertype</strong><span class="classifier">Type[<code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.modifiers.Modifier</span></code>]</span></dt><dd><p>The type of modifier.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>None</dt><dd></dd>
+<dt>list[Modifier]</dt><dd><p>All modifiers stored on the interaction edge between source and target.</p>
+</dd>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>This element should implement the protocol specified by the modifier.
+The methods of the source element defined by the protocol are used to compute the tools involved in the modification.
+The tools are used by the modifier to apply the modification to the model geometry of the target element.</p>
+<p>The modifier defines the protocol for the modification.
+The protocol should be implemented by the source element.
+The protocol methods of the source element are used to compute the modification tool.
+The modifier applies the modification to the target using this tool.</p>
 </dd></dl>
 
 </section>
