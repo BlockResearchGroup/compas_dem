@@ -4,9 +4,7 @@ from typing import Type
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
-from compas.geometry import Frame
 from compas.geometry import Polyhedron
-from compas.geometry import Transformation
 from compas_model.interactions import Contact
 from compas_model.models import Model
 
