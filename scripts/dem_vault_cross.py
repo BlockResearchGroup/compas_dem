@@ -76,17 +76,14 @@ group.add_from_list(
 
 # interaction graph
 
-# node_point = {node: model.graph.node_element(node).point for node in model.graph.nodes()}  # type: ignore
+node_point = {node: model.graph.node_element(node).point for node in model.graph.nodes()}  # type: ignore
+points = list(node_point.values())
+lines = [Line(node_point[u], node_point[v]) for u, v in model.graph.edges()]
 
-# points = list(node_point.values())
-# lines = [Line(node_point[u], node_point[v]) for u, v in model.graph.edges()]
-
-# viewer.scene.add(
-#     [
-#         (points, {"pointsize": 10, "name": "Graph Nodes"}),
-#         (lines, {"linewidth": 3, "name": "Graph Edges"}),
-#     ],
-#     name="Interaction Graph",
-# )
+group = viewer.scene.add_group(name="Interaction Graph")
+nodegroup = viewer.scene.add_group(name="Graph Nodes", parent=group)
+edgegroup = viewer.scene.add_group(name="Graph Edges", parent=group)
+nodegroup.add_from_list(points, pointsize=10)  # type: ignore
+nodegroup.add_from_list(lines)  # type: ignore
 
 viewer.show()

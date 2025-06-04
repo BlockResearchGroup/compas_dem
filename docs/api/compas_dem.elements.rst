@@ -12,6 +12,6 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    BlockElement
+    Block
     BlockFeature
     BlockMesh

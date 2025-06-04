@@ -12,8 +12,8 @@ from compas_dem.models import BlockModel
 # Data
 # =============================================================================
 
-BLOCKS = pathlib.Path(__file__).parent.parent.parent / "data" / "pavillionvault" / "blocks.json"
-SUPPORTS = pathlib.Path(__file__).parent.parent.parent / "data" / "pavillionvault" / "supports.json"
+BLOCKS = pathlib.Path(__file__).parent.parent / "data" / "pavillionvault" / "blocks.json"
+SUPPORTS = pathlib.Path(__file__).parent.parent / "data" / "pavillionvault" / "supports.json"
 
 blocks = compas.json_load(BLOCKS)
 supports = compas.json_load(SUPPORTS)
@@ -46,43 +46,40 @@ color_contact = Color.cyan()
 
 viewer = Viewer()
 
-viewer.scene.add(
+group = viewer.scene.add_group(name="Supports")
+group.add_from_list(
     [element.modelgeometry for element in model.supports()],
-    facecolor=color_support,
+    facecolor=color_support,  # type: ignore
     linecolor=color_support.contrast,
-    name="Supports",
-    opacity=0.5,
+    opacity=0.5,  # type: ignore
 )
 
-viewer.scene.add(
+group = viewer.scene.add_group(name="Blocks")
+group.add_from_list(
     [element.modelgeometry for element in model.blocks()],
-    show_faces=True,
-    name="Blocks",
-    opacity=0.5,
+    show_faces=True,  # type: ignore
+    opacity=0.5,  # type: ignore
 )
 
-viewer.scene.add(
+group = viewer.scene.add_group(name="Contacts")
+group.add_from_list(
     [contact.polygon for contact in model.contacts()],
-    facecolor=color_contact,
+    surfacecolor=color_contact,  # type: ignore
     linecolor=color_contact.contrast,
-    show_lines=False,
-    name="Contacts",
-    opacity=0.8,
+    show_lines=False,  # type: ignore
+    opacity=1.0,  # type: ignore
 )
 
 # interaction graph
 
 node_point = {node: model.graph.node_element(node).point for node in model.graph.nodes()}  # type: ignore
-
 points = list(node_point.values())
 lines = [Line(node_point[u], node_point[v]) for u, v in model.graph.edges()]
 
-viewer.scene.add(
-    [
-        (points, {"pointsize": 10, "name": "Graph Nodes"}),
-        (lines, {"linewidth": 3, "name": "Graph Edges"}),
-    ],
-    name="Interaction Graph",
-)
+group = viewer.scene.add_group(name="Interaction Graph")
+nodegroup = viewer.scene.add_group(name="Graph Nodes", parent=group)
+edgegroup = viewer.scene.add_group(name="Graph Edges", parent=group)
+nodegroup.add_from_list(points, pointsize=10)  # type: ignore
+nodegroup.add_from_list(lines)  # type: ignore
 
 viewer.show()

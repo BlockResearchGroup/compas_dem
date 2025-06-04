@@ -11,7 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* Changed `compas_dem.elements.BlockElement` to `compas_dem.elements.Block`.
+
 ### Removed
+
+* Removed `compas_dem.notebook.ThreeBlockModelObject` temporarily.
+* Removed `compas_dem.notebook.buffers.meshes_to_edgesbuffer` temporarily.
+* Removed `compas_dem.notebook.buffers.meshes_to_facesbuffer` temporarily.
+* Removed `compas_dem.viewers.BlockModelViewer` temporarily.
+* Removed CRA from default requirements.
 
 
 ## [0.1.1] 2025-01-31
