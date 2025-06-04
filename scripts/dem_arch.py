@@ -8,7 +8,7 @@ from compas_dem.templates import ArchTemplate
 # Template
 # =============================================================================
 
-template = ArchTemplate(rise=3, span=10, thickness=0.5, depth=0.5, n=200)
+template = ArchTemplate(rise=3, span=10, thickness=0.5, depth=0.5, n=50)
 
 # =============================================================================
 # Model and interactions
@@ -28,6 +28,6 @@ for element in model.elements():
     viewer.scene.add(element.modelgeometry, show_faces=False)
 
 for contact in model.contacts():
-    viewer.scene.add(contact.polygon, facecolor=Color.cyan())
+    viewer.scene.add(contact.polygon, surfacecolor=Color.cyan())
 
 viewer.show()

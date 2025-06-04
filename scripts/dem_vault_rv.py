@@ -7,28 +7,21 @@ import pathlib
 import compas
 from compas.colors import Color
 from compas.datastructures import Mesh
-from compas.datastructures.mesh.remesh import trimesh_remesh as trimesh_remesh_python  # noqa: F401
-from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import KDTree
 from compas.geometry import Line
 from compas.geometry import NurbsCurve
 from compas.geometry import Plane
-from compas.geometry import Sphere
 from compas.geometry import Transformation
 from compas.geometry import Vector
 from compas.geometry import bestfit_frame_numpy
 from compas.geometry import centroid_points_weighted
-from compas.geometry import normal_triangle  # noqa: F401
 from compas.geometry import offset_polygon
 from compas.geometry import trimesh_remesh
 from compas.itertools import pairwise
 from compas.scene import Scene
 from compas.tolerance import TOL
-from compas_model.geometry import intersection_ray_triangle  # noqa: F401
-from compas_tna.diagrams import FormDiagram
 from compas_viewer import Viewer
-from compas_viewer.config import Config
 from scipy.interpolate import griddata
 
 
@@ -47,7 +40,7 @@ def break_boundary(mesh: Mesh, breakpoints: list[int]) -> tuple[list[list[int]],
         start = boundary.index(a)
         end = boundary.index(b)
         borders.append(boundary[start : end + 1])
-    borders.append(boundary[end:] + boundary[:1])
+    borders.append(boundary[end:] + boundary[:1])  # type: ignore
 
     return borders, breakpoints
 
@@ -58,7 +51,7 @@ def make_block(basemesh: Mesh, idos: Mesh, face: int) -> Mesh:
     thickness = basemesh.vertices_attribute("thickness", keys=vertices)
 
     bottom = idos.vertices_points(vertices)
-    top = [point + vector * t for point, vector, t in zip(bottom, normals, thickness)]
+    top = [point + vector * t for point, vector, t in zip(bottom, normals, thickness)]  # type: ignore
 
     frame = Frame(*bestfit_frame_numpy(top))
     plane = Plane.from_frame(frame)
@@ -90,7 +83,7 @@ def make_block_referenced(basemesh: Mesh, idos: Mesh, face: int) -> Mesh:
     thickness = basemesh.vertices_attribute("thickness", keys=vertices)
 
     bottom = idos.vertices_points(vertices)
-    top = [point + vector * t for point, vector, t in zip(bottom, normals, thickness)]
+    top = [point + vector * t for point, vector, t in zip(bottom, normals, thickness)]  # type: ignore
 
     frame = Frame(*bestfit_frame_numpy(top))
     plane = Plane.from_frame(frame)
@@ -127,36 +120,6 @@ def make_block_referenced(basemesh: Mesh, idos: Mesh, face: int) -> Mesh:
     return block
 
 
-def trimesh_remesh_python_with_projection(trimesh: Mesh, target_length: float, kmax: int = 300) -> None:
-    def project(mesh: Mesh, k: int, args) -> None:
-        for vertex in mesh.vertices():
-            if mesh.is_vertex_on_boundary(vertex):
-                continue
-
-            point = mesh.vertex_point(vertex)
-            _, nbr, _ = tree.nearest_neighbor(point)
-            triangles = vertex_triangles[nbr]
-            normals = vertex_normals[nbr]
-
-            for triangle, normal in zip(triangles, normals):
-                ray = Line.from_point_direction_length(point, normal, 10)
-                result = intersection_ray_triangle(ray, triangle)
-                if result:
-                    mesh.vertex_attributes(vertex, "xyz", result)
-                    break
-
-    vertex_triangles = {i: [trimesh.face_points(f) for f in trimesh.vertex_faces(v)] for i, v in enumerate(trimesh.vertices())}
-    vertex_normals = {i: [normal_triangle(tri) for tri in tris] for i, tris in vertex_triangles.items()}
-    tree = KDTree(trimesh.vertices_attributes("xyz"))
-
-    trimesh_remesh_python(
-        trimesh,
-        target_length,
-        kmax=kmax,
-        callback=project,
-    )
-
-
 # =============================================================================
 # Load data
 # =============================================================================
@@ -167,7 +130,7 @@ rv_session = compas.json_load(IFILE)
 rv_scene: Scene = rv_session["scene"]
 
 thrustobject = rv_scene.find_by_name("ThrustDiagram")
-thrustdiagram: FormDiagram = thrustobject.mesh
+thrustdiagram: Mesh = thrustobject.mesh  # type: ignore
 
 # =============================================================================
 # Global Parameters
@@ -208,7 +171,7 @@ average_length = sum(mesh.edge_length(edge) for edge in mesh.edges()) / mesh.num
 # =============================================================================
 
 supports = list(mesh.vertices_where(is_support=True))
-borders, supports = break_boundary(mesh, supports)
+borders, supports = break_boundary(mesh, supports)  # type: ignore
 
 mesh.attributes["supports"] = supports
 mesh.attributes["borders"] = borders
@@ -236,17 +199,9 @@ V, F = trimesh_remesh(
     trimesh.to_vertices_and_faces(),
     target_edge_length=target_edge_length,
     number_of_iterations=100,
-)
+)  # type: ignore
 
 trimesh = Mesh.from_vertices_and_faces(V, F)
-
-# =============================================================================
-# Trimesh: Remeshing w/o CGAL
-# =============================================================================
-
-# target_edge_length = 1.0 * average_length
-
-# trimesh_remesh_python_with_projection(trimesh, target_edge_length)
 
 # =============================================================================
 # Dual
@@ -321,7 +276,7 @@ for vertex in tofix:
 # =============================================================================
 
 corners = list(dual.vertices_where(is_corner=True))
-borders, corners = break_boundary(dual, corners)
+borders, corners = break_boundary(dual, corners)  # type: ignore
 
 curves: list[NurbsCurve] = []
 for border in borders:
@@ -365,7 +320,7 @@ for u, v in tocollapse:
 # =============================================================================
 
 corners = list(dual.vertices_where(is_corner=True))
-borders, corners = break_boundary(dual, corners)
+borders, corners = break_boundary(dual, corners)  # type: ignore
 dual.attributes["borders"] = borders
 
 for border in borders:
@@ -389,7 +344,7 @@ for edge in dual.edges():
 points = []
 values = []
 
-supports_by_height = sorted(mesh.attributes["supports"], key=lambda v: mesh.vertex_attribute(v, "z"))
+supports_by_height = sorted(mesh.attributes["supports"], key=lambda v: mesh.vertex_attribute(v, "z"))  # type: ignore
 
 for support in supports_by_height[:4]:
     points.append(mesh.vertex_attributes(support, "xy"))
@@ -405,7 +360,7 @@ for border in mesh.attributes["borders"]:
         points.append(mesh.vertex_attributes(midspan, "xy"))
         values.append(THICKNESS_BORDER)
 
-vertices_by_height = sorted(mesh.vertices(), key=lambda v: mesh.vertex_attribute(v, "z"))
+vertices_by_height = sorted(mesh.vertices(), key=lambda v: mesh.vertex_attribute(v, "z"))  # type: ignore
 
 for vertex in vertices_by_height[-5:]:
     points.append(mesh.vertex_attributes(vertex, "xy"))
@@ -430,7 +385,7 @@ for vertex in idos.vertices():
     point = dual.vertex_point(vertex)
     normal = dual.vertex_normal(vertex)
     thickness = dual.vertex_attribute(vertex, name="thickness")
-    idos.vertex_attributes(vertex, names="xyz", values=point - normal * (0.5 * thickness))
+    idos.vertex_attributes(vertex, names="xyz", values=point - normal * (0.5 * thickness))  # type: ignore
 
 # =============================================================================
 # Blocks
@@ -439,7 +394,7 @@ for vertex in idos.vertices():
 blocks: list[Mesh] = []
 
 for face in dual.faces():
-    block = make_block(dual, idos, face)
+    block = make_block(dual, idos, face)  # type: ignore
     dual.face_attribute(face, name="block", value=block)
 
     # identify support faces and interfaces
@@ -464,7 +419,7 @@ for face in dual.faces():
 # Block: Chamfering
 # =============================================================================
 
-face_block = {face: dual.face_attribute(face, "block").copy() for face in dual.faces()}
+face_block = {face: dual.face_attribute(face, "block").copy() for face in dual.faces()}  # type: ignore
 
 for vertex in dual.vertices():
     if dual.is_vertex_on_boundary(vertex):
@@ -482,8 +437,8 @@ for vertex in dual.vertices():
         left = plane.projected_point(dual.vertex_point(ancestor))
         right = plane.projected_point(dual.vertex_point(nbr))
 
-        v1 = (left - plane.point).unitized()
-        v2 = (right - plane.point).unitized()
+        v1 = (left - plane.point).unitized()  # type: ignore
+        v2 = (right - plane.point).unitized()  # type: ignore
 
         if v1.angle(v2, degrees=True) > MAX_CHAMFER_ANGLE:
             continue
@@ -493,56 +448,19 @@ for vertex in dual.vertices():
 
         face = dual.halfedge_face((vertex, nbr))
         temp: Mesh = face_block[face]
-        a, b = temp.slice(cutter)
+        a, b = temp.slice(cutter)  # type: ignore
         face_block[face] = a
-
-# =============================================================================
-# Blocks: Notches
-# =============================================================================
-
-face_brep: dict[int, Brep] = {}
-
-# for face in dual.faces():
-#     block = dual.face_attribute(face, "block")
-#     brep = Brep.from_mesh(block)
-#     face_brep[face] = brep
-
-# for edge in dual.edges_where(is_interface=True):
-#     line = dual.edge_line(edge)
-#     if line.length < 5 * 2 * NOTCH_RADIUS:
-#         continue
-
-#     p1 = line.start + 1 * line.vector / 3
-#     p2 = line.start + 2 * line.vector / 3
-#     ball1 = Sphere(radius=NOTCH_RADIUS, point=p1).to_brep()
-#     ball2 = Sphere(radius=NOTCH_RADIUS, point=p2).to_brep()
-
-#     for face in dual.edge_faces(edge):
-#         brep = face_brep[face]
-#         brep.make_solid()
-
-#         try:
-#             brep = brep - ball1
-#             brep = brep - ball2
-#         except:  # noqa: E722
-#             print("notch failed")
-
-#         face_brep[face] = brep
-
-# =============================================================================
-# Blocks: Batches
-# =============================================================================
 
 # =============================================================================
 # Blocks: Fabrication data
 # =============================================================================
 
-printblocks: list[Mesh] = []
+# printblocks: list[Mesh] = []
 
-for block in blocks:
-    frame: Frame = block.attributes["frame"]
-    transformation = Transformation.from_frame_to_frame(frame.flipped(), Frame.worldXY())
-    printblocks.append(block.transformed(transformation))
+# for block in blocks:
+#     frame: Frame = block.attributes["frame"]
+#     transformation = Transformation.from_frame_to_frame(frame.flipped(), Frame.worldXY())
+#     printblocks.append(block.transformed(transformation))
 
 # =============================================================================
 # Supports (this is independent from the blocks)
@@ -551,7 +469,7 @@ for block in blocks:
 gkey_reaction: dict[str, Vector] = {}
 for vertex in mesh.vertices_where(is_support=True):
     gkey = TOL.geometric_key(mesh.vertex_point(vertex), 1)
-    rx, ry, rz = mesh.vertex_attributes(vertex, names=["_rx", "_ry", "_rz"])
+    rx, ry, rz = mesh.vertex_attributes(vertex, names=["_rx", "_ry", "_rz"])  # type: ignore
     gkey_reaction[gkey] = Vector(rx, ry, rz)
 
 supports = []
@@ -600,80 +518,39 @@ for border in dual.attributes["borders"]:
 # Visualisation
 # =============================================================================
 
-config = Config()
-config.camera.target = [500, 500, 50]
-config.camera.position = [500, -500, 100]
-config.camera.near = 1
-config.camera.far = 10000
-config.renderer.gridsize = (1000, 10, 1000, 10)
-
 TOL.lineardeflection = 1
 TOL.angulardeflection = 0.5
 
-viewer = Viewer(config=config)
-
-# =============================================================================
-# Viz: Mesh and Dual
-# =============================================================================
-
-# viewer.scene.add(mesh, show_faces=False, show_edges=True)
-# viewer.scene.add(dual, facecolor={face: Color.red() for face in tocollapse})
+viewer = Viewer()
+viewer.unit = "cm"
 
 # =============================================================================
 # Viz: Reactions
 # =============================================================================
 
 reactions = []
-
 for vertex in mesh.vertices_where(is_support=True):
     point = mesh.vertex_point(vertex)
-    residual = Vector(*mesh.vertex_attributes(vertex, names=["_rx", "_ry", "_rz"]))
+    residual = Vector(*mesh.vertex_attributes(vertex, names=["_rx", "_ry", "_rz"]))  # type: ignore
     reaction = Line.from_point_and_vector(point, residual * 0.001)
     reactions.append(reaction)
 
-viewer.scene.add(reactions, linewidth=5, linecolor=Color.green(), name="Reactions")
-
-# =============================================================================
-# Viz: Blocks
-# =============================================================================
-
-# blockgroup = []
-
-# for block in blocks:
-#     facecolor = {}
-
-#     for face in block.faces():
-#         if block.face_attribute(face, name="is_interface"):
-#             facecolor[face] = Color.green()
-#         if block.face_attribute(face, name="is_support"):
-#             facecolor[face] = Color.red()
-
-#     blockgroup.append((block, {"facecolor": facecolor}))
-
-# viewer.scene.add(blockgroup, name="Blocks")
+group = viewer.scene.add_group(name="Reactions")
+group.add_from_list(reactions, linewidth=5, linecolor=Color.green())  # type: ignore
 
 # =============================================================================
 # Viz: Supports
 # =============================================================================
 
-viewer.scene.add(supports, facecolor=Color.blue(), name="Supports")
+group = viewer.scene.add_group(name="Supports")
+group.add_from_list(supports, facecolor=Color.blue())  # type: ignore
 
 # =============================================================================
 # Viz: Cut blocks
 # =============================================================================
 
-viewer.scene.add(
-    list(face_block.values()),
-    show_faces=True,
-    show_lines=True,
-    name="Chamfered Blocks",
-)
-
-# =============================================================================
-# Viz: Notches blocks
-# =============================================================================
-
-# viewer.scene.add(list(face_brep.values()), name="Notched Blocks")
+group = viewer.scene.add_group(name="Chamfered Blocks")
+group.add_from_list(list(face_block.values()), show_faces=True, show_lines=True)  # type: ignore
 
 # =============================================================================
 # Viz: Show

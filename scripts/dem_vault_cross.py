@@ -1,5 +1,4 @@
 import pathlib
-import time
 
 from compas.colors import Color
 from compas.datastructures import Mesh
@@ -13,7 +12,7 @@ from compas_dem.models import BlockModel
 # Data
 # =============================================================================
 
-FILE = pathlib.Path(__file__).parent.parent.parent / "data" / "crossvault.obj"
+FILE = pathlib.Path(__file__).parent.parent / "data" / "crossvault.obj"
 
 obj = OBJ(FILE)
 obj.read()
@@ -32,11 +31,7 @@ for name in obj.objects:  # type: ignore
 
 model = BlockModel.from_boxes(meshes)
 
-t0 = time.time()
-
 model.compute_contacts(tolerance=0.001)
-
-print(time.time() - t0)
 
 # =============================================================================
 # Supports
@@ -55,43 +50,43 @@ color_contact = Color.cyan()
 
 viewer = Viewer()
 
-viewer.scene.add(
+group = viewer.scene.add_group(name="Supports")
+group.add_from_list(
     [element.modelgeometry for element in model.supports()],
-    facecolor=color_support,
+    facecolor=color_support,  # type: ignore
     linecolor=color_support.contrast,
-    name="Supports",
-    opacity=0.5,
+    opacity=0.5,  # type: ignore
 )
 
-viewer.scene.add(
+group = viewer.scene.add_group(name="Blocks")
+group.add_from_list(
     [element.modelgeometry for element in model.blocks()],
-    show_faces=True,
-    name="Blocks",
-    opacity=0.5,
+    show_faces=True,  # type: ignore
+    opacity=0.5,  # type: ignore
 )
 
-viewer.scene.add(
+group = viewer.scene.add_group(name="Contacts")
+group.add_from_list(
     [contact.polygon for contact in model.contacts()],
-    facecolor=color_contact,
+    surfacecolor=color_contact,  # type: ignore
     linecolor=color_contact.contrast,
-    show_lines=False,
-    name="Contacts",
-    opacity=1.0,
+    show_lines=False,  # type: ignore
+    opacity=1.0,  # type: ignore
 )
 
 # interaction graph
 
-node_point = {node: model.graph.node_element(node).point for node in model.graph.nodes()}  # type: ignore
+# node_point = {node: model.graph.node_element(node).point for node in model.graph.nodes()}  # type: ignore
 
-points = list(node_point.values())
-lines = [Line(node_point[u], node_point[v]) for u, v in model.graph.edges()]
+# points = list(node_point.values())
+# lines = [Line(node_point[u], node_point[v]) for u, v in model.graph.edges()]
 
-viewer.scene.add(
-    [
-        (points, {"pointsize": 10, "name": "Graph Nodes"}),
-        (lines, {"linewidth": 3, "name": "Graph Edges"}),
-    ],
-    name="Interaction Graph",
-)
+# viewer.scene.add(
+#     [
+#         (points, {"pointsize": 10, "name": "Graph Nodes"}),
+#         (lines, {"linewidth": 3, "name": "Graph Edges"}),
+#     ],
+#     name="Interaction Graph",
+# )
 
 viewer.show()

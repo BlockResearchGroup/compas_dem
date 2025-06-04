@@ -1,17 +1,10 @@
-import pathlib
-
-import compas
 from compas.colors import Color
 from compas.datastructures import Mesh
 from compas.geometry import SphericalSurface
-
-# from compas.tolerance import TOL
 from compas_viewer import Viewer
 
 from compas_dem.elements import Block
 from compas_dem.models import BlockModel
-
-# TOL.precision = 6
 
 # =============================================================================
 # Geometry
@@ -64,23 +57,16 @@ model.compute_contacts(tolerance=0.001)
 # Export
 # =============================================================================
 
-compas.json_dump(model, pathlib.Path(__file__).parent / "dome.json")
-
 # =============================================================================
 # Viz
 # =============================================================================
 
 viewer = Viewer()
 
-viewer.scene.add(
-    [block.modelgeometry for block in model.blocks()],
-    show_faces=False,
-    name="Blocks",
-)
-viewer.scene.add(
-    [contact.polygon for contact in model.contacts()],
-    facecolor=Color.cyan(),
-    name="Contacts",
-)
+group = viewer.scene.add_group(name="Blocks")
+group.add_from_list([block.modelgeometry for block in model.blocks()], show_faces=False)  # type: ignore
+
+group = viewer.scene.add_group(name="Contacts")
+group.add_from_list([contact.polygon for contact in model.contacts()], surfacecolor=Color.cyan())  # type: ignore
 
 viewer.show()
