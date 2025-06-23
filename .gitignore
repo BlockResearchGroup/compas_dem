@@ -112,14 +112,13 @@ dist/docs
 
 generated/
 
+*.3dm
 *.3dmbak
 *.rhl
 
 temp/**
 
 src/.build/**
-
-data/
 
 *.tar.gz
 
