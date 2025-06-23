@@ -4,7 +4,13 @@ from typing import Type
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
+from compas.geometry import Frame
+from compas.geometry import Line
+from compas.geometry import Plane
 from compas.geometry import Polyhedron
+from compas.geometry import bestfit_frame_numpy
+from compas.geometry import trimesh_remesh
+from compas.itertools import pairwise
 from compas_model.interactions import Contact
 from compas_model.models import Model
 
@@ -12,6 +18,94 @@ from compas_dem.elements import Block
 from compas_dem.interactions import FrictionContact
 from compas_dem.templates import BarrelVaultTemplate
 from compas_dem.templates import Template
+
+
+def isotropic_triangulation_dual(mesh: Mesh, lengthfactor: float = 1.0) -> Mesh:
+    trimesh: Mesh = mesh.copy()
+    trimesh.quads_to_triangles()
+
+    V, F = trimesh.to_vertices_and_faces()
+    for face in F:
+        if len(face) == 3:
+            face.append(face[0])
+
+    average_length = sum(mesh.edge_length(edge) for edge in mesh.edges()) / mesh.number_of_edges()
+    target_edge_length = lengthfactor * average_length
+
+    V, F = trimesh_remesh(
+        (V, F),
+        target_edge_length=target_edge_length,
+        number_of_iterations=100,
+    )  # type: ignore
+
+    trimesh = Mesh.from_vertices_and_faces(V, F)  # type: ignore
+    return trimesh.dual(include_boundary=True)
+
+
+def pattern_inverse_height_thickness(pattern: Mesh, tmin=None, tmax=None):
+    x: list[float] = pattern.vertices_attribute(name="x")  # type: ignore
+    xmin = min(x)
+    xmax = max(x)
+    dx = xmax - xmin
+
+    y: list[float] = pattern.vertices_attribute(name="y")  # type: ignore
+    ymin = min(y)
+    ymax = max(y)
+    dy = ymax - ymin
+
+    d = (dx**2 + dy**2) ** 0.5
+
+    tmin = tmin or 3 * d / 1000
+    tmax = tmax or 50 * d / 1000
+
+    pattern.update_default_vertex_attributes(thickness=0)
+    zvalues: list[float] = pattern.vertices_attribute(name="z")  # type: ignore
+    zmin = min(zvalues)
+    zmax = max(zvalues)
+
+    for vertex in pattern.vertices():
+        point = pattern.vertex_point(vertex)
+        z = (point.z - zmin) / (zmax - zmin)
+        thickness = (1 - z) * (tmax - tmin) + tmin
+        pattern.vertex_attribute(vertex, name="thickness", value=thickness)
+
+
+def pattern_idos(pattern: Mesh) -> Mesh:
+    idos: Mesh = pattern.copy()
+    for vertex in idos.vertices():
+        point = pattern.vertex_point(vertex)
+        normal = pattern.vertex_normal(vertex)
+        thickness = pattern.vertex_attribute(vertex, name="thickness")
+        idos.vertex_attributes(vertex, names="xyz", values=point - normal * (0.5 * thickness))  # type: ignore
+    return idos
+
+
+def pattern_face_block(pattern, idos, face) -> Mesh:
+    vertices = pattern.face_vertices(face)
+    normals = [pattern.vertex_normal(vertex) for vertex in vertices]
+    thickness = pattern.vertices_attribute("thickness", keys=vertices)
+    bottom = idos.vertices_points(vertices)
+    top = [point + vector * t for point, vector, t in zip(bottom, normals, thickness)]  # type: ignore
+    frame = Frame(*bestfit_frame_numpy(top))
+    plane = Plane.from_frame(frame)
+    flattop = []
+    for a, b in zip(bottom, top):
+        b = plane.intersection_with_line(Line(a, b))
+        flattop.append(b)
+    sides = []
+    for (a, b), (aa, bb) in zip(pairwise(bottom + bottom[:1]), pairwise(flattop + flattop[:1])):
+        sides.append([a, b, bb, aa])
+    polygons = [bottom[::-1], flattop] + sides
+    block: Mesh = Mesh.from_polygons(polygons)
+    return block
+
+
+def pattern_blocks(pattern: Mesh, idos: Mesh) -> dict[int, Mesh]:
+    face_block: dict[int, Mesh] = {}
+    face: int
+    for face in pattern.faces():  # type: ignore
+        face_block[face] = pattern_face_block(pattern, idos, face)
+    return face_block
 
 
 class BlockModel(Model):
@@ -71,7 +165,7 @@ class BlockModel(Model):
         return model
 
     @classmethod
-    def from_polysurfaces(cls, guids):
+    def from_polysurfaces(cls, guids) -> "BlockModel":
         """Construct a model from Rhino polysurfaces.
 
         Parameters
@@ -87,7 +181,7 @@ class BlockModel(Model):
         raise NotImplementedError
 
     @classmethod
-    def from_rhinomeshes(cls, guids):
+    def from_rhinomeshes(cls, guids) -> "BlockModel":
         """Construct a model from Rhino meshes.
 
         Parameters
@@ -103,11 +197,11 @@ class BlockModel(Model):
         raise NotImplementedError
 
     @classmethod
-    def from_stack(cls):
+    def from_stack(cls) -> "BlockModel":
         raise NotImplementedError
 
     @classmethod
-    def from_wall(cls):
+    def from_wall(cls) -> "BlockModel":
         raise NotImplementedError
 
     @classmethod
@@ -131,38 +225,56 @@ class BlockModel(Model):
     #     raise NotImplementedError
 
     @classmethod
-    def from_barrelvault(cls, template: BarrelVaultTemplate):
+    def from_barrelvault(cls, template: BarrelVaultTemplate) -> "BlockModel":
         """"""
         model = cls()
         for mesh in template.blocks():
-            # origin = mesh.face_polygon(5).frame.point
-            # frame = Frame(origin, mesh.vertex_point(0) - mesh.vertex_point(2), mesh.vertex_point(4) - mesh.vertex_point(2))
-            # xform = Transformation.from_frame_to_frame(frame, Frame.worldXY())
-            # mesh_xy: Mesh = mesh.transformed(xform)
             block: Block = Block.from_mesh(mesh)
-            # block.is_support = mesh_xy.attributes["is_support"]
-            # block.transformation = xform.inverted()
             model.add_element(block)
         return model
 
     # @classmethod
-    # def from_crossvault(cls):
+    # def from_crossvault(cls) -> "BlockModel":
     #     raise NotImplementedError
 
     # @classmethod
-    # def from_fanvault(cls):
+    # def from_fanvault(cls) -> "BlockModel":
     #     raise NotImplementedError
 
     # @classmethod
-    # def from_pavilionvault(cls):
+    # def from_pavilionvault(cls) -> "BlockModel":
     #     raise NotImplementedError
 
     @classmethod
-    def from_meshpattern(cls):
+    def from_meshdual(cls, mesh: Mesh, lengthfactor: float = 1.0, tmin=None, tmax=None) -> "BlockModel":
+        pattern = isotropic_triangulation_dual(mesh, lengthfactor)
+        pattern_inverse_height_thickness(pattern, tmin=tmin, tmax=tmax)
+        idos = pattern_idos(pattern)
+        face_block: dict[int, Mesh] = pattern_blocks(pattern, idos)
+
+        face: int
+        face_node: dict[int, int] = {}
+
+        model = cls()
+        for face, block in face_block.items():
+            node = model.add_block_from_mesh(block)
+            face_node[face] = node
+
+        for face in pattern.faces():  # type: ignore
+            u = face_node[face]
+            nbrs = pattern.face_neighbors(face)
+            for nbr in nbrs:
+                v = face_node[nbr]
+                model.graph.add_edge(u, v)
+
+        return model
+
+    @classmethod
+    def from_meshpattern(cls) -> "BlockModel":
         raise NotImplementedError
 
     @classmethod
-    def from_nurbssurface(cls):
+    def from_nurbssurface(cls) -> "BlockModel":
         raise NotImplementedError
 
     # =============================================================================
