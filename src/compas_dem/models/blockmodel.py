@@ -42,7 +42,7 @@ def isotropic_triangulation_dual(mesh: Mesh, lengthfactor: float = 1.0) -> Mesh:
 
     trimesh = Mesh.from_vertices_and_faces(V, F)  # type: ignore
     dual: Mesh = trimesh.dual(include_boundary=True)
-    project_mesh_to_target(dual, temp)
+    # project_mesh_to_target(dual, temp)
 
     return dual
 
@@ -357,8 +357,9 @@ class BlockModel(Model):
 
         trimesh = Mesh.from_vertices_and_faces(V, F)  # type: ignore
         pattern = map_pattern_to_mesh(patternname, trimesh, **kwargs)
+        pattern.unify_cycles()
 
-        project_mesh_to_target(pattern, temp)
+        # project_mesh_to_target(pattern, temp)
         pattern_inverse_height_thickness(pattern, tmin=tmin, tmax=tmax)
         idos = pattern_idos(pattern)
         face_block: dict[int, Mesh] = pattern_blocks(pattern, idos)
