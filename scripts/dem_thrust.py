@@ -14,6 +14,7 @@ from compas_dem.models import BlockModel
 filepath = pathlib.Path(__file__).parent.parent / "data" / "ThrustDiagram.json"
 
 mesh: Mesh = compas.json_load(filepath)  # type: ignore
+mesh.flip_cycles()
 
 # =============================================================================
 # Model and interactions
@@ -29,10 +30,12 @@ model = BlockModel.from_meshdual(mesh, tmin=0.03, tmax=0.3)
 
 viewer = Viewer()
 
+blockgroup = viewer.scene.add_group(name="Blocks")
 for element in model.elements():
-    viewer.scene.add(element.modelgeometry, show_faces=True)
+    blockgroup.add(element.modelgeometry, show_faces=False)  # type: ignore
 
+contactgroup = viewer.scene.add_group(name="Contacts")
 for contact in model.contacts():
-    viewer.scene.add(contact.polygon, facecolor=Color.green())
+    contactgroup.add(contact.polygon, facecolor=Color.green())  # type: ignore
 
 viewer.show()
