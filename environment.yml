@@ -1,4 +1,4 @@
-name: masonry-dev
+name: dem-dev
 channels:
   - conda-forge
 dependencies:
@@ -9,4 +9,7 @@ dependencies:
   - pyomo ==6.4.2
   - numpy <2.0
   - pip:
-      - -e .[dev,analysis]
+      - tessagon
+      - -r requirements-dev.txt
+      - -r requirements-analysis.txt
+      - .
