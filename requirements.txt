@@ -1,2 +1,3 @@
 compas >= 2.4
 compas_model
+compas_viewer
