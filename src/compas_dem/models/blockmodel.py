@@ -11,6 +11,8 @@ from compas.geometry import Polyhedron
 from compas.geometry import bestfit_frame_numpy
 from compas.geometry import trimesh_remesh
 from compas.itertools import pairwise
+from compas_cgal.meshing import mesh_dual
+from compas_libigl.intersections import intersection_ray_mesh
 from compas_model.interactions import Contact
 from compas_model.models import Model
 
@@ -21,25 +23,42 @@ from compas_dem.templates import Template
 
 
 def isotropic_triangulation_dual(mesh: Mesh, lengthfactor: float = 1.0) -> Mesh:
-    trimesh: Mesh = mesh.copy()
-    trimesh.quads_to_triangles()
+    average_length = sum(mesh.edge_length(edge) for edge in mesh.edges()) / mesh.number_of_edges()
+    target_edge_length = lengthfactor * average_length
 
-    V, F = trimesh.to_vertices_and_faces()
+    temp: Mesh = mesh.copy()
+    temp.quads_to_triangles()
+    V, F = temp.to_vertices_and_faces()
     for face in F:
         if len(face) == 3:
             face.append(face[0])
-
-    average_length = sum(mesh.edge_length(edge) for edge in mesh.edges()) / mesh.number_of_edges()
-    target_edge_length = lengthfactor * average_length
 
     V, F = trimesh_remesh(
         (V, F),
         target_edge_length=target_edge_length,
         number_of_iterations=100,
+        do_project=True,
     )  # type: ignore
 
-    trimesh = Mesh.from_vertices_and_faces(V, F)  # type: ignore
-    return trimesh.dual(include_boundary=True)
+    # trimesh = Mesh.from_vertices_and_faces(V, F)  # type: ignore
+    # dual: Mesh = trimesh.dual(include_boundary=True)
+    # project_mesh_to_target(dual, temp)
+
+    V, F = mesh_dual((V, F), circumcenter=False)
+    dual: Mesh = Mesh.from_vertices_and_faces(V, F)
+
+    return dual
+
+
+def project_mesh_to_target(mesh: Mesh, target: Mesh):
+    V, F = target.to_vertices_and_faces()
+    for vertex in mesh.vertices():
+        point = mesh.vertex_point(vertex)
+        normal = mesh.vertex_normal(vertex)
+        x = intersection_ray_mesh((point, normal), (V, F))
+        if not x:
+            x = intersection_ray_mesh((point, normal * -1), (V, F))
+        print(x)
 
 
 def pattern_inverse_height_thickness(pattern: Mesh, tmin=None, tmax=None):
@@ -80,7 +99,7 @@ def pattern_idos(pattern: Mesh) -> Mesh:
     return idos
 
 
-def pattern_face_block(pattern, idos, face) -> Mesh:
+def pattern_face_block(pattern: Mesh, idos: Mesh, face: int) -> Mesh:
     vertices = pattern.face_vertices(face)
     normals = [pattern.vertex_normal(vertex) for vertex in vertices]
     thickness = pattern.vertices_attribute("thickness", keys=vertices)
