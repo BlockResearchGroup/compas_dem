@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added `BlockModel.from_triangulation_dual`.
+* Added `BlockModel.from_meshpattern`.
+* Added `compas_dem.viewer.Viewer`.
+
 ### Changed
 
 ### Removed
