@@ -1,14 +1,6 @@
-from typing import Optional
-from typing import Sequence
-from typing import Union
-
 from compas.colors import Color
-from compas.geometry import Cylinder
 from compas.geometry import Line
 from compas.scene import Group
-from compas.scene import SceneObject
-from compas_tna.diagrams import ForceDiagram
-from compas_tna.diagrams import FormDiagram
 from compas_viewer.config import Config
 from compas_viewer.config import MenubarConfig
 from compas_viewer.scene import ViewerSceneObject
