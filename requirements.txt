@@ -1,3 +1,4 @@
 compas >= 2.4
+compas_libigl
 compas_model
 compas_viewer

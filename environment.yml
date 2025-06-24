@@ -9,4 +9,4 @@ dependencies:
   - pyomo ==6.4.2
   - numpy <2.0
   - pip:
-      - -e ".[dev,analysis]"
+      - -e .[dev,analysis]
