@@ -1,8 +1,6 @@
-from compas.colors import Color
-from compas_viewer import Viewer
-
 from compas_dem.models import BlockModel
 from compas_dem.templates import BarrelVaultTemplate
+from compas_dem.viewer import DEMViewer
 
 # =============================================================================
 # Template
@@ -22,12 +20,7 @@ model.compute_contacts(tolerance=0.001)
 # Viz
 # =============================================================================
 
-viewer = Viewer()
+viewer = DEMViewer(model)
 
-for element in model.elements():
-    viewer.scene.add(element.modelgeometry, show_faces=False)
-
-for contact in model.contacts():
-    viewer.scene.add(contact.polygon, facecolor=Color.green())
-
+viewer.setup()
 viewer.show()

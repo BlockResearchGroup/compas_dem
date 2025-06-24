@@ -1,11 +1,10 @@
 import pathlib
 
 import compas
-from compas.colors import Color
 from compas.datastructures import Mesh
-from compas_viewer import Viewer
 
 from compas_dem.models import BlockModel
+from compas_dem.viewer import DEMViewer
 
 # =============================================================================
 # ThrustDiagram
@@ -14,13 +13,12 @@ from compas_dem.models import BlockModel
 filepath = pathlib.Path(__file__).parent.parent / "data" / "ThrustDiagram.json"
 
 mesh: Mesh = compas.json_load(filepath)  # type: ignore
-mesh.flip_cycles()
 
 # =============================================================================
 # Model and interactions
 # =============================================================================
 
-model = BlockModel.from_meshdual(mesh, tmin=0.03, tmax=0.3)
+model = BlockModel.from_meshpattern(mesh, "ZigZag", tmin=0.05, tmax=0.3)
 
 # model.compute_contacts(tolerance=0.001)
 
@@ -28,14 +26,7 @@ model = BlockModel.from_meshdual(mesh, tmin=0.03, tmax=0.3)
 # Viz
 # =============================================================================
 
-viewer = Viewer()
+viewer = DEMViewer(model)
 
-blockgroup = viewer.scene.add_group(name="Blocks")
-for element in model.elements():
-    blockgroup.add(element.modelgeometry, show_faces=False)  # type: ignore
-
-contactgroup = viewer.scene.add_group(name="Contacts")
-for contact in model.contacts():
-    contactgroup.add(contact.polygon, facecolor=Color.green())  # type: ignore
-
+viewer.setup()
 viewer.show()

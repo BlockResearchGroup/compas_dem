@@ -1,11 +1,10 @@
 import math
 import random
 
-from compas.colors import Color
 from compas.geometry import Box
-from compas_viewer import Viewer
 
 from compas_dem.models import BlockModel
+from compas_dem.viewer import DEMViewer
 
 # =============================================================================
 # Block Geometry
@@ -32,18 +31,15 @@ for i in range(10):
 
 model = BlockModel.from_boxes(blocks)
 
+next(model.blocks()).is_support = True
+
 model.compute_contacts()
 
 # =============================================================================
 # Viz
 # =============================================================================
 
-viewer = Viewer()
+viewer = DEMViewer(model)
 
-for element in model.elements():
-    viewer.scene.add(element.modelgeometry, show_faces=False)
-
-for contact in model.contacts():
-    viewer.scene.add(contact.polygon, facecolor=Color.green())
-
+viewer.setup()
 viewer.show()

@@ -1,10 +1,9 @@
-from compas.colors import Color
 from compas.datastructures import Mesh
 from compas.geometry import SphericalSurface
-from compas_viewer import Viewer
 
 from compas_dem.elements import Block
 from compas_dem.models import BlockModel
+from compas_dem.viewer import DEMViewer
 
 # =============================================================================
 # Geometry
@@ -61,12 +60,7 @@ model.compute_contacts(tolerance=0.001)
 # Viz
 # =============================================================================
 
-viewer = Viewer()
+viewer = DEMViewer(model)
 
-group = viewer.scene.add_group(name="Blocks")
-group.add_from_list([block.modelgeometry for block in model.blocks()], show_faces=False)  # type: ignore
-
-group = viewer.scene.add_group(name="Contacts")
-group.add_from_list([contact.polygon for contact in model.contacts()], surfacecolor=Color.cyan())  # type: ignore
-
+viewer.setup()
 viewer.show()

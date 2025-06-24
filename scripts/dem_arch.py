@@ -1,8 +1,6 @@
-from compas.colors import Color
-from compas_viewer import Viewer
-
 from compas_dem.models import BlockModel
 from compas_dem.templates import ArchTemplate
+from compas_dem.viewer import DEMViewer
 
 # =============================================================================
 # Template
@@ -11,23 +9,29 @@ from compas_dem.templates import ArchTemplate
 template = ArchTemplate(rise=3, span=10, thickness=0.5, depth=0.5, n=50)
 
 # =============================================================================
-# Model and interactions
+# Model
 # =============================================================================
 
 model = BlockModel.from_template(template)
 
+# =============================================================================
+# Interactions
+# =============================================================================
+
 model.compute_contacts(tolerance=0.001)
+
+# =============================================================================
+# Supports
+# =============================================================================
+
+for node in model.graph.nodes_where(degree=1):
+    model.graph.node_element(node).is_support = True  # type: ignore
 
 # =============================================================================
 # Viz
 # =============================================================================
 
-viewer = Viewer()
+viewer = DEMViewer(model)
 
-for element in model.elements():
-    viewer.scene.add(element.modelgeometry, show_faces=False)
-
-for contact in model.contacts():
-    viewer.scene.add(contact.polygon, surfacecolor=Color.cyan())
-
+viewer.setup()
 viewer.show()
