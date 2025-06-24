@@ -14,4 +14,3 @@ Classes
 
     Block
     BlockFeature
-    BlockMesh
