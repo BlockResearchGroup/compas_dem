@@ -11,8 +11,8 @@ from compas.geometry import Polyhedron
 from compas.geometry import bestfit_frame_numpy
 from compas.geometry import trimesh_remesh
 from compas.itertools import pairwise
-from compas_cgal.meshing import mesh_dual
 from compas_libigl.intersections import intersection_ray_mesh
+from compas_libigl.mapping import map_pattern_to_mesh
 from compas_model.interactions import Contact
 from compas_model.models import Model
 
@@ -40,12 +40,9 @@ def isotropic_triangulation_dual(mesh: Mesh, lengthfactor: float = 1.0) -> Mesh:
         do_project=True,
     )  # type: ignore
 
-    # trimesh = Mesh.from_vertices_and_faces(V, F)  # type: ignore
-    # dual: Mesh = trimesh.dual(include_boundary=True)
-    # project_mesh_to_target(dual, temp)
-
-    V, F = mesh_dual((V, F), circumcenter=False)
-    dual: Mesh = Mesh.from_vertices_and_faces(V, F)
+    trimesh = Mesh.from_vertices_and_faces(V, F)  # type: ignore
+    dual: Mesh = trimesh.dual(include_boundary=True)
+    project_mesh_to_target(dual, temp)
 
     return dual
 
@@ -56,9 +53,11 @@ def project_mesh_to_target(mesh: Mesh, target: Mesh):
         point = mesh.vertex_point(vertex)
         normal = mesh.vertex_normal(vertex)
         x = intersection_ray_mesh((point, normal), (V, F))
-        if not x:
+        if not len(x):
             x = intersection_ray_mesh((point, normal * -1), (V, F))
-        print(x)
+        if len(x):
+            d = x[0][3]
+            mesh.vertex_attributes(vertex, "xyz", point + normal * d)
 
 
 def pattern_inverse_height_thickness(pattern: Mesh, tmin=None, tmax=None):
@@ -215,13 +214,9 @@ class BlockModel(Model):
         """
         raise NotImplementedError
 
-    @classmethod
-    def from_stack(cls) -> "BlockModel":
-        raise NotImplementedError
-
-    @classmethod
-    def from_wall(cls) -> "BlockModel":
-        raise NotImplementedError
+    # =============================================================================
+    # Templates
+    # =============================================================================
 
     @classmethod
     def from_template(cls, template: Template) -> "BlockModel":
@@ -239,9 +234,17 @@ class BlockModel(Model):
         """
         return cls.from_boxes(template.blocks())
 
-    # @classmethod
-    # def from_arch(cls):
-    #     raise NotImplementedError
+    @classmethod
+    def from_stack(cls) -> "BlockModel":
+        raise NotImplementedError
+
+    @classmethod
+    def from_wall(cls) -> "BlockModel":
+        raise NotImplementedError
+
+    @classmethod
+    def from_arch(cls):
+        raise NotImplementedError
 
     @classmethod
     def from_barrelvault(cls, template: BarrelVaultTemplate) -> "BlockModel":
@@ -252,21 +255,46 @@ class BlockModel(Model):
             model.add_element(block)
         return model
 
-    # @classmethod
-    # def from_crossvault(cls) -> "BlockModel":
-    #     raise NotImplementedError
-
-    # @classmethod
-    # def from_fanvault(cls) -> "BlockModel":
-    #     raise NotImplementedError
-
-    # @classmethod
-    # def from_pavilionvault(cls) -> "BlockModel":
-    #     raise NotImplementedError
+    @classmethod
+    def from_crossvault(cls) -> "BlockModel":
+        raise NotImplementedError
 
     @classmethod
-    def from_meshdual(cls, mesh: Mesh, lengthfactor: float = 1.0, tmin=None, tmax=None) -> "BlockModel":
+    def from_fanvault(cls) -> "BlockModel":
+        raise NotImplementedError
+
+    @classmethod
+    def from_pavilionvault(cls) -> "BlockModel":
+        raise NotImplementedError
+
+    # =============================================================================
+    # Patterns
+    # =============================================================================
+
+    @classmethod
+    def from_triangulation_dual(cls, mesh: Mesh, lengthfactor: float = 1.0, tmin=None, tmax=None) -> "BlockModel":
+        """Construct a Block Model from the dual of an isotropically remeshed triangulation of the input mesh.
+
+        Parameters
+        ----------
+        mesh : :class:`Mesh`
+            The input mesh.
+        lengthfactor : float, optional
+            Multiplication factor to for the average length of the mesh to compute the target edge length of the remeshed triangulation.
+        tmin : float, optional
+            Minimum thickness of the blocks.
+            If none is provided, the minimum thickness will be 3/1000 of the diagonal of the xy bounding box of the input mesh.
+        tmax : float, optional
+            Maximum thickness of the blocks.
+            If none is provided, the maximum thickness will be 50/1000 of the diagonal of the xy bounding box of the input mesh.
+
+        Returns
+        -------
+        :class:`BlockModel`
+
+        """
         pattern = isotropic_triangulation_dual(mesh, lengthfactor)
+        pattern.flip_cycles()
         pattern_inverse_height_thickness(pattern, tmin=tmin, tmax=tmax)
         idos = pattern_idos(pattern)
         face_block: dict[int, Mesh] = pattern_blocks(pattern, idos)
@@ -289,11 +317,83 @@ class BlockModel(Model):
         return model
 
     @classmethod
-    def from_meshpattern(cls) -> "BlockModel":
-        raise NotImplementedError
+    def from_meshpattern(cls, mesh: Mesh, patternname: str, tmin=None, tmax=None, **kwargs) -> "BlockModel":
+        """Construct a Block Model from the dual of an isotropically remeshed triangulation of the input mesh.
+
+        Parameters
+        ----------
+        mesh : :class:`Mesh`
+            The input mesh.
+        patternname : str
+            The name of the tessagon pattern.
+        tmin : float, optional
+            Minimum thickness of the blocks.
+            If none is provided, the minimum thickness will be 3/1000 of the diagonal of the xy bounding box of the input mesh.
+        tmax : float, optional
+            Maximum thickness of the blocks.
+            If none is provided, the maximum thickness will be 50/1000 of the diagonal of the xy bounding box of the input mesh.
+
+        Returns
+        -------
+        :class:`BlockModel`
+
+        """
+        average_length = sum(mesh.edge_length(edge) for edge in mesh.edges()) / mesh.number_of_edges()
+        target_edge_length = 0.5 * average_length
+
+        temp: Mesh = mesh.copy()
+        temp.quads_to_triangles()
+        V, F = temp.to_vertices_and_faces()
+        for f in F:
+            if len(f) == 3:
+                f.append(f[0])
+
+        V, F = trimesh_remesh(
+            (V, F),
+            target_edge_length=target_edge_length,
+            number_of_iterations=100,
+            do_project=True,
+        )  # type: ignore
+
+        trimesh = Mesh.from_vertices_and_faces(V, F)  # type: ignore
+        pattern = map_pattern_to_mesh(patternname, trimesh, **kwargs)
+
+        project_mesh_to_target(pattern, temp)
+        pattern_inverse_height_thickness(pattern, tmin=tmin, tmax=tmax)
+        idos = pattern_idos(pattern)
+        face_block: dict[int, Mesh] = pattern_blocks(pattern, idos)
+
+        face: int
+        face_node: dict[int, int] = {}
+
+        model = cls()
+        for face, block in face_block.items():
+            node = model.add_block_from_mesh(block)
+            face_node[face] = node
+
+        for face in pattern.faces():  # type: ignore
+            u = face_node[face]
+            nbrs = pattern.face_neighbors(face)
+            for nbr in nbrs:
+                v = face_node[nbr]
+                model.graph.add_edge(u, v)
+
+        return model
 
     @classmethod
     def from_nurbssurface(cls) -> "BlockModel":
+        """Construct a model from Rhino polysurfaces.
+
+        Parameters
+        ----------
+        guids : list[str]
+            A list of GUIDs identifying the poly-surfaces representing the blocks of the model.
+
+        Returns
+        -------
+        :class:`BlockModel`
+
+        """
         raise NotImplementedError
 
     # =============================================================================
