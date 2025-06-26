@@ -9,8 +9,10 @@ from compas.geometry import Line
 from compas.geometry import Plane
 from compas.geometry import Polyhedron
 from compas.geometry import bestfit_frame_numpy
-from compas.geometry import trimesh_remesh
 from compas.itertools import pairwise
+from compas_cgal.meshing import project_mesh_on_mesh
+from compas_cgal.meshing import trimesh_dual
+from compas_cgal.meshing import trimesh_remesh
 from compas_libigl.intersections import intersection_ray_mesh
 from compas_libigl.mapping import map_pattern_to_mesh
 from compas_model.interactions import Contact
@@ -20,31 +22,6 @@ from compas_dem.elements import Block
 from compas_dem.interactions import FrictionContact
 from compas_dem.templates import BarrelVaultTemplate
 from compas_dem.templates import Template
-
-
-def isotropic_triangulation_dual(mesh: Mesh, lengthfactor: float = 1.0) -> Mesh:
-    average_length = sum(mesh.edge_length(edge) for edge in mesh.edges()) / mesh.number_of_edges()
-    target_edge_length = lengthfactor * average_length
-
-    temp: Mesh = mesh.copy()
-    temp.quads_to_triangles()
-    V, F = temp.to_vertices_and_faces()
-    for face in F:
-        if len(face) == 3:
-            face.append(face[0])
-
-    V, F = trimesh_remesh(
-        (V, F),
-        target_edge_length=target_edge_length,
-        number_of_iterations=100,
-        do_project=True,
-    )  # type: ignore
-
-    trimesh = Mesh.from_vertices_and_faces(V, F)  # type: ignore
-    dual: Mesh = trimesh.dual(include_boundary=True)
-    project_mesh_to_target(dual, temp)
-
-    return dual
 
 
 def project_mesh_to_target(mesh: Mesh, target: Mesh):
@@ -293,11 +270,17 @@ class BlockModel(Model):
         :class:`BlockModel`
 
         """
-        pattern = isotropic_triangulation_dual(mesh, lengthfactor)
-        pattern.flip_cycles()
-        pattern_inverse_height_thickness(pattern, tmin=tmin, tmax=tmax)
-        idos = pattern_idos(pattern)
-        face_block: dict[int, Mesh] = pattern_blocks(pattern, idos)
+        temp: Mesh = mesh.copy()
+        temp.quads_to_triangles()
+        M = temp.to_vertices_and_faces()
+
+        V1, F1, V2, F2 = trimesh_dual(M, length_factor=lengthfactor, number_of_iterations=100)  # type: ignore
+        dual = Mesh.from_vertices_and_faces(V2, F2)
+        dual.unify_cycles()
+
+        pattern_inverse_height_thickness(dual, tmin=tmin, tmax=tmax)
+        idos = pattern_idos(dual)
+        face_block: dict[int, Mesh] = pattern_blocks(dual, idos)
 
         face: int
         face_node: dict[int, int] = {}
@@ -307,9 +290,9 @@ class BlockModel(Model):
             node = model.add_block_from_mesh(block)
             face_node[face] = node
 
-        for face in pattern.faces():  # type: ignore
+        for face in dual.faces():  # type: ignore
             u = face_node[face]
-            nbrs = pattern.face_neighbors(face)
+            nbrs = dual.face_neighbors(face)
             for nbr in nbrs:
                 v = face_node[nbr]
                 model.graph.add_edge(u, v)
@@ -340,26 +323,14 @@ class BlockModel(Model):
         """
         average_length = sum(mesh.edge_length(edge) for edge in mesh.edges()) / mesh.number_of_edges()
         target_edge_length = 0.5 * average_length
-
         temp: Mesh = mesh.copy()
         temp.quads_to_triangles()
-        V, F = temp.to_vertices_and_faces()
-        for f in F:
-            if len(f) == 3:
-                f.append(f[0])
-
-        V, F = trimesh_remesh(
-            (V, F),
-            target_edge_length=target_edge_length,
-            number_of_iterations=100,
-            do_project=True,
-        )  # type: ignore
-
+        M = temp.to_vertices_and_faces()
+        V, F = trimesh_remesh(M, target_edge_length=target_edge_length, number_of_iterations=100)  # type: ignore
         trimesh = Mesh.from_vertices_and_faces(V, F)  # type: ignore
         pattern = map_pattern_to_mesh(patternname, trimesh, **kwargs)
         pattern.unify_cycles()
-
-        project_mesh_to_target(pattern, temp)
+        project_mesh_on_mesh(pattern, trimesh)  # type: ignore
         pattern_inverse_height_thickness(pattern, tmin=tmin, tmax=tmax)
         idos = pattern_idos(pattern)
         face_block: dict[int, Mesh] = pattern_blocks(pattern, idos)
