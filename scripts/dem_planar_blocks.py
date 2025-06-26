@@ -124,8 +124,8 @@ blocks = offset_planar_blocks(
     chamfer=0.1, 
     thickness_scale_bottom=0.5, 
     thickness_scale_top=1.0, 
-    project_bottom=True, 
-    project_top=False,
+    project_bottom=False, 
+    project_top=True,
     tolerance_parallel=0.5)
 
 # =============================================================================
@@ -144,5 +144,8 @@ for block in blocks:
 
 for contact in model.contacts():
     viewer.scene.add(contact.polygon, surfacecolor=Color.cyan())
+
+for block in blocks:
+    viewer.scene.add(block.attributes["orientation_frame"])
 
 viewer.show()

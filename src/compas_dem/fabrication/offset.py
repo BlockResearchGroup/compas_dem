@@ -211,9 +211,16 @@ def offset_planar_blocks(
         bottom_points: list[Point] = []
         o: Point = m_o.face_centroid(face)
         pl: Plane = Plane(o, m_o.face_normal(face))
+        fv: list[int] = m_o.face_vertices(face)
+
+        p0: Point = pl.projected_point(m_o.vertex_point(fv[0]))
+        p1: Point = pl.projected_point(m_o.vertex_point(fv[1]))
+        x: Vector = p1 - p0
+        y: Vector = x.cross(-pl.normal)
+        orientation_frame: Frame = Frame(o, x, y)
 
         # We iterated over the face vertices and intersect the normal lines with the plane
-        fv: list[int] = m_o.face_vertices(face)
+
         for idx, halfedge in enumerate(m_o.face_halfedges(face)):
             # If we want to keep have continouos m_o we construct planes at each vertex using their normals:
             if not project_bottom:
@@ -251,6 +258,9 @@ def offset_planar_blocks(
         thickness_average: float = sum(vertex_thickness) / len(vertex_thickness) * thickness_scale_top
         o: Point = m_o.face_centroid(face)
         pl: Plane = Plane(o + m_o.face_normal(face) * thickness_average, m_o.face_normal(face))
+        if project_top:
+            orientation_frame.translate(orientation_frame.zaxis * thickness_average)
+            orientation_frame.flip()
 
         # We iterated over the face vertices and intersect the normal lines with the plane
         fv: list[int] = m_o.face_vertices(face)
@@ -293,6 +303,7 @@ def offset_planar_blocks(
         polygons: list[list[int]] = [bottom_points[::-1], top_points] + sides
 
         block: Mesh = Mesh.from_polygons(polygons)
+        block.attributes["orientation_frame"] = orientation_frame
         blocks.append(block)
 
     return blocks
