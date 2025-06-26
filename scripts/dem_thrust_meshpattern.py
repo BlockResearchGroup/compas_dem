@@ -24,13 +24,13 @@ patternname = random.choice(list(TESSAGON_TYPES.keys()))
 
 model = BlockModel.from_meshpattern(mesh, patternname, tmin=0.05, tmax=0.3)
 
-model.compute_contacts(tolerance=0.001)
+# # model.compute_contacts(tolerance=0.001)
 
 # =============================================================================
 # Viz
 # =============================================================================
 
 viewer = DEMViewer(model)
-
+viewer.scene.add(mesh)
 viewer.setup()
 viewer.show()
