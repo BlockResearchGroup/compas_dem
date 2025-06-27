@@ -4,16 +4,20 @@
 
 import pathlib
 import compas
-from compas.colors import Color
 from compas.datastructures import Mesh
+from compas.geometry import Frame
 from compas.geometry import Point
+from compas.geometry import Transformation
+from compas.geometry import Polyhedron
 from compas.scene import MeshObject
 from compas.scene import Scene
 from compas_libigl.mapping import map_mesh
 from compas_cgal.meshing import mesh_remesh
 from compas_viewer import Viewer
 from compas_dem.models import BlockModel
-from compas_dem.fabrication.offset import offset_planar_blocks
+from compas_dem.modifiers.boolean_difference_modifier import BooleanDifferenceModifier
+from compas_dem.modifiers.boolean_union_modifier import BooleanUnionModifier
+from compas_dem.elements.interface import Interface
 
 # =============================================================================
 # Session data
@@ -74,10 +78,10 @@ for vertex in mesh.vertices():
 
 pattern = Mesh.from_polygons(user_2d_pattern)
 
-mv, mf, mn, mb, mg = map_mesh(trimesh.to_vertices_and_faces(), pattern.to_vertices_and_faces(), clip_boundaries=True, fixed_vertices=fixed_vertices, tolerance=1e-3)
+mv, mf, mn, mb, mg = map_mesh(trimesh.to_vertices_and_faces(), pattern.to_vertices_and_faces(), clip_boundaries=False, fixed_vertices=fixed_vertices, tolerance=1e-3)
 pattern = Mesh.from_vertices_and_faces(mv, mf)
 pattern.unify_cycles() # Unify the winding of polygons since user pattern winding might be inconsistent
-
+pattern.flip_cycles()
 temp_polygons = pattern.to_polygons()
 
 # =============================================================================
@@ -117,35 +121,78 @@ for vertex in idos.vertices():
 # =============================================================================
 
 viewer = Viewer()
-viewer.scene.add(pattern, name="Pattern", opacity=0.5)
-blocks = offset_planar_blocks(
-    pattern, 
-    offset=0.0,
-    chamfer=0.1, 
-    thickness_scale_bottom=0.5, 
-    thickness_scale_top=1.0, 
-    project_bottom=False, 
-    project_top=True,
-    tolerance_parallel=0.5)
+viewer.scene.add(pattern.copy(), name="Pattern")
+
 
 # =============================================================================
 # Model
 # =============================================================================
+
+model = BlockModel.from_mesh_with_planar_faces(
+    mesh=pattern,
+    offset=0,
+    chamfer=0.1,
+    thickness_scale_bottom=-0.5,
+    thickness_scale_top=1,
+    project_bottom=False,
+    project_top=True,
+    tolerance_parallel=0.5
+)
+
+
+# =============================================================================
+# Modifiers
+# =============================================================================
+elements = list(model.elements())
+
+radius0 = 0.03
+radius1 = 0.031
+modifier_pairs = []
+
+for edge in model.graph.edges():
+    edge_attrs = model.graph.edge_attributes(edge)
+    frame = edge_attrs["frame"]
+    line = edge_attrs["line"]
     
-model = BlockModel()
+    # Get two points along each edge
+    points = [line.point_at(0.25), line.point_at(0.75)]
+    
+    for point in points:
+        # Create frame for transformation
+        frame_shear_key = Frame(point, frame.xaxis, frame.yaxis)
+        xform = Transformation.from_frame(frame_shear_key)
+        
+        # Create and transform polyhedrons
+        polyhedron0 = Polyhedron.from_platonicsolid(20).to_mesh().scaled(radius0)
+        polyhedron1 = Polyhedron.from_platonicsolid(20).to_mesh().scaled(radius1)
+        polyhedron0.transform(xform)
+        polyhedron1.transform(xform)
+        
+        # Create interface elements
+        interface0 = Interface(polyhedron0)
+        interface1 = Interface(polyhedron1)
+        
+        # Store with connected elements
+        modifier_pairs.append([interface0, interface1, elements[edge[0]], elements[edge[1]]])
 
-for block in blocks:
-    model.add_block_from_mesh(block)
+# Add elements and modifiers in one loop
+for interface0, interface1, elem0, elem1 in modifier_pairs:
+    model.add_element(interface0)
+    model.add_element(interface1)
+    model.add_modifier(interface0, elem0, BooleanUnionModifier())
+    model.add_modifier(interface1, elem1, BooleanDifferenceModifier())
 
-model.compute_contacts()
+# =============================================================================
+# Vizualize
+# =============================================================================
 
-for block in blocks:
-    viewer.scene.add(block, show_faces=True)
-
-for contact in model.contacts():
-    viewer.scene.add(contact.polygon, surfacecolor=Color.cyan())
-
-for block in blocks:
-    viewer.scene.add(block.attributes["orientation_frame"])
+o = Point(5,5,0)
+for block in model.elements():
+    if block.name != "Interface":
+        geometry = block.modelgeometry
+        geometry.centroid()
+        v = (o-geometry.centroid())*-0.05
+        viewer.scene.add(geometry.translated(v), show_faces=True)
+        viewer.scene.add(geometry.attributes["orientation_frame"].translated(v))
 
 viewer.show()

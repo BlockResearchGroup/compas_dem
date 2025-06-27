@@ -67,7 +67,7 @@ def offset_planar_blocks(
     for v in m_o.vertices():
         n: Vector = m_o.vertex_normal(v)
         t: float = m_o.vertex_attribute(v, "thickness")
-        mesh.set_vertex_point(v, mesh.vertex_point(v) + n * t * thickness_scale_bottom)
+        m_o.set_vertex_point(v, m_o.vertex_point(v) + n * t * thickness_scale_bottom)
 
     # =============================================================================
     # frames at m_o edges

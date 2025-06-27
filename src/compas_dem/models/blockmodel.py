@@ -17,6 +17,7 @@ from compas_model.interactions import Contact
 from compas_model.models import Model
 
 from compas_dem.elements import Block
+from compas_dem.fabrication.offset import offset_planar_blocks
 from compas_dem.interactions import FrictionContact
 from compas_dem.templates import BarrelVaultTemplate
 from compas_dem.templates import Template
@@ -270,6 +271,108 @@ class BlockModel(Model):
     # =============================================================================
     # Patterns
     # =============================================================================
+
+    @classmethod
+    def from_mesh_with_planar_faces(
+        cls,
+        mesh: Mesh,
+        offset: float = 0.5,
+        chamfer: float = 0.1,
+        thickness_scale_bottom: float = 0.5,
+        thickness_scale_top: float = 1.0,
+        project_bottom: bool = False,
+        project_top: bool = True,
+        tolerance_parallel: float = 0.5,
+    ) -> "BlockModel":
+        """Construct a Block Model from a mesh with planar faces.
+
+        Parameters
+        ----------
+        mesh : :class:`Mesh`
+            The input mesh.
+        offset : float, optional
+            The offset distance.
+        chamfer : float, optional
+            The chamfer distance.
+        thickness_scale_bottom : float, optional
+            The thickness scale for the bottom.
+        thickness_scale_top : float, optional
+            The thickness scale for the top.
+        project_bottom : bool, optional
+            Whether to project the bottom.
+        project_top : bool, optional
+            Whether to project the top.
+        tolerance_parallel : float, optional
+            The tolerance for parallelism.
+
+
+        Returns
+        -------
+        :class:`BlockModel`
+
+        """
+
+        # solid with planar faces
+        solid_meshes = offset_planar_blocks(
+            mesh,
+            offset=offset,
+            chamfer=chamfer,
+            thickness_scale_bottom=thickness_scale_bottom,
+            thickness_scale_top=thickness_scale_top,
+            project_bottom=project_bottom,
+            project_top=project_top,
+            tolerance_parallel=tolerance_parallel,
+        )
+
+        # extract connectivity
+        connected_elements: list[tuple[int, int, Line, Frame, int, int]] = []
+
+        for edge in mesh.edges():
+            faces = mesh.edge_faces(edge)
+            if faces[0] is None or faces[1] is None:
+                continue
+
+            # Add mesh face connectivity - 2 + local halfedge
+            hf0 = mesh.face_halfedges(faces[0])
+            hf1 = mesh.face_halfedges(faces[1])
+
+            local_id0 = 0
+            local_id1 = 0
+
+            for i in range(len(hf0)):
+                if hf0[i] == edge or hf0[i][::-1] == edge:
+                    local_id0 = i + 2
+                    break
+
+            for i in range(len(hf1)):
+                if hf1[i] == edge or hf1[i][::-1] == edge:
+                    local_id1 = i + 2
+                    break
+
+            line = mesh.edge_line(edge)
+            n = solid_meshes[faces[0]].face_normal(local_id0)
+            o = line.point_at(0.5)
+            x = line.vector
+            y = n.cross(x)
+
+            connected_elements.append((faces[0], faces[1], line, Frame(o, x, y), local_id0, local_id1))
+
+        # add solid blocks
+        model = cls()
+        blocks = []
+        for solid_mesh in solid_meshes:
+            block: Block = Block.from_mesh(solid_mesh)
+            model.add_element(block)
+            blocks.append(block)
+
+        # add interactions
+        for element in connected_elements:
+            model.add_interaction(blocks[element[0]], blocks[element[1]])
+            model.graph.edge_attribute((element[0], element[1]), "line", element[2])
+            model.graph.edge_attribute((element[0], element[1]), "frame", element[3])
+            model.graph.edge_attribute((element[0], element[1]), "connected_faces", (element[4], element[5]))
+
+        return model
 
     @classmethod
     def from_triangulation_dual(cls, mesh: Mesh, lengthfactor: float = 1.0, tmin=None, tmax=None) -> "BlockModel":

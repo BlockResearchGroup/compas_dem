@@ -6,6 +6,7 @@ from compas.geometry import Point
 from compas.geometry import Polyhedron
 from compas.geometry import Transformation
 from compas_model.elements import Element
+from compas_model.elements import Element
 from compas_model.elements import Feature
 
 
