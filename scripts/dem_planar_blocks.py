@@ -8,6 +8,7 @@ from compas.datastructures import Mesh
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Transformation
+from compas.geometry import Translation
 from compas.geometry import Polyhedron
 from compas.scene import MeshObject
 from compas.scene import Scene
@@ -198,36 +199,14 @@ from compas_dem.fabrication.label import Label
 
 for id, block in enumerate(model.elements()):
     if block.name == "Block":
-
         mesh = block.modelgeometry.copy()
         frame = mesh.attributes["orientation_frame"]
         labels.append(Label.from_string(str(id), frame.flipped(), 0.1))
 
+# # =============================================================================
+# # Orientation from 3D to 2D
+# # =============================================================================
 
-
-# =============================================================================
-# Orientation from 3D to 2D
-# =============================================================================
-
-
-meshes_2d = []
-labels_2d = []
-x = 0
-for id, block in enumerate(model.elements()):
-    if block.name == "Block":
-
-        mesh = block.modelgeometry.copy()
-        frame = mesh.attributes["orientation_frame"]
-
-        mesh.transform(Transformation.from_frame_to_frame(frame, Frame.worldXY()))
-        bbox = mesh.aabb()
-        mesh.translate([x-bbox.xmin, 0, 0])
-
-        meshes_2d.append(mesh)
-        labels_2d.append(Label.from_string(str(id), Frame([x-bbox.xmin, 0, 0], [1, 0, 0], [0, -1, 0]), 0.1))
-
-        # Update x position
-        x += bbox.xsize
 
 
 # =============================================================================
@@ -235,24 +214,65 @@ for id, block in enumerate(model.elements()):
 # =============================================================================
 viewer.scene.add(m_o, name="Mesh", show_points=True)
 
+# 3D Blocks
 o = Point(5,5,0)
 for id, block in enumerate(model.elements()):
     if block.name == "Block":
+
         geometry = block.modelgeometry
+
+        # Move the blocks away from the center to vizualize the shear keys better:
         geometry.centroid()
-        v = (o-geometry.centroid())*-0.00
-        viewer.scene.add(geometry.translated(v), show_lines=True)
-        viewer.scene.add(geometry.attributes["orientation_frame"].translated(v))
+        v = (o-geometry.centroid())*-0.05
+        translation = Translation.from_vector(v)
 
-for mesh in meshes_2d:
-    viewer.scene.add(mesh)
+        # Add meshes
+        viewer.scene.add(geometry.transformed(translation), show_lines=True)
 
-for label in labels:
-    for polyline in label:
-        viewer.scene.add(polyline, color=(255, 0, 0))
+        # Add frame
+        viewer.scene.add(geometry.attributes["orientation_frame"].transformed(translation))
+        
+        # Add each polyline from the label instead of the label object itself
+        transformed_label = labels[id].transformed(translation)
+        for polyline in transformed_label.polylines:
+            viewer.scene.add(polyline, color=(255, 0, 0))
 
-for label in labels_2d:
-    for polyline in label:
-        viewer.scene.add(polyline, color=(255, 0, 0))
+# 2D Blocks
+x = 0
+for id, block in enumerate(model.elements()):
+    if block.name == "Block":
+
+        mesh = block.modelgeometry.copy()
+        frame = mesh.attributes["orientation_frame"]
+
+        # Orient mesh to xy frame and move it to the left
+        O = Transformation.from_frame_to_frame(frame, Frame.worldXY())
+        mesh.transform(O)
+        offset = mesh.aabb().xmin
+        T = Translation.from_vector([x-offset, 0, 0])
+        mesh.transform(T)
+
+        # Add mesh
+        viewer.scene.add(mesh)
+
+        # Add frame
+        for polyline in labels[id].transformed(T*O).polylines:
+            viewer.scene.add(polyline, color=(255, 0, 0))
+        # 
+        
+        
+
+
+
+
+
+        # meshes_2d.append(mesh)
+        # labels_2d.append(Label.from_string(str(id), Frame([x-bbox.xmin, 0, 0], [1, 0, 0], [0, -1, 0]), 0.1))
+
+#         # Update x position
+        x += mesh.aabb().xsize
+
+
+
 
 viewer.show()

@@ -1,14 +1,28 @@
 from pathlib import Path
 
 import compas
+from compas.data import Data
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polyline
 from compas.geometry import Transformation
 
 
-class Label(object):
-    def __init__(self):
+class Label(Data):
+    @property
+    def __data__(self) -> dict:
+        return {
+            "name": self.name,
+            "frame": self.frame,
+            "polylines": self.polylines,
+        }
+
+    def __init__(self, name: str = "", frame: Frame = Frame.worldXY(), polylines=None):
+        super().__init__(name=name)
+
+        self.frame = frame
+        self.polylines: list[Polyline] = polylines or []
+
         HERE = Path(__file__).parent.parent.parent.parent
         DATA = HERE / "data"
         SESSION = DATA / "text.json"
@@ -27,8 +41,8 @@ class Label(object):
                     # Handle special cases where _code might be a character
                     self.char_map[letter["_code"]] = letter
 
-    @staticmethod
-    def from_string(string, frame, scale=1.0, line_spacing=1.5, letter_spacing=0.0, space_width=0.5):
+    @classmethod
+    def from_string(cls, string, frame, scale=1.0, line_spacing=1.5, letter_spacing=0.0, space_width=0.5):
         """
         Convert a string to a list of polylines based on the font data in the JSON file.
 
@@ -52,7 +66,7 @@ class Label(object):
         list
             List of compas.geometry.Polyline objects.
         """
-        label = Label()
+        label = Label(name=string, frame=frame)
         polylines = []
         current_x = 0
         current_y = 0
@@ -138,8 +152,19 @@ class Label(object):
             end_pos = float(letter_data.get("_end", letter_width))
             current_x += end_pos * scale + letter_spacing * scale
 
-        xform = Transformation.from_frame_to_frame(Frame.worldXY(), frame)
+        xform = Transformation.from_frame_to_frame(Frame.worldXY(), label.frame)
         for polyline in polylines:
             polyline.transform(xform)
 
-        return polylines
+        label.polylines = polylines
+
+        return label
+
+    def transform(self, xform):
+        for polyline in self.polylines:
+            polyline.transform(xform)
+
+    def transformed(self, xform):
+        new = self.copy()
+        new.transform(xform)
+        return new
