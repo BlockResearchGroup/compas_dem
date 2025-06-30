@@ -283,6 +283,7 @@ class BlockModel(Model):
         project_bottom: bool = False,
         project_top: bool = True,
         tolerance_parallel: float = 0.5,
+        vertex_normals: list[list[float]] = None,
     ) -> "BlockModel":
         """Construct a Block Model from a mesh with planar faces.
 
@@ -322,6 +323,7 @@ class BlockModel(Model):
             project_bottom=project_bottom,
             project_top=project_top,
             tolerance_parallel=tolerance_parallel,
+            vertex_normals=vertex_normals,
         )
 
         # extract connectivity

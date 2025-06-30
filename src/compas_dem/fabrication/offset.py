@@ -22,6 +22,7 @@ def offset_planar_blocks(
     project_bottom: bool = True,
     project_top: bool = False,
     tolerance_parallel: float = 0.5,
+    vertex_normals: list[list[float]] = None,
 ) -> list[Mesh]:
     """
     Offset a mesh to create blocks with planar sides and chamfered corners.
@@ -65,7 +66,7 @@ def offset_planar_blocks(
     # =============================================================================
 
     for v in m_o.vertices():
-        n: Vector = m_o.vertex_normal(v)
+        n: Vector = vertex_normals[v] #m_o.vertex_normal(v)
         t: float = m_o.vertex_attribute(v, "thickness")
         m_o.set_vertex_point(v, m_o.vertex_point(v) + n * t * thickness_scale_bottom)
 

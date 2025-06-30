@@ -78,7 +78,7 @@ for vertex in mesh.vertices():
 
 pattern = Mesh.from_polygons(user_2d_pattern)
 
-mv, mf, mn, mb, mg = map_mesh(trimesh.to_vertices_and_faces(), pattern.to_vertices_and_faces(), clip_boundaries=False, fixed_vertices=fixed_vertices, tolerance=1e-3)
+mv, mf, mn, mb, mg = map_mesh(trimesh.to_vertices_and_faces(), pattern.to_vertices_and_faces(), clip_boundaries=False)
 pattern = Mesh.from_vertices_and_faces(mv, mf)
 pattern.unify_cycles() # Unify the winding of polygons since user pattern winding might be inconsistent
 pattern.flip_cycles()
@@ -121,7 +121,7 @@ for vertex in idos.vertices():
 # =============================================================================
 
 viewer = Viewer()
-viewer.scene.add(pattern.copy(), name="Pattern")
+viewer.scene.add(pattern.copy(), name="Pattern", show_points=True)
 
 
 # =============================================================================
@@ -132,12 +132,19 @@ model = BlockModel.from_mesh_with_planar_faces(
     mesh=pattern,
     offset=0,
     chamfer=0.1,
-    thickness_scale_bottom=-0.5,
+    thickness_scale_bottom=0.5,
     thickness_scale_top=1,
-    project_bottom=False,
-    project_top=True,
-    tolerance_parallel=0.5
+    project_bottom=True,
+    project_top=False,
+    tolerance_parallel=0.5,
+    vertex_normals=mn,
 )
+
+m_o = pattern.copy()
+for v in m_o.vertices():
+    n = m_o.vertex_normal(v)
+    t = m_o.vertex_attribute(v, "thickness")
+    m_o.set_vertex_point(v, m_o.vertex_point(v) + n * t * 0.5)
 
 
 # =============================================================================
@@ -183,16 +190,44 @@ for interface0, interface1, elem0, elem1 in modifier_pairs:
     model.add_modifier(interface1, elem1, BooleanDifferenceModifier())
 
 # =============================================================================
+# Labels
+# =============================================================================
+
+# =============================================================================
+# Orientation from 3D to 2D
+# =============================================================================
+
+
+meshes_2d = []
+x = 0
+for block in model.elements():
+    if block.name == "Block":
+
+        mesh = block.modelgeometry.copy()
+        frame = mesh.attributes["orientation_frame"]
+
+        mesh.transform(Transformation.from_frame_to_frame(frame, Frame.worldXY()))
+        mesh.translate([x-mesh.aabb().xmin, 0, 0])
+
+        # Update x position
+        x += mesh.aabb().xsize
+        meshes_2d.append(mesh)
+
+# =============================================================================
 # Vizualize
 # =============================================================================
+viewer.scene.add(m_o, name="Mesh", show_points=True)
 
 o = Point(5,5,0)
 for block in model.elements():
-    if block.name != "Interface":
+    if block.name == "Block":
         geometry = block.modelgeometry
         geometry.centroid()
         v = (o-geometry.centroid())*-0.05
-        viewer.scene.add(geometry.translated(v), show_faces=True)
+        viewer.scene.add(geometry.translated(v), show_lines=True)
         viewer.scene.add(geometry.attributes["orientation_frame"].translated(v))
+
+for mesh in meshes_2d:
+    viewer.scene.add(mesh)
 
 viewer.show()
