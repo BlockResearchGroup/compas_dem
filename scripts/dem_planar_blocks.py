@@ -7,18 +7,21 @@ import compas
 from compas.datastructures import Mesh
 from compas.geometry import Frame
 from compas.geometry import Point
+from compas.geometry import Vector
 from compas.geometry import Transformation
 from compas.geometry import Translation
 from compas.geometry import Polyhedron
 from compas.scene import MeshObject
 from compas.scene import Scene
 from compas_libigl.mapping import map_mesh
-from compas_cgal.meshing import trimesh_remesh
+from compas_cgal.meshing import trimesh_remesh, trimesh_dual
+from compas_libigl.parametrisation import trimesh_lsc_mapping
 from compas_viewer import Viewer
 from compas_dem.models import BlockModel
 from compas_dem.modifiers.boolean_difference_modifier import BooleanDifferenceModifier
 from compas_dem.modifiers.boolean_union_modifier import BooleanUnionModifier
 from compas_dem.elements.interface import Interface
+from compas_dem.fabrication.label import Label
 
 # =============================================================================
 # Session data
@@ -62,6 +65,15 @@ V, F = trimesh_remesh(trimesh.to_vertices_and_faces(), target_edge_length, 1000)
 trimesh = Mesh.from_vertices_and_faces(V, F)
 
 # ==============================================================================
+# Least-squares conformal map - to see where the pattern is mapped.
+# ==============================================================================
+
+uv = trimesh_lsc_mapping((V, F))
+mesh_lscm = trimesh.copy()
+for i in range(trimesh.number_of_vertices()):
+    mesh_lscm.vertex_attributes(i, "xyz", [uv[i][0], uv[i][1], 0])
+
+# ==============================================================================
 # Get Lowest and Highest points
 # ==============================================================================
 
@@ -82,8 +94,24 @@ pattern = Mesh.from_polygons(user_2d_pattern)
 mv, mf, mn, mb, mg = map_mesh(trimesh.to_vertices_and_faces(), pattern.to_vertices_and_faces(), clip_boundaries=False)
 pattern = Mesh.from_vertices_and_faces(mv, mf)
 pattern.unify_cycles() # Unify the winding of polygons since user pattern winding might be inconsistent
-pattern.flip_cycles()
 temp_polygons = pattern.to_polygons()
+
+# =============================================================================
+# Dual mesh
+# =============================================================================
+
+V, F, DV, DF = trimesh_dual(trimesh.to_vertices_and_faces(),1.5)
+trimesh= Mesh.from_vertices_and_faces(V, F)
+pattern = Mesh.from_vertices_and_faces(DV, DF)
+pattern.unify_cycles()
+
+
+mv = []
+mn = []
+for vertex in pattern.vertices():
+    mv.append(Vector(*pattern.vertex_point(vertex)))
+    mn.append(Vector(*pattern.vertex_normal(vertex)))
+
 
 # =============================================================================
 # Thickness
@@ -113,17 +141,9 @@ idos: Mesh = pattern.copy()
 
 for vertex in idos.vertices():
     point = Point(*mv[vertex])
-    normal = mn[vertex]
+    normal = Vector(*mn[vertex])
     thickness = pattern.vertex_attribute(vertex, name="thickness")
     idos.vertex_attributes(vertex, names="xyz", values=point - normal * (0.5 * thickness))  # type: ignore
-
-# =============================================================================
-# blocks
-# =============================================================================
-
-viewer = Viewer()
-viewer.scene.add(pattern.copy(), name="Pattern", show_points=True)
-
 
 # =============================================================================
 # Model
@@ -133,10 +153,10 @@ model = BlockModel.from_mesh_with_planar_faces(
     mesh=pattern,
     offset=0,
     chamfer=0.1,
-    thickness_scale_bottom=0.5,
+    thickness_scale_bottom=-0.5,
     thickness_scale_top=1,
-    project_bottom=True,
-    project_top=False,
+    project_bottom=False,
+    project_top=True,
     tolerance_parallel=0.5,
     vertex_normals=mn,
 )
@@ -150,6 +170,7 @@ for v in m_o.vertices():
 
 # =============================================================================
 # Modifiers
+# model.add_shear_keys(edges_frames, edges_lines, shape0, shape1)
 # =============================================================================
 elements = list(model.elements())
 
@@ -195,7 +216,6 @@ for interface0, interface1, elem0, elem1 in modifier_pairs:
 # =============================================================================
 
 labels = []
-from compas_dem.fabrication.label import Label
 
 for id, block in enumerate(model.elements()):
     if block.name == "Block":
@@ -203,15 +223,18 @@ for id, block in enumerate(model.elements()):
         frame = mesh.attributes["orientation_frame"]
         labels.append(Label.from_string(str(id), frame.flipped(), 0.1))
 
-# # =============================================================================
-# # Orientation from 3D to 2D
-# # =============================================================================
-
-
 
 # =============================================================================
 # Vizualize
 # =============================================================================
+viewer = Viewer()
+
+for polygon in user_2d_pattern:
+    viewer.scene.add(polygon, name="user_2d_pattern")
+
+
+viewer.scene.add(mesh_lscm, name="Mesh", show_points=True)
+
 viewer.scene.add(m_o, name="Mesh", show_points=True)
 
 # 3D Blocks
@@ -258,21 +281,8 @@ for id, block in enumerate(model.elements()):
         # Add frame
         for polyline in labels[id].transformed(T*O).polylines:
             viewer.scene.add(polyline, color=(255, 0, 0))
-        # 
-        
-        
 
-
-
-
-
-        # meshes_2d.append(mesh)
-        # labels_2d.append(Label.from_string(str(id), Frame([x-bbox.xmin, 0, 0], [1, 0, 0], [0, -1, 0]), 0.1))
-
-#         # Update x position
+        # Update x position
         x += mesh.aabb().xsize
-
-
-
 
 viewer.show()

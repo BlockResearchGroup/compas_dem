@@ -1,17 +1,14 @@
 from tracemalloc import Frame
 from compas_dem.fabrication.label import Label
-from compas.geometry import Point, Polyline, Translation, Frame
+from compas.geometry import Frame
 from compas_viewer.viewer import Viewer
 
 # Example text to show thin letters and various spacing
 text = "Will the thin letters now have a better spacing?"
-scale = 1.0  # Scale factor for better visibility
-offset = [0, 0, 0]  # Starting position
-
 frame = Frame.worldYZ()
-polylines3 = Label.from_string(text, frame)
+label = Label.from_string(text, frame, 1)
 
 viewer = Viewer()
-for polyline in polylines3:
+for polyline in label.polylines:
     viewer.scene.add(polyline)
 viewer.show()
