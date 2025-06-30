@@ -12,7 +12,7 @@ from compas.geometry import Polyhedron
 from compas.scene import MeshObject
 from compas.scene import Scene
 from compas_libigl.mapping import map_mesh
-from compas_cgal.meshing import mesh_remesh
+from compas_cgal.meshing import trimesh_remesh
 from compas_viewer import Viewer
 from compas_dem.models import BlockModel
 from compas_dem.modifiers.boolean_difference_modifier import BooleanDifferenceModifier
@@ -57,7 +57,7 @@ trimesh.quads_to_triangles()
 average_length = sum(mesh.edge_length(edge) for edge in mesh.edges()) / mesh.number_of_edges()
 target_edge_length = 1 * average_length
 
-V, F = mesh_remesh(trimesh.to_vertices_and_faces(), target_edge_length, 1000)
+V, F = trimesh_remesh(trimesh.to_vertices_and_faces(), target_edge_length, 1000)
 trimesh = Mesh.from_vertices_and_faces(V, F)
 
 # ==============================================================================
@@ -193,25 +193,42 @@ for interface0, interface1, elem0, elem1 in modifier_pairs:
 # Labels
 # =============================================================================
 
+labels = []
+from compas_dem.fabrication.label import Label
+
+for id, block in enumerate(model.elements()):
+    if block.name == "Block":
+
+        mesh = block.modelgeometry.copy()
+        frame = mesh.attributes["orientation_frame"]
+        labels.append(Label.from_string(str(id), frame.flipped(), 0.1))
+
+
+
 # =============================================================================
 # Orientation from 3D to 2D
 # =============================================================================
 
 
 meshes_2d = []
+labels_2d = []
 x = 0
-for block in model.elements():
+for id, block in enumerate(model.elements()):
     if block.name == "Block":
 
         mesh = block.modelgeometry.copy()
         frame = mesh.attributes["orientation_frame"]
 
         mesh.transform(Transformation.from_frame_to_frame(frame, Frame.worldXY()))
-        mesh.translate([x-mesh.aabb().xmin, 0, 0])
+        bbox = mesh.aabb()
+        mesh.translate([x-bbox.xmin, 0, 0])
+
+        meshes_2d.append(mesh)
+        labels_2d.append(Label.from_string(str(id), Frame([x-bbox.xmin, 0, 0], [1, 0, 0], [0, -1, 0]), 0.1))
 
         # Update x position
-        x += mesh.aabb().xsize
-        meshes_2d.append(mesh)
+        x += bbox.xsize
+
 
 # =============================================================================
 # Vizualize
@@ -219,15 +236,23 @@ for block in model.elements():
 viewer.scene.add(m_o, name="Mesh", show_points=True)
 
 o = Point(5,5,0)
-for block in model.elements():
+for id, block in enumerate(model.elements()):
     if block.name == "Block":
         geometry = block.modelgeometry
         geometry.centroid()
-        v = (o-geometry.centroid())*-0.05
+        v = (o-geometry.centroid())*-0.00
         viewer.scene.add(geometry.translated(v), show_lines=True)
         viewer.scene.add(geometry.attributes["orientation_frame"].translated(v))
 
 for mesh in meshes_2d:
     viewer.scene.add(mesh)
+
+for label in labels:
+    for polyline in label:
+        viewer.scene.add(polyline, color=(255, 0, 0))
+
+for label in labels_2d:
+    for polyline in label:
+        viewer.scene.add(polyline, color=(255, 0, 0))
 
 viewer.show()
