@@ -36,9 +36,15 @@ class BooleanUnionModifier(Modifier):
             The modified source geometry.
 
         """
-        VS, FS = source.elementgeometry.to_vertices_and_faces(True)
-        VT, FT = targetgeometry.to_vertices_and_faces(True)
-        V, F = boolean_union_mesh_mesh((VT, FT), (VS, FS))
-        mesh = Mesh.from_vertices_and_faces(V, F)
-        mesh.attributes = targetgeometry.attributes
-        return mesh
+        if isinstance(source.elementgeometry, Mesh) and isinstance(targetgeometry, Mesh):
+            VS, FS = source.elementgeometry.to_vertices_and_faces(True)
+            VT, FT = targetgeometry.to_vertices_and_faces(True)
+            V, F = boolean_union_mesh_mesh((VT, FT), (VS, FS))
+            mesh = Mesh.from_vertices_and_faces(V, F)
+            mesh.attributes = targetgeometry.attributes
+            return mesh
+        elif isinstance(source.elementgeometry, Brep) and isinstance(targetgeometry, Brep):
+            result = targetgeometry + source.elementgeometry
+            return result
+        else:
+            raise ValueError(f"Source and target geometry must be of the same type. Source: {type(source.elementgeometry)}, Target: {type(targetgeometry)}")

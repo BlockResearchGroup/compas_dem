@@ -1,7 +1,9 @@
 from typing import Optional
+from typing import Union
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
+from compas.geometry import Brep
 from compas.geometry import Point
 from compas.geometry import Transformation
 from compas_model.elements import Element
@@ -36,7 +38,7 @@ class Interface(Element):
 
     def __init__(
         self,
-        geometry: Mesh,
+        geometry: Union[Mesh, Brep],
         transformation: Optional[Transformation] = None,
         name: Optional[str] = None,
     ) -> None:
@@ -69,3 +71,12 @@ class Interface(Element):
 
     def compute_point(self) -> Point:
         return Point(*self.modelgeometry.centroid())
+
+    @classmethod
+    def from_box(cls, frame, xsize, ysize, zsize, is_brep: bool = True) -> "Interface":
+        box = Box(xsize, ysize, zsize, frame)
+
+        if is_brep:
+            return cls(Brep.from_box(box))
+        else:
+            return cls(box.to_mesh())

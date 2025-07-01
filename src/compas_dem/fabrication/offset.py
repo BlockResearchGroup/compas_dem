@@ -204,6 +204,7 @@ def offset_planar_blocks(
     # =============================================================================
 
     blocks: list[Mesh] = []
+    block_frames: list[Frame] = []
 
     for face in m_o.faces():
         vertex_thickness: list[float] = m_o.vertices_attribute("thickness", keys=m_o.face_vertices(face))
@@ -304,7 +305,7 @@ def offset_planar_blocks(
         polygons: list[list[int]] = [bottom_points[::-1], top_points] + sides
 
         block: Mesh = Mesh.from_polygons(polygons)
-        block.attributes["orientation_frame"] = orientation_frame
         blocks.append(block)
+        block_frames.append(orientation_frame)
 
-    return blocks
+    return blocks, block_frames, e_frames

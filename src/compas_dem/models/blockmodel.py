@@ -284,6 +284,7 @@ class BlockModel(Model):
         project_top: bool = True,
         tolerance_parallel: float = 0.5,
         vertex_normals: list[list[float]] = None,
+        is_brep: bool = False,
     ) -> "BlockModel":
         """Construct a Block Model from a mesh with planar faces.
 
@@ -305,6 +306,10 @@ class BlockModel(Model):
             Whether to project the top.
         tolerance_parallel : float, optional
             The tolerance for parallelism.
+        vertex_normals : list[list[float]], optional
+            The vertex normals.
+        is_brep : bool, optional
+            Whether to use Brep or Mesh.
 
 
         Returns
@@ -314,7 +319,7 @@ class BlockModel(Model):
         """
 
         # solid with planar faces
-        solid_meshes = offset_planar_blocks(
+        solid_meshes, block_frames, e_frames = offset_planar_blocks(
             mesh,
             offset=offset,
             chamfer=chamfer,
@@ -334,36 +339,29 @@ class BlockModel(Model):
             if faces[0] is None or faces[1] is None:
                 continue
 
-            # Add mesh face connectivity - 2 + local halfedge
-            hf0 = mesh.face_halfedges(faces[0])
-            hf1 = mesh.face_halfedges(faces[1])
-
-            local_id0 = 0
-            local_id1 = 0
-
-            for i in range(len(hf0)):
-                if hf0[i] == edge or hf0[i][::-1] == edge:
-                    local_id0 = i + 2
-                    break
-
-            for i in range(len(hf1)):
-                if hf1[i] == edge or hf1[i][::-1] == edge:
-                    local_id1 = i + 2
-                    break
+            e_frame = e_frames[edge]
 
             line = mesh.edge_line(edge)
-            n = solid_meshes[faces[0]].face_normal(local_id0)
+            n = e_frame.zaxis
             o = line.point_at(0.5)
             x = line.vector
             y = n.cross(x)
 
-            connected_elements.append((faces[0], faces[1], line, Frame(o, x, y), local_id0, local_id1))
+            connected_elements.append((faces[0], faces[1], line, Frame(o, x, y)))
 
         # add solid blocks
+        from compas.geometry import Brep
+
         model = cls()
         blocks = []
         for solid_mesh in solid_meshes:
-            block: Block = Block.from_mesh(solid_mesh)
+            if is_brep:
+                polygons = solid_mesh.to_polygons()
+                brep = Brep.from_polygons(polygons)
+                block: Block = Block(geometry=brep)
+            else:
+                block: Block = Block.from_mesh(solid_mesh)
+
             model.add_element(block)
             blocks.append(block)
 
@@ -372,7 +370,9 @@ class BlockModel(Model):
             model.add_interaction(blocks[element[0]], blocks[element[1]])
             model.graph.edge_attribute((element[0], element[1]), "line", element[2])
             model.graph.edge_attribute((element[0], element[1]), "frame", element[3])
-            model.graph.edge_attribute((element[0], element[1]), "connected_faces", (element[4], element[5]))
+
+        for idx, block in enumerate(blocks):
+            model.graph.node_attribute(idx, "frame", block_frames[idx])
 
         return model
 
