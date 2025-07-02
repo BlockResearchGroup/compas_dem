@@ -21,9 +21,7 @@ from compas_dem.modifiers.boolean_difference_modifier import BooleanDifferenceMo
 from compas_dem.modifiers.boolean_union_modifier import BooleanUnionModifier
 from compas_dem.elements.interface import Interface
 from compas_dem.fabrication.label import Label
-from compas.tolerance import TOL
 
-TOL.lineardeflection = 100
 is_brep = False
 tmin = 0.3
 tmax = 0.4
