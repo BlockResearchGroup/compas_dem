@@ -44,34 +44,6 @@ class Interface(Element):
     ) -> None:
         super().__init__(geometry=geometry, transformation=transformation, name=name)
 
-    # =============================================================================
-    # Implementations of abstract methods
-    # =============================================================================
-
-    def compute_elementgeometry(self, include_features: bool = False) -> Mesh:
-        return self._geometry
-
-    def compute_aabb(self, inflate: float = 1.0) -> Box:
-        box: Box = self.modelgeometry.aabb()
-        if inflate != 1.0:
-            box.xsize *= inflate
-            box.ysize *= inflate
-            box.zsize *= inflate
-        self._aabb = box
-        return box
-
-    def compute_obb(self, inflate: float = 1.0) -> Box:
-        box: Box = self.modelgeometry.obb()
-        if inflate != 1.0:
-            box.xsize *= inflate
-            box.ysize *= inflate
-            box.zsize *= inflate
-        self._obb = box
-        return box
-
-    def compute_point(self) -> Point:
-        return Point(*self.modelgeometry.centroid())
-
     @classmethod
     def from_box(cls, frame, xsize, ysize, zsize, is_brep: bool = True) -> "Interface":
         box = Box(xsize, ysize, zsize, frame)
