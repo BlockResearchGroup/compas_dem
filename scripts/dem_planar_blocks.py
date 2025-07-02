@@ -15,7 +15,7 @@ from compas.scene import Scene
 from compas_libigl.mapping import map_mesh
 from compas_cgal.meshing import trimesh_dual
 from compas_libigl.parametrisation import trimesh_lsc_mapping
-from compas_viewer import Viewer
+from compas_viewer.viewer import Viewer
 from compas_dem.models import BlockModel
 from compas_dem.modifiers.boolean_difference_modifier import BooleanDifferenceModifier
 from compas_dem.modifiers.boolean_union_modifier import BooleanUnionModifier
