@@ -7,10 +7,8 @@ import compas
 from compas.datastructures import Mesh
 from compas.geometry import Frame
 from compas.geometry import Point
-from compas.geometry import Vector
 from compas.geometry import Transformation
 from compas.geometry import Translation
-from compas.scene import MeshObject
 from compas.scene import Scene
 from compas_libigl.mapping import map_mesh
 from compas_cgal.meshing import trimesh_dual

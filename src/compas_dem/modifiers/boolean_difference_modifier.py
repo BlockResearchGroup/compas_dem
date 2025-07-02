@@ -43,9 +43,9 @@ class BooleanDifferenceModifier(Modifier):
             mesh = Mesh.from_vertices_and_faces(V, F)
             mesh.attributes = targetgeometry.attributes
             return mesh
-        
+
         if isinstance(source.elementgeometry, Brep) and isinstance(targetgeometry, Brep):
             result = targetgeometry - source.elementgeometry
             return result
-        
+
         raise ValueError(f"Source and target geometry must be of the same type. Source: {type(source.elementgeometry)}, Target: {type(targetgeometry)}")

@@ -17,7 +17,7 @@ from compas_model.interactions import Contact
 from compas_model.models import Model
 
 from compas_dem.elements import Block
-from compas_dem.fabrication.offset import offset_planar_blocks
+from compas_dem.fabrication.offset import OffsetPlanarBlocks
 from compas_dem.interactions import FrictionContact
 from compas_dem.templates import BarrelVaultTemplate
 from compas_dem.templates import Template
@@ -318,8 +318,7 @@ class BlockModel(Model):
 
         """
 
-        # solid with planar faces
-        solid_meshes, block_frames, e_frames = offset_planar_blocks(
+        offset_planar_blocks = OffsetPlanarBlocks(
             mesh,
             offset=offset,
             chamfer=chamfer,
@@ -330,6 +329,8 @@ class BlockModel(Model):
             tolerance_parallel=tolerance_parallel,
             vertex_normals=vertex_normals,
         )
+
+        solid_meshes, block_frames, e_frames = offset_planar_blocks.blocks, offset_planar_blocks.block_frames, offset_planar_blocks.edge_frames
 
         # extract connectivity
         connected_elements: list[tuple[int, int, Line, Frame, int, int]] = []

@@ -52,7 +52,6 @@ class Interface(Element):
         box = Box(xsize, ysize, zsize, frame)
         return cls(box.to_mesh())
 
-
     @classmethod
     def from_box_brep(cls, frame: Frame, xsize: float, ysize: float, zsize: float) -> "Interface":
         box = Box(xsize, ysize, zsize, frame)

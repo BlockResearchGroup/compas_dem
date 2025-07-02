@@ -27,40 +27,40 @@ class Label(Data):
 
         self.frame = frame
         self.polylines: list[Polyline] = polylines or []
-        
+
         # Store the file path for later lazy loading
         self._session_path = SESSION
         self._session = None
         self._font_data = None
         self._char_map = {}
-        
+
     def _load_session(self):
         """Lazy load the session data when needed."""
         if self._session is None:
             self._session = compas.json_load(self._session_path)
-            
+
     def _load_font_data(self):
         """Lazy load the font data when needed."""
         if self._font_data is None:
             self._load_session()
             self._font_data = self._session.get("bbfont", {}).get("letter", [])
-            
+
     def _get_letter(self, char):
         """Get a letter from the font data, loading it if necessary."""
         # Try to get from cache first
         if char in self._char_map:
             return self._char_map[char]
-            
+
         # If not in cache, try to load it
         self._load_font_data()
-        
+
         # Check if it's a code point or character
         code = None
         if isinstance(char, int):
             code = char
         elif isinstance(char, str) and len(char) == 1:
             code = ord(char)
-            
+
         # Find and cache the letter
         for letter in self._font_data:
             if "_code" in letter:
@@ -76,7 +76,7 @@ class Label(Data):
                     if letter["_code"] == char:
                         self._char_map[char] = letter
                         return letter
-                        
+
         # Letter not found
         return None
 
