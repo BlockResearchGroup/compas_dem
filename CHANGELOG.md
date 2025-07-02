@@ -21,6 +21,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
+## [0.3.2] 2025-06-26
+
+### Added
+
+### Changed
+
+* Changed `BlockModel.from_triangulation_dual` to use `compas_cgal.meshing.trimesh_dual`.
+* Changed `BlockModel.from_meshpattern` to use `compas_cgal.meshing.trimesh_remesh`, `compas_cgal.meshing.project_mesh_on_mesh`, `compas_libigl.mapping.map_pattern_to_mesh`.
+
+### Removed
+
+
 ## [0.3.1] 2025-06-24
 
 ### Added

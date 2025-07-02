@@ -1,4 +1,5 @@
 compas >= 2.4
-compas_libigl
+compas_cgal >=0.9.1
+compas_libigl >=0.7.4
 compas_model
 compas_viewer
