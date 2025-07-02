@@ -192,10 +192,10 @@ for id, block in enumerate(model.elements()):
 x = 0
 offset_x = 1
 offset_y = -5
-for id, block in enumerate(model.elements()):
+for idx, block in enumerate(model.elements()):
     if block.name == "Block":
         geometry = block.modelgeometry.copy()
-        frame = model.graph.node_attribute(id, "frame")
+        frame = model.graph.node_attribute(idx, "frame")
 
         # Orient mesh to xy frame and move it to the left
         O = Transformation.from_frame_to_frame(frame, Frame.worldXY())
@@ -210,7 +210,7 @@ for id, block in enumerate(model.elements()):
         # scene.add(geometry)
 
         # Add frame
-        for polyline in labels[id].transformed(T * O).polylines:
+        for polyline in labels[idx].transformed(T * O).polylines:
             viewer.scene.add(polyline, color=(255, 0, 0))
             # scene.add(polyline, color=(255, 0, 0))
 
