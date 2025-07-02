@@ -7,6 +7,11 @@ from compas.geometry import Point
 from compas.geometry import Polyline
 from compas.geometry import Transformation
 
+# Path to font data file
+HERE = Path(__file__).parent.parent.parent.parent
+DATA = HERE / "data"
+SESSION = DATA / "text.json"
+
 
 class Label(Data):
     @property
@@ -22,11 +27,6 @@ class Label(Data):
 
         self.frame = frame
         self.polylines: list[Polyline] = polylines or []
-
-        # Path to font data file
-        HERE = Path(__file__).parent.parent.parent.parent
-        DATA = HERE / "data"
-        SESSION = DATA / "text.json"
         
         # Store the file path for later lazy loading
         self._session_path = SESSION
