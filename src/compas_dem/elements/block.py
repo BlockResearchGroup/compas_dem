@@ -65,6 +65,8 @@ class Block(Element):
         super().__init__(geometry=geometry, transformation=transformation, features=features, name=name)
 
         self.is_support = is_support
+        # Initialize _elementgeometry to ensure parent's elementgeometry property works
+        self._elementgeometry = geometry
 
     # =============================================================================
     # Constructors

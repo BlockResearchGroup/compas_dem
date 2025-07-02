@@ -4,7 +4,7 @@ from typing import Union
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Brep
-from compas.geometry import Point
+from compas.geometry import Frame
 from compas.geometry import Transformation
 from compas_model.elements import Element
 
@@ -44,11 +44,16 @@ class Interface(Element):
     ) -> None:
         super().__init__(geometry=geometry, transformation=transformation, name=name)
 
-    @classmethod
-    def from_box(cls, frame, xsize, ysize, zsize, is_brep: bool = True) -> "Interface":
-        box = Box(xsize, ysize, zsize, frame)
+    def compute_elementgeometry(self, include_features: bool = False) -> Mesh:
+        return self._geometry
 
-        if is_brep:
-            return cls(Brep.from_box(box))
-        else:
-            return cls(box.to_mesh())
+    @classmethod
+    def from_box_mesh(cls, frame: Frame, xsize: float, ysize: float, zsize: float) -> "Interface":
+        box = Box(xsize, ysize, zsize, frame)
+        return cls(box.to_mesh())
+
+
+    @classmethod
+    def from_box_brep(cls, frame: Frame, xsize: float, ysize: float, zsize: float) -> "Interface":
+        box = Box(xsize, ysize, zsize, frame)
+        return cls(Brep.from_box(box))

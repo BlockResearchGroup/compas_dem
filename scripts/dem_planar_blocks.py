@@ -130,8 +130,8 @@ if compute_interactions:
         frame = edge_attrs["frame"]
         line = edge_attrs["line"]
         length = line.length
-        interface0 = Interface.from_box(frame, length * 0.6, 0.07, 0.1, is_brep=is_brep)
-        interface1 = Interface.from_box(frame, length * 0.65, 0.1, 0.1, is_brep=is_brep)
+        interface0 = Interface.from_box_mesh(frame, length * 0.6, 0.07, 0.1) if not is_brep else Interface.from_box_brep(frame, length * 0.6, 0.07, 0.1)
+        interface1 = Interface.from_box_mesh(frame, length * 0.65, 0.1, 0.1) if not is_brep else Interface.from_box_brep(frame, length * 0.65, 0.1, 0.1)
         modifier_pairs.append([interface0, interface1, elements[edge[0]], elements[edge[1]]])
 
     # Add elements and modifiers
@@ -170,6 +170,7 @@ viewer.scene.add(pattern, name="Pattern", show_points=True)
 # 3D Blocks
 o = Point(5, 5, 0)
 for id, block in enumerate(model.elements()):
+
     if block.name != "Block":
         continue
 

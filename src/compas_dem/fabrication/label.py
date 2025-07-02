@@ -23,23 +23,62 @@ class Label(Data):
         self.frame = frame
         self.polylines: list[Polyline] = polylines or []
 
+        # Path to font data file
         HERE = Path(__file__).parent.parent.parent.parent
         DATA = HERE / "data"
         SESSION = DATA / "text.json"
-        self.session = compas.json_load(SESSION)
-        self.font_data = self.session.get("bbfont", {}).get("letter", [])
-        self.char_map = {}
-        for letter in self.font_data:
+        
+        # Store the file path for later lazy loading
+        self._session_path = SESSION
+        self._session = None
+        self._font_data = None
+        self._char_map = {}
+        
+    def _load_session(self):
+        """Lazy load the session data when needed."""
+        if self._session is None:
+            self._session = compas.json_load(self._session_path)
+            
+    def _load_font_data(self):
+        """Lazy load the font data when needed."""
+        if self._font_data is None:
+            self._load_session()
+            self._font_data = self._session.get("bbfont", {}).get("letter", [])
+            
+    def _get_letter(self, char):
+        """Get a letter from the font data, loading it if necessary."""
+        # Try to get from cache first
+        if char in self._char_map:
+            return self._char_map[char]
+            
+        # If not in cache, try to load it
+        self._load_font_data()
+        
+        # Check if it's a code point or character
+        code = None
+        if isinstance(char, int):
+            code = char
+        elif isinstance(char, str) and len(char) == 1:
+            code = ord(char)
+            
+        # Find and cache the letter
+        for letter in self._font_data:
             if "_code" in letter:
                 try:
-                    # Store both as integer code and as character if it's a printable ASCII
-                    code = int(letter["_code"])
-                    self.char_map[code] = letter
-                    if 32 <= code <= 126:  # Standard ASCII printable range
-                        self.char_map[chr(code)] = letter
+                    letter_code = int(letter["_code"])
+                    if letter_code == code:
+                        self._char_map[char] = letter
+                        if 32 <= letter_code <= 126:  # Standard ASCII printable range
+                            self._char_map[chr(letter_code)] = letter
+                        return letter
                 except ValueError:
                     # Handle special cases where _code might be a character
-                    self.char_map[letter["_code"]] = letter
+                    if letter["_code"] == char:
+                        self._char_map[char] = letter
+                        return letter
+                        
+        # Letter not found
+        return None
 
     @classmethod
     def from_string(cls, string, frame, scale=1.0, line_spacing=1.5, letter_spacing=0.0, space_width=0.5):
@@ -108,7 +147,7 @@ class Label(Data):
                 current_x += space_width * scale
                 continue
 
-            letter_data = label.char_map.get(char) or label.char_map.get(ord(char))
+            letter_data = label._get_letter(char) or label._get_letter(ord(char))
 
             if not letter_data:
                 current_x += 0.3 * scale
