@@ -14,21 +14,21 @@ class Interface(Element):
 
     Parameters
     ----------
-    shape : :class:`compas.datastructures.Mesh`
-        The base shape of the block.
+    shape : :class:`compas.datastructures.Mesh` or :class:`compas.geometry.Brep`
+        The base shape of the interface.
     frame : :class:`compas.geometry.Frame`, optional
-        The coordinate frame of the block.
+        The coordinate frame of the interface.
     name : str, optional
         The name of the element.
 
     Attributes
     ----------
-    shape : :class:`compas.datastructures.Mesh`
-        The base shape of the block.
+    shape : :class:`compas.datastructures.Mesh` or :class:`compas.geometry.Brep`
+        The base shape of the interface.
 
     """
 
-    _geometry: Mesh
+    _geometry: Union[Mesh, Brep]
 
     @property
     def __data__(self) -> dict:
