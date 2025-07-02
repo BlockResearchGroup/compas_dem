@@ -57,9 +57,11 @@ def offset_planar_blocks(
     # =============================================================================
 
     m_o = mesh.copy()
-    if not m_o.vertices_attribute("thickness") or offset != 0:
+    if offset != 0:
         for v in m_o.vertices():
             m_o.vertex_attribute(v, "thickness", offset)
+    elif not m_o.vertices_attribute("thickness"):
+        raise ValueError("Mesh must have thickness values.")
 
     # =============================================================================
     # Offset
