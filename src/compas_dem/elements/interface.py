@@ -40,7 +40,7 @@ class Interface(Element):
         self,
         geometry: Union[Mesh, Brep],
         transformation: Optional[Transformation] = None,
-        name: Optional[str] = None,
+        name: Optional[str] = "Interface",
     ) -> None:
         super().__init__(geometry=geometry, transformation=transformation, name=name)
 
