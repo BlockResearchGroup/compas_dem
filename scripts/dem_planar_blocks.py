@@ -31,13 +31,7 @@ compute_interactions = False
 # RhinoVault mesh
 # =============================================================================
 
-session = compas.json_load(pathlib.Path(__file__).parent.parent / "data" / "rv_pattern.json")
-scene: Scene = session["scene"]
-sceneobj: MeshObject = scene.find_by_name("ThrustDiagram")  # type: ignore
-mesh: Mesh = sceneobj.mesh.copy()
-
-for face in list(mesh.faces_where(_is_loaded=False)):
-    mesh.delete_face(face)
+mesh = compas.json_load(pathlib.Path(__file__).parent.parent / "data" / "ThrustDiagram.json")
 
 # =============================================================================
 # Remesh and Flatten
