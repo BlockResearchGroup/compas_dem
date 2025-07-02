@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Dict, List, Optional, Tuple, Union
 
 from compas.datastructures import Mesh
 from compas.geometry import Frame
@@ -78,75 +78,78 @@ def offset_planar_blocks(
     # frames are stored at each half edge and are flipped for the opposite half edge
     # =============================================================================
 
-    e_frames: dict[tuple[int, int], Frame] = {}
+    edge_frames = {}  # Dict[Tuple[int, int], Frame]
 
-    for e in m_o.edges():
-        faces: tuple[int | None, int | None] = m_o.edge_faces(e)
-        o: Point = (m_o.vertex_point(e[1]) + m_o.vertex_point(e[0])) / 2
-        x0: Vector = m_o.face_normal(faces[0]) if faces[0] is not None else Vector(0, 0, 0)
-        x1: Vector = m_o.face_normal(faces[1]) if faces[1] is not None else Vector(0, 0, 0)
-        x: Vector = (x0 + x1) / 2
-        y: Vector = m_o.edge_direction(e)
-        e_frames[e] = Frame(o, x, y)
-        e_frames[e[::-1]] = Frame(o, x, -y)
+    for edge in m_o.edges():
+        faces = m_o.edge_faces(edge)  # Tuple[Optional[int], Optional[int]]
+        origin = (m_o.vertex_point(edge[1]) + m_o.vertex_point(edge[0])) / 2
+        normal0 = m_o.face_normal(faces[0]) if faces[0] is not None else Vector(0, 0, 0)
+        normal1 = m_o.face_normal(faces[1]) if faces[1] is not None else Vector(0, 0, 0)
+        normal = (normal0 + normal1) / 2
+        direction = m_o.edge_direction(edge)
+        edge_frames[edge] = Frame(origin, normal, direction)
+        edge_frames[edge[::-1]] = Frame(origin, normal, -direction)
 
     # =============================================================================
     # frames at the corners of the block for chamfering
     # =============================================================================
 
-    v_frames: dict[tuple[int, int], Frame] = {}
-    parallel: dict[tuple[int, int], bool] = {}
+    vertex_frames = {}  # Dict[Tuple[int, int], Frame]
+    parallel_edges = {}  # Dict[Tuple[int, int], bool]
 
-    for f in m_o.faces():
-        halfedges: list[tuple[int, int]] = m_o.face_halfedges(f)
+    for face in m_o.faces():
+        halfedges = m_o.face_halfedges(face)  # List[Tuple[int, int]]
 
         for i in range(len(halfedges)):
             # indexing
-            id0: int = (i - 1) % len(halfedges)
-            id1: int = i
-            e0: tuple[int, int] = halfedges[id0]
-            e1: tuple[int, int] = halfedges[id1]
+            prev_idx = (i - 1) % len(halfedges)
+            curr_idx = i
+            prev_edge = halfedges[prev_idx]
+            curr_edge = halfedges[curr_idx]
 
             # orientation
-            o: Point = m_o.vertex_point(e0[1])
-            x0: Vector = e_frames[e0].zaxis
-            x1: Vector = e_frames[e1].zaxis
-            y0: Vector = e_frames[e0].xaxis
-            y1: Vector = e_frames[e1].xaxis
-            parallel[e1] = False
+            origin = m_o.vertex_point(prev_edge[1])
+            zaxis_prev = edge_frames[prev_edge].zaxis
+            zaxis_curr = edge_frames[curr_edge].zaxis
+            xaxis_prev = edge_frames[prev_edge].xaxis
+            xaxis_curr = edge_frames[curr_edge].xaxis
+            parallel_edges[curr_edge] = False
 
             # when frames are parallel: _ _ , we constuct 90 degrees rotated frame _|_
-            if is_parallel_vector_vector(x0, x1, tol=tolerance_parallel):
-                x: Vector = x0 + x1
-                y: Vector = y0 + y1
-                parallel[e1] = True
+            if is_parallel_vector_vector(zaxis_prev, zaxis_curr, tol=tolerance_parallel):
+                x_vector = zaxis_prev + zaxis_curr
+                y_vector = xaxis_prev + xaxis_curr
+                parallel_edges[curr_edge] = True
             # when frames are not parallel: _ / , we constuct frame from intersection of planes _\/
             else:
-                r_pp: Optional[tuple[[float, float, float], [float, float, float]]] = intersection_plane_plane(Plane.from_frame(e_frames[e0]), Plane.from_frame(e_frames[e1]))
-                if r_pp:
-                    x: Vector = x1 - x0
-                    y: Vector = Point(*r_pp[1]) - Point(*r_pp[0])
+                plane_intersection = intersection_plane_plane(
+                    Plane.from_frame(edge_frames[prev_edge]), 
+                    Plane.from_frame(edge_frames[curr_edge])
+                )  # Optional[Tuple[List[float], List[float]]]
+                if plane_intersection:
+                    x_vector = zaxis_curr - zaxis_prev
+                    y_vector = Point(*plane_intersection[1]) - Point(*plane_intersection[0])
                 else:
                     raise Exception("No Plane-Plane intersection in get_corner_frames method.")
 
-            v_frames[e1] = Frame(o, x, y)
+            vertex_frames[curr_edge] = Frame(origin, x_vector, y_vector)
 
             # Calculate angle in radians from dot product of unit vectors
             # Map from dot product to chamfer factor:
             # - When dot = -1 (180°), factor = 0
             # - When dot approaches 1 (0°), factor approaches 1
-            dot: float = x0.dot(x1)  # Range: [-1, 1]
-            chamfer_factor: float = (1 - dot) / 2  # Range: [0, 1]
+            dot_product = zaxis_prev.dot(zaxis_curr)  # Range: [-1, 1]
+            chamfer_factor = (1 - dot_product) / 2  # Range: [0, 1]
 
-            if not m_o.is_vertex_on_boundary(e1[0]) and not is_parallel_vector_vector(x0, x1, tol=tolerance_parallel):
-                v_frames[e1].translate(v_frames[e1].zaxis * chamfer * chamfer_factor)
+            if not m_o.is_vertex_on_boundary(curr_edge[0]) and not is_parallel_vector_vector(zaxis_prev, zaxis_curr, tol=tolerance_parallel):
+                vertex_frames[curr_edge].translate(vertex_frames[curr_edge].zaxis * chamfer * chamfer_factor)
 
     # =============================================================================
     # get vertex normals for each face
     # =============================================================================
 
-    face_vertex_directions_0: dict[int, list[Line]] = {}
-    face_vertex_directions_1: dict[int, list[Line]] = {}
+    face_vertex_directions_0 = {}  # Dict[int, List[Line]]
+    face_vertex_directions_1 = {}  # Dict[int, List[Line]]
 
     for f in m_o.faces():
         halfedges = m_o.face_halfedges(f)
