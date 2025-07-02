@@ -37,7 +37,7 @@ mesh = compas.json_load(pathlib.Path(__file__).parent.parent / "data" / "ThrustD
 # Remesh and Flatten
 # =============================================================================
 
-V, F, DV, DF = trimesh_dual(mesh.to_vertices_and_faces(True),1.0,10,0.9,1.0 )
+V, F, DV, DF = trimesh_dual(mesh.to_vertices_and_faces(True), 1.0, 10, 0.9, 1.0)
 mesh = Mesh.from_vertices_and_faces(V, F)
 pattern = Mesh.from_vertices_and_faces(DV, DF)
 pattern.unify_cycles()
@@ -45,8 +45,8 @@ pattern.unify_cycles()
 mv = []
 mn = []
 for vertex in pattern.vertices():
-    mv.append(Vector(*pattern.vertex_point(vertex)))
-    mn.append(Vector(*pattern.vertex_normal(vertex)))
+    mv.append(pattern.vertex_point(vertex))
+    mn.append(pattern.vertex_normal(vertex))
 
 # ==============================================================================
 # Least-squares conformal map - to see where the pattern is mapped.
@@ -130,8 +130,8 @@ if compute_interactions:
         frame = edge_attrs["frame"]
         line = edge_attrs["line"]
         length = line.length
-        interface0 = Interface.from_box(frame, length*0.6, 0.07, 0.1, is_brep=is_brep)
-        interface1 = Interface.from_box(frame, length*0.65, 0.1, 0.1, is_brep=is_brep)
+        interface0 = Interface.from_box(frame, length * 0.6, 0.07, 0.1, is_brep=is_brep)
+        interface1 = Interface.from_box(frame, length * 0.65, 0.1, 0.1, is_brep=is_brep)
         modifier_pairs.append([interface0, interface1, elements[edge[0]], elements[edge[1]]])
 
     # Add elements and modifiers
@@ -163,12 +163,12 @@ for polygon in polygons:
     viewer.scene.add(polygon, name="user_2d_pattern")
     # scene.add(polygon, name="user_2d_pattern")
 
-#viewer.scene.add(mesh_lscm, name="Mesh", show_points=True)
+# viewer.scene.add(mesh_lscm, name="Mesh", show_points=True)
 # scene.add(mesh_lscm, name="Mesh", show_points=True)
 viewer.scene.add(pattern, name="Pattern", show_points=True)
 
 # 3D Blocks
-o = Point(5,5,0)
+o = Point(5, 5, 0)
 for id, block in enumerate(model.elements()):
     if block.name != "Block":
         continue
@@ -181,7 +181,7 @@ for id, block in enumerate(model.elements()):
 
     # Add frame
     # viewer.scene.add(model.graph.node_attribute(id, "frame"))
-    
+
     # Add each polyline from the label instead of the label object itself
     transformed_label = labels[id]
     for polyline in transformed_label.polylines:
@@ -194,7 +194,6 @@ offset_x = 1
 offset_y = -5
 for id, block in enumerate(model.elements()):
     if block.name == "Block":
-
         geometry = block.modelgeometry.copy()
         frame = model.graph.node_attribute(id, "frame")
 
@@ -203,7 +202,7 @@ for id, block in enumerate(model.elements()):
         geometry.transform(O)
         box = geometry.aabb() if isinstance(geometry, Mesh) else geometry.aabb
         xmin, width = abs(box.xmin), box.xsize
-        T = Translation.from_vector([x+xmin, offset_y, 0])
+        T = Translation.from_vector([x + xmin, offset_y, 0])
         geometry.transform(T)
 
         # Add geometry
@@ -211,11 +210,11 @@ for id, block in enumerate(model.elements()):
         # scene.add(geometry)
 
         # Add frame
-        for polyline in labels[id].transformed(T*O).polylines:
+        for polyline in labels[id].transformed(T * O).polylines:
             viewer.scene.add(polyline, color=(255, 0, 0))
             # scene.add(polyline, color=(255, 0, 0))
 
         # Update x position
-        x += width+offset_x*0
+        x += width + offset_x * 0
 
 viewer.show()
