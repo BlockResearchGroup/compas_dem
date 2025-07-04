@@ -1,0 +1,961 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; COMPAS Discrete Element Models</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/css/compas.css?v=617b33e2" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=4c969af8" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script src="_static/documentation_options.js?v=a476954f"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/tabs.js?v=3ee01567"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/blockresearchgroup/compas_dem/gh-pages/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.3';
+        </script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/compas_icon_white.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="_static/compas_icon_white.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+    <p class="title logo__title">COMPAS Discrete Element Models</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <!-- <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Introduction
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="installation.html">
+                        Installation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="examples.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="license.html">
+                        License
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul> -->
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      0.3  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/blockresearchgroup/compas_dem" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="http://forum.compas-framework.org/" title="Discourse" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-discourse"></i></span>
+            <label class="sr-only">Discourse</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/compas_dem/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <!-- <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Introduction
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="installation.html">
+                        Installation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="examples.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="license.html">
+                        License
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul> -->
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      0.3  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/blockresearchgroup/compas_dem" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="http://forum.compas-framework.org/" title="Discourse" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-discourse"></i></span>
+            <label class="sr-only">Discourse</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/compas_dem/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/dem_stack.html">DEM of a Stack of Blocks</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.html">compas_dem</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.elements.html">elements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.interactions.html">interactions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.models.html">models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.templates.html">templates</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="sidebar-primary-item"><div class="sidebar-primary-item">
+    <a href="https://compas.dev" target="_blank">
+        COMPAS.dev <i class="fa fa-external-link" aria-hidden="true"></i>
+    </a>
+</div></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ 
+</div>
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.add_block_from_mesh.html#compas_dem.models.BlockModel.add_block_from_mesh">add_block_from_mesh() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.add_element.html#compas_dem.models.BlockModel.add_element">add_element() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.add_feature.html#compas_dem.elements.Block.add_feature">add_feature() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.add_group.html#compas_dem.models.BlockModel.add_group">add_group() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.add_interaction.html#compas_dem.models.BlockModel.add_interaction">add_interaction() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.add_material.html#compas_dem.models.BlockModel.add_material">add_material() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.add_modifier.html#compas_dem.models.BlockModel.add_modifier">add_modifier() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.add_support_from_mesh.html#compas_dem.models.BlockModel.add_support_from_mesh">add_support_from_mesh() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.BlockFeature.apply.html#compas_dem.elements.BlockFeature.apply">apply() (compas_dem.elements.BlockFeature method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.apply_features.html#compas_dem.elements.Block.apply_features">apply_features() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.templates.ArchTemplate.html#compas_dem.templates.ArchTemplate">ArchTemplate (class in compas_dem.templates)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.assign_material.html#compas_dem.models.BlockModel.assign_material">assign_material() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.templates.BarrelVaultTemplate.html#compas_dem.templates.BarrelVaultTemplate">BarrelVaultTemplate (class in compas_dem.templates)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.html#compas_dem.elements.Block">Block (class in compas_dem.elements)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.BlockFeature.html#compas_dem.elements.BlockFeature">BlockFeature (class in compas_dem.elements)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.html#compas_dem.models.BlockModel">BlockModel (class in compas_dem.models)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.blocks.html#compas_dem.models.BlockModel.blocks">blocks() (compas_dem.models.BlockModel method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.templates.ArchTemplate.blocks.html#compas_dem.templates.ArchTemplate.blocks">(compas_dem.templates.ArchTemplate method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.templates.BarrelVaultTemplate.blocks.html#compas_dem.templates.BarrelVaultTemplate.blocks">(compas_dem.templates.BarrelVaultTemplate method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.templates.DomeTemplate.blocks.html#compas_dem.templates.DomeTemplate.blocks">(compas_dem.templates.DomeTemplate method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_aabb.html#compas_dem.elements.Block.compute_aabb">compute_aabb() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.models.BlockModel.compute_aabb.html#compas_dem.models.BlockModel.compute_aabb">(compas_dem.models.BlockModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.compute_bvh.html#compas_dem.models.BlockModel.compute_bvh">compute_bvh() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_collision_mesh.html#compas_dem.elements.Block.compute_collision_mesh">compute_collision_mesh() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_contacts.html#compas_dem.elements.Block.compute_contacts">compute_contacts() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.models.BlockModel.compute_contacts.html#compas_dem.models.BlockModel.compute_contacts">(compas_dem.models.BlockModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_elementgeometry.html#compas_dem.elements.Block.compute_elementgeometry">compute_elementgeometry() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_femesh2.html#compas_dem.elements.Block.compute_femesh2">compute_femesh2() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_femesh3.html#compas_dem.elements.Block.compute_femesh3">compute_femesh3() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.compute_kdtree.html#compas_dem.models.BlockModel.compute_kdtree">compute_kdtree() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_modelgeometry.html#compas_dem.elements.Block.compute_modelgeometry">compute_modelgeometry() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_modeltransformation.html#compas_dem.elements.Block.compute_modeltransformation">compute_modeltransformation() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_obb.html#compas_dem.elements.Block.compute_obb">compute_obb() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.models.BlockModel.compute_obb.html#compas_dem.models.BlockModel.compute_obb">(compas_dem.models.BlockModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.elements.Block.compute_point.html#compas_dem.elements.Block.compute_point">compute_point() (compas_dem.elements.Block method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.contacts.html#compas_dem.models.BlockModel.contacts">contacts() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.copy.html#compas_dem.elements.Block.copy">copy() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.copy.html#compas_dem.elements.BlockFeature.copy">(compas_dem.elements.BlockFeature method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.FrictionContact.copy.html#compas_dem.interactions.FrictionContact.copy">(compas_dem.interactions.FrictionContact method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.models.BlockModel.copy.html#compas_dem.models.BlockModel.copy">(compas_dem.models.BlockModel method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.templates.DomeTemplate.html#compas_dem.templates.DomeTemplate">DomeTemplate (class in compas_dem.templates)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.element_nnbrs.html#compas_dem.models.BlockModel.element_nnbrs">element_nnbrs() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.elements.html#compas_dem.models.BlockModel.elements">elements() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.interactions.FrictionContact.html#compas_dem.interactions.FrictionContact">FrictionContact (class in compas_dem.interactions)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_arch.html#compas_dem.models.BlockModel.from_arch">from_arch() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_barrelvault.html#compas_dem.models.BlockModel.from_barrelvault">from_barrelvault() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.from_box.html#compas_dem.elements.Block.from_box">from_box() (compas_dem.elements.Block class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_boxes.html#compas_dem.models.BlockModel.from_boxes">from_boxes() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_crossvault.html#compas_dem.models.BlockModel.from_crossvault">from_crossvault() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_fanvault.html#compas_dem.models.BlockModel.from_fanvault">from_fanvault() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.from_json.html#compas_dem.elements.Block.from_json">from_json() (compas_dem.elements.Block class method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.from_json.html#compas_dem.elements.BlockFeature.from_json">(compas_dem.elements.BlockFeature class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.FrictionContact.from_json.html#compas_dem.interactions.FrictionContact.from_json">(compas_dem.interactions.FrictionContact class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.models.BlockModel.from_json.html#compas_dem.models.BlockModel.from_json">(compas_dem.models.BlockModel class method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.elements.Block.from_jsonstring.html#compas_dem.elements.Block.from_jsonstring">from_jsonstring() (compas_dem.elements.Block class method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.from_jsonstring.html#compas_dem.elements.BlockFeature.from_jsonstring">(compas_dem.elements.BlockFeature class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.FrictionContact.from_jsonstring.html#compas_dem.interactions.FrictionContact.from_jsonstring">(compas_dem.interactions.FrictionContact class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.models.BlockModel.from_jsonstring.html#compas_dem.models.BlockModel.from_jsonstring">(compas_dem.models.BlockModel class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.elements.Block.from_mesh.html#compas_dem.elements.Block.from_mesh">from_mesh() (compas_dem.elements.Block class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_meshpattern.html#compas_dem.models.BlockModel.from_meshpattern">from_meshpattern() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_nurbssurface.html#compas_dem.models.BlockModel.from_nurbssurface">from_nurbssurface() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_pavilionvault.html#compas_dem.models.BlockModel.from_pavilionvault">from_pavilionvault() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.from_polyhedron.html#compas_dem.elements.Block.from_polyhedron">from_polyhedron() (compas_dem.elements.Block class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_polyhedrons.html#compas_dem.models.BlockModel.from_polyhedrons">from_polyhedrons() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_polysurfaces.html#compas_dem.models.BlockModel.from_polysurfaces">from_polysurfaces() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_rhinomeshes.html#compas_dem.models.BlockModel.from_rhinomeshes">from_rhinomeshes() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_stack.html#compas_dem.models.BlockModel.from_stack">from_stack() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_template.html#compas_dem.models.BlockModel.from_template">from_template() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_triangulation_dual.html#compas_dem.models.BlockModel.from_triangulation_dual">from_triangulation_dual() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.from_wall.html#compas_dem.models.BlockModel.from_wall">from_wall() (compas_dem.models.BlockModel class method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.has_element.html#compas_dem.models.BlockModel.has_element">has_element() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.has_interaction.html#compas_dem.models.BlockModel.has_interaction">has_interaction() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.has_material.html#compas_dem.models.BlockModel.has_material">has_material() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.templates.ArchTemplate.interfaces.html#compas_dem.templates.ArchTemplate.interfaces">interfaces() (compas_dem.templates.ArchTemplate method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.templates.BarrelVaultTemplate.interfaces.html#compas_dem.templates.BarrelVaultTemplate.interfaces">(compas_dem.templates.BarrelVaultTemplate method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.templates.DomeTemplate.interfaces.html#compas_dem.templates.DomeTemplate.interfaces">(compas_dem.templates.DomeTemplate method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.materials.html#compas_dem.models.BlockModel.materials">materials() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.point_nnbrs.html#compas_dem.models.BlockModel.point_nnbrs">point_nnbrs() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.remove_element.html#compas_dem.models.BlockModel.remove_element">remove_element() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.remove_interaction.html#compas_dem.models.BlockModel.remove_interaction">remove_interaction() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.rotate.html#compas_dem.models.BlockModel.rotate">rotate() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.rotated.html#compas_dem.models.BlockModel.rotated">rotated() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.scale.html#compas_dem.models.BlockModel.scale">scale() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.scaled.html#compas_dem.models.BlockModel.scaled">scaled() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.sha256.html#compas_dem.elements.Block.sha256">sha256() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.sha256.html#compas_dem.elements.BlockFeature.sha256">(compas_dem.elements.BlockFeature method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.FrictionContact.sha256.html#compas_dem.interactions.FrictionContact.sha256">(compas_dem.interactions.FrictionContact method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.models.BlockModel.sha256.html#compas_dem.models.BlockModel.sha256">(compas_dem.models.BlockModel method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.supports.html#compas_dem.models.BlockModel.supports">supports() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.templates.ArchTemplate.to_blocks_and_interfaces.html#compas_dem.templates.ArchTemplate.to_blocks_and_interfaces">to_blocks_and_interfaces() (compas_dem.templates.ArchTemplate method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.templates.BarrelVaultTemplate.to_blocks_and_interfaces.html#compas_dem.templates.BarrelVaultTemplate.to_blocks_and_interfaces">(compas_dem.templates.BarrelVaultTemplate method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.templates.DomeTemplate.to_blocks_and_interfaces.html#compas_dem.templates.DomeTemplate.to_blocks_and_interfaces">(compas_dem.templates.DomeTemplate method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.elements.Block.to_json.html#compas_dem.elements.Block.to_json">to_json() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.to_json.html#compas_dem.elements.BlockFeature.to_json">(compas_dem.elements.BlockFeature method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.FrictionContact.to_json.html#compas_dem.interactions.FrictionContact.to_json">(compas_dem.interactions.FrictionContact method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.models.BlockModel.to_json.html#compas_dem.models.BlockModel.to_json">(compas_dem.models.BlockModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.elements.Block.to_jsonstring.html#compas_dem.elements.Block.to_jsonstring">to_jsonstring() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.to_jsonstring.html#compas_dem.elements.BlockFeature.to_jsonstring">(compas_dem.elements.BlockFeature method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.FrictionContact.to_jsonstring.html#compas_dem.interactions.FrictionContact.to_jsonstring">(compas_dem.interactions.FrictionContact method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.models.BlockModel.to_jsonstring.html#compas_dem.models.BlockModel.to_jsonstring">(compas_dem.models.BlockModel method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.elements.Block.ToString.html#compas_dem.elements.Block.ToString">ToString() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.ToString.html#compas_dem.elements.BlockFeature.ToString">(compas_dem.elements.BlockFeature method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.FrictionContact.ToString.html#compas_dem.interactions.FrictionContact.ToString">(compas_dem.interactions.FrictionContact method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.models.BlockModel.ToString.html#compas_dem.models.BlockModel.ToString">(compas_dem.models.BlockModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.elements.Block.transform.html#compas_dem.elements.Block.transform">transform() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.models.BlockModel.transform.html#compas_dem.models.BlockModel.transform">(compas_dem.models.BlockModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.transform_numpy.html#compas_dem.models.BlockModel.transform_numpy">transform_numpy() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.elements.Block.transformed.html#compas_dem.elements.Block.transformed">transformed() (compas_dem.elements.Block method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.models.BlockModel.transformed.html#compas_dem.models.BlockModel.transformed">(compas_dem.models.BlockModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.transformed_numpy.html#compas_dem.models.BlockModel.transformed_numpy">transformed_numpy() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.translate.html#compas_dem.models.BlockModel.translate">translate() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.models.BlockModel.translated.html#compas_dem.models.BlockModel.translated">translated() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.elements.Block.validate_data.html#compas_dem.elements.Block.validate_data">validate_data() (compas_dem.elements.Block class method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.elements.BlockFeature.validate_data.html#compas_dem.elements.BlockFeature.validate_data">(compas_dem.elements.BlockFeature class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.FrictionContact.validate_data.html#compas_dem.interactions.FrictionContact.validate_data">(compas_dem.interactions.FrictionContact class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.models.BlockModel.validate_data.html#compas_dem.models.BlockModel.validate_data">(compas_dem.models.BlockModel class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright ETH Zurich - Block Research Group.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
