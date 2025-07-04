@@ -19,6 +19,7 @@ from compas_model.interactions import Contact
 from compas_model.models import Model
 
 from compas_dem.elements import Block
+from compas_dem.fabrication.offset import OffsetPlanarBlocks
 from compas_dem.interactions import FrictionContact
 from compas_dem.templates import BarrelVaultTemplate
 from compas_dem.templates import Template
@@ -247,6 +248,113 @@ class BlockModel(Model):
     # =============================================================================
     # Patterns
     # =============================================================================
+
+    @classmethod
+    def from_mesh_with_planar_faces(
+        cls,
+        mesh: Mesh,
+        offset: float = 0.5,
+        chamfer: float = 0.1,
+        thickness_scale_bottom: float = 0.5,
+        thickness_scale_top: float = 1.0,
+        project_bottom: bool = False,
+        project_top: bool = True,
+        tolerance_parallel: float = 0.5,
+        vertex_normals: list[list[float]] = None,
+        is_brep: bool = False,
+    ) -> "BlockModel":
+        """Construct a Block Model from a mesh with planar faces.
+
+        Parameters
+        ----------
+        mesh : :class:`Mesh`
+            The input mesh.
+        offset : float, optional
+            The offset distance.
+        chamfer : float, optional
+            The chamfer distance.
+        thickness_scale_bottom : float, optional
+            The thickness scale for the bottom.
+        thickness_scale_top : float, optional
+            The thickness scale for the top.
+        project_bottom : bool, optional
+            Whether to project the bottom.
+        project_top : bool, optional
+            Whether to project the top.
+        tolerance_parallel : float, optional
+            The tolerance for parallelism.
+        vertex_normals : list[list[float]], optional
+            The vertex normals.
+        is_brep : bool, optional
+            Whether to use Brep or Mesh.
+
+
+        Returns
+        -------
+        :class:`BlockModel`
+
+        """
+
+        offset_planar_blocks = OffsetPlanarBlocks(
+            mesh,
+            offset=offset,
+            chamfer=chamfer,
+            thickness_scale_bottom=thickness_scale_bottom,
+            thickness_scale_top=thickness_scale_top,
+            project_bottom=project_bottom,
+            project_top=project_top,
+            tolerance_parallel=tolerance_parallel,
+            vertex_normals=vertex_normals,
+        )
+
+        solid_meshes, block_frames, e_frames = offset_planar_blocks.blocks, offset_planar_blocks.block_frames, offset_planar_blocks.edge_frames
+
+        # extract connectivity
+        connected_elements: list[tuple[int, int, Line, Frame, int, int]] = []
+
+        for edge in mesh.edges():
+            faces = mesh.edge_faces(edge)
+            if faces[0] is None or faces[1] is None:
+                continue
+
+            e_frame = e_frames[edge]
+
+            line = mesh.edge_line(edge)
+            n = e_frame.zaxis
+            o = line.point_at(0.5)
+            x = line.vector
+            y = n.cross(x)
+
+            connected_elements.append((faces[0], faces[1], line, Frame(o, x, y)))
+
+        # add solid blocks
+        from compas.geometry import Brep
+
+        model = cls()
+        blocks = []
+        for solid_mesh in solid_meshes:
+            if is_brep:
+                # polygons = solid_mesh.to_polygons()
+                # brep = Brep.from_polygons(polygons)
+                brep = Brep.from_mesh(solid_mesh)
+                block: Block = Block(geometry=brep)
+
+            else:
+                block: Block = Block.from_mesh(solid_mesh)
+
+            model.add_element(block)
+            blocks.append(block)
+
+        # add interactions
+        for element in connected_elements:
+            model.add_interaction(blocks[element[0]], blocks[element[1]])
+            model.graph.edge_attribute((element[0], element[1]), "line", element[2])
+            model.graph.edge_attribute((element[0], element[1]), "frame", element[3])
+
+        for idx, block in enumerate(blocks):
+            model.graph.node_attribute(idx, "frame", block_frames[idx])
+
+        return model
 
     @classmethod
     def from_triangulation_dual(cls, mesh: Mesh, lengthfactor: float = 1.0, tmin=None, tmax=None) -> "BlockModel":

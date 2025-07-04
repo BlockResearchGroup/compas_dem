@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added `compas_dem.fabrication.offset.offset_planar_blocks`.
+* Added `compas_dem.fabrication.label.Label`.
+* Added `compas_dem.modifiers.boolean_difference_modifier`.
+* Added `compas_dem.modifiers.boolean_union_modifier`.
+* Added `compas_dem.elements.Interface`.
+* Added `dem_planar_blocks` script.
+
 ### Changed
 
 ### Removed
