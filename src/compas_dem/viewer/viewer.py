@@ -9,7 +9,7 @@ from compas_viewer.scene import ViewerSceneObject
 from compas_viewer.viewer import Viewer
 
 from compas_dem.models import BlockModel
-from compas_dem.models.surfacemodel import SurfaceModel
+from compas_dem.models import SurfaceModel
 from compas_tna.diagrams import FormDiagram
 
 from typing import Optional, Union
