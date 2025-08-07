@@ -55,11 +55,8 @@ def offset_from_middle(middle: "Mesh", thickness: float, fixed_xy: bool = True) 
     extrados : Mesh
         Offset mesh (extrados).
     """
-    # extrados = middle.copy()
-    # intrados = middle.copy()
-    v, f = middle.to_vertices_and_faces()
-    extrados = Mesh.from_vertices_and_faces(v, f)
-    intrados = Mesh.from_vertices_and_faces(v, f)
+    extrados = middle.copy(cls=Mesh)
+    intrados = middle.copy(cls=Mesh)
 
     half_thick = 0.5 * thickness
 
@@ -195,10 +192,8 @@ class SurfaceModel(Model):
         """
         model = cls()
         model.formdiagram = formdiagram
-        if thickness is not None:
-            v, f = formdiagram.to_vertices_and_faces()
-            model.middle = Mesh.from_vertices_and_faces(v, f)             
-            # model.middle = formdiagram.copy(cls=Mesh)
+        if thickness is not None:            
+            model.middle = formdiagram.copy(cls=Mesh)
 
             intrados, extrados = offset_from_middle(model.middle, thickness)
             model.intrados = intrados
