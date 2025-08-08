@@ -1,6 +1,6 @@
 from compas_dem.models import BlockModel
 from compas_dem.templates import ArchTemplate
-from compas_dem.viewer import DEMViewer
+from compas_dem.viewer import MasonryViewer
 
 # =============================================================================
 # Template
@@ -31,7 +31,7 @@ for node in model.graph.nodes_where(degree=1):
 # Viz
 # =============================================================================
 
-viewer = DEMViewer(model)
+viewer = MasonryViewer(blockmodel=model)
 
 viewer.setup()
 viewer.show()

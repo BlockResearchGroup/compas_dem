@@ -1,3 +1,5 @@
+# Interoperability between TNO and DEM
+
 from compas_dem.templates.crossvault import CrossVaultTemplate
 from compas_dem.models import SurfaceModel
 from compas_dem.viewer import MasonryViewer
@@ -34,19 +36,13 @@ print(f"Total Selfweight: {model.total_selfweight}")
 # Diagram
 # =============================================================================
 
-form = FormDiagram.create_cross_form(
-        # xy_span=[[0.1, 9.9], [0.1, 9.9]],
+form = FormDiagram.create_fan_form(
         xy_span=xy_span,
         discretisation=10,
 )
+
 model.formdiagram = form
 
-# model.apply_selfweight()
-
-# for key in model.formdiagram.vertices():
-#     print(model.formdiagram.vertex_attribute(key, "pz"))
-
-# User should set the formdiagram themselves
 
 # =============================================================================
 # Diagram
@@ -59,10 +55,16 @@ analysis.set_up_optimiser()
 analysis.run()
 
 # =============================================================================
+# Make DEM blocks with the minimum thrust solution with variable thk
+# =============================================================================
+
+blockmodel = model.to_blocks(option="Dual")
+
+# =============================================================================
 # Viz
 # =============================================================================
 
 viewer = MasonryViewer(model)
-
+viewer.add_model(blockmodel)
 viewer.setup()
 viewer.show()

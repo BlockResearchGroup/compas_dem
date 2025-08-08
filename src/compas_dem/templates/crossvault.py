@@ -392,6 +392,7 @@ class CrossVaultTemplate(Template):
         zt = crossvault_middle_update(xi, yi, self.min_lb, xy_span=self.xy_span, tol=1e-6)
         xyzt = array([xi, yi, zt.flatten()]).transpose()
         middle = Mesh.from_vertices_and_faces(xyzt, faces_i)
+        middle.update_default_vertex_attributes(thickness=self.thk)
 
         zub, zlb = crossvault_ub_lb_update(xi, yi, self.thk, self.min_lb, xy_span=self.xy_span, tol=1e-6)
         xyzub = array([xi, yi, zub.flatten()]).transpose()
