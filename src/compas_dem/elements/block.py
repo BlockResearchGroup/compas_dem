@@ -61,10 +61,12 @@ class Block(Element):
         transformation: Optional[Transformation] = None,
         name: Optional[str] = None,
         is_support: bool = False,
+        material: Optional[str] = None,
     ) -> None:
         super().__init__(geometry=geometry, transformation=transformation, features=features, name=name)
 
         self.is_support = is_support
+        self.block_material = material
 
     # =============================================================================
     # Constructors
