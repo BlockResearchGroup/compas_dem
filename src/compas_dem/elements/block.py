@@ -118,6 +118,22 @@ class Block(Element):
         """
         return cls(geometry=mesh.copy(cls=Mesh), **kwargs)
 
+    @classmethod
+    def from_brep(cls, brep, **kwargs) -> "Block":
+        """Construct a block element from a brep.
+
+        Parameters
+        ----------
+        brep : :class:`compas.geometry.Brep`
+            A brep.
+
+        Returns
+        -------
+        :class:`Block`
+
+        """
+        return cls(geometry=brep, **kwargs)
+
     # =============================================================================
     # Implementations of abstract methods
     # =============================================================================
