@@ -229,6 +229,7 @@ class BlockModel(Model):
         model = cls()
         for mesh in template.blocks():
             block: Block = Block.from_mesh(mesh)
+            block.is_support = mesh.attributes["is_support"]
             model.add_element(block)
         return model
 
