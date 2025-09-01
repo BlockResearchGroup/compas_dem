@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added tutorials.
 * Added examples.
 * Added documentation.
-* Added `from_brep` to `compas_dem.elements.Block`.
 * Added `is_support` assignment to `compas_dem.BlockModel.from_barrelvault`.
 
 ### Changed

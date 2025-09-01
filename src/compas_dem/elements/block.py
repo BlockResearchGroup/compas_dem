@@ -8,12 +8,13 @@ from compas.geometry import Transformation
 from compas_model.elements import Element
 from compas_model.elements import Feature
 
-
 # A block could have features like notches,
 # but we will work on it when we need it...
 # A notch could be a cylinder defined in the frame of a face.
 # The frame of a face should be defined in coorination with the global frame of the block.
 # during interface detection the features could/should be ignored.
+
+
 class BlockFeature(Feature):
     pass
 
@@ -46,6 +47,9 @@ class Block(Element):
     """
 
     _geometry: Mesh
+
+    elementgeometry: Mesh  # type: ignore
+    modelgeometry: Mesh  # type: ignore
 
     @property
     def __data__(self) -> dict:
@@ -118,27 +122,21 @@ class Block(Element):
         """
         return cls(geometry=mesh.copy(cls=Mesh), **kwargs)
 
-    @classmethod
-    def from_brep(cls, brep, **kwargs) -> "Block":
-        """Construct a block element from a brep.
-
-        Parameters
-        ----------
-        brep : :class:`compas.geometry.Brep`
-            A brep.
-
-        Returns
-        -------
-        :class:`Block`
-
-        """
-        return cls(geometry=brep, **kwargs)
-
     # =============================================================================
     # Implementations of abstract methods
     # =============================================================================
 
     def compute_elementgeometry(self, include_features: bool = False) -> Mesh:
+        """Compute the element geometry of the block element.
+
+        Note that the block element is not parametric
+        Therefor, this simply returns the mesh geometry that was provided as input when creating the element object.
+
+        Returns
+        -------
+        :class:`Mesh`
+
+        """
         return self._geometry
 
     def compute_aabb(self, inflate: float = 1.0) -> Box:
