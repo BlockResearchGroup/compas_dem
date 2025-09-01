@@ -1,4 +1,5 @@
 from compas.geometry import Transformation
+
 from compas_dem.elements import Block
 from compas_dem.models import BlockModel
 from compas_dem.templates import ArchTemplate

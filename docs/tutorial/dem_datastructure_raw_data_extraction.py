@@ -1,7 +1,10 @@
-from compas_dem.templates import ArchTemplate
-from compas_dem.models import BlockModel
+from typing import List
+from typing import Tuple
+
 import numpy as np
-from typing import List, Tuple
+
+from compas_dem.models import BlockModel
+from compas_dem.templates import ArchTemplate
 
 # Model
 template: ArchTemplate = ArchTemplate(rise=3, span=10, thickness=0.5, depth=0.5, n=50)

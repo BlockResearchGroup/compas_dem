@@ -1,9 +1,11 @@
-from compas_dem.templates import ArchTemplate
-from compas_dem.models import BlockModel
-from compas_viewer import Viewer
-from compas.colors import Color
-import compas
 import pathlib
+
+import compas
+from compas.colors import Color
+from compas_viewer import Viewer
+
+from compas_dem.models import BlockModel
+from compas_dem.templates import ArchTemplate
 
 # Model
 template = ArchTemplate(rise=5, span=10, thickness=0.5, depth=0.5, n=20)
