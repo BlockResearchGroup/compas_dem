@@ -18,6 +18,14 @@ cd compas_dem
 pip install -e ".[dev]"
 ```
 
+To install a version that supports equilibrium ananlysis of DEMs with CRA
+
+```bash
+cd compas_dem
+conda env create -f environment.yml
+conda activate dem-dev
+```
+
 ## Documentation
 
 For further "getting started" instructions, a tutorial, examples, and an API reference,
