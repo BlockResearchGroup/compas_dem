@@ -134,7 +134,7 @@ def mesh_to_facesbuffer(mesh: Mesh, color: Color) -> tuple[list[list[float]], li
             colors.append(color)
 
         else:
-            ears = earclip_polygon(Polygon([mesh.vertex_coordinates(v) for v in vertices]))
+            ears: list[list[int]] = earclip_polygon(Polygon([mesh.vertex_coordinates(v) for v in vertices]))  # type: ignore
             for ear in ears:
                 positions.append(mesh.vertex_coordinates(vertices[ear[0]]))
                 positions.append(mesh.vertex_coordinates(vertices[ear[1]]))

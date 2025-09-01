@@ -1,4 +1,6 @@
 from typing import Annotated
+from typing import Optional
+from typing import Union
 
 from compas.geometry import Frame
 from compas.geometry import Line
@@ -93,7 +95,7 @@ class FrictionContact(Contact):
 
         self._points2 = None
         self._polygon2 = None
-        self._forces = forces
+        self._forces = forces or []
 
         self._compressiondata = None
         self._tensiondata = None
@@ -131,7 +133,7 @@ class FrictionContact(Contact):
         m0 = 0
         for a, b in pairwise(self.points2 + self.points2[:1]):
             d = b - a
-            n = [d[1], -d[0], 0]
+            n = [d[1], -d[0], 0]  # type: ignore
             m0 += dot_vectors(a, n)
         return 0.5 * m0
 
@@ -140,7 +142,7 @@ class FrictionContact(Contact):
         m1 = Point(0, 0, 0)
         for a, b in pairwise(self.points2 + self.points2[:1]):
             d = b - a
-            n = [d[1], -d[0], 0]
+            n = [d[1], -d[0], 0]  # type: ignore
             m0 = dot_vectors(a, n)
             m1 += (a + b) * m0
         return m1 / 6
@@ -150,7 +152,7 @@ class FrictionContact(Contact):
         m2 = outer_product([0, 0, 0], [0, 0, 0])
         for a, b in pairwise(self.points2 + self.points2[:1]):
             d = b - a
-            n = [d[1], -d[0], 0]
+            n = [d[1], -d[0], 0]  # type: ignore
             m0 = dot_vectors(a, n)
             aa = outer_product(a, a)
             ab = outer_product(a, b)
@@ -163,7 +165,7 @@ class FrictionContact(Contact):
                     m0,
                 ),
             )
-        return scale_matrix(m2, 1 / 12.0)
+        return scale_matrix(m2, 1 / 12.0)  # type: ignore
 
     @property
     def kern(self):
@@ -267,7 +269,7 @@ class FrictionContact(Contact):
         return self._frictiondata
 
     @property
-    def resultantpoint(self) -> list[float]:
+    def resultantpoint(self) -> Optional[Union[Point, list[float]]]:
         if not self.forces:
             return []
         normalcomponents = [f["c_np"] - f["c_nn"] for f in self.forces]
@@ -291,7 +293,7 @@ class FrictionContact(Contact):
         return [Line(p1, p2)]
 
     @property
-    def resultantdata(self) -> list[float]:
+    def resultantdata(self) -> Optional[list[float]]:
         if not self._resultantdata:
             if self.forces:
                 normalcomponents = [f["c_np"] - f["c_nn"] for f in self.forces]

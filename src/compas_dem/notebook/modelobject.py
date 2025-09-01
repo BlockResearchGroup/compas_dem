@@ -1,4 +1,5 @@
 from typing import Optional
+from typing import Union
 
 import pythreejs as three
 from compas.colors import Color
@@ -40,7 +41,7 @@ class ThreeBlockModelObject(ThreeSceneObject):
 
     @property
     def model(self) -> BlockModel:
-        return self.item
+        return self.item  # type: ignore
 
     @model.setter
     def model(self, model: BlockModel) -> None:
@@ -77,7 +78,7 @@ class ThreeBlockModelObject(ThreeSceneObject):
 
         return self.guids
 
-    def draw_blocks(self) -> tuple[three.Mesh, three.LineSegments]:
+    def draw_blocks(self) -> tuple[Union[three.Mesh, None], three.LineSegments]:
         """Draw the blocks of the model."""
         meshes = [block.modelgeometry for block in self.model.blocks()]
 
