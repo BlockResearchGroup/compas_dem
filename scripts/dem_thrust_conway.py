@@ -3,18 +3,6 @@ import pathlib
 import compas
 from compas.datastructures import Mesh
 from compas.datastructures import mesh_conway_ambo
-from compas.datastructures import mesh_conway_bevel
-from compas.datastructures import mesh_conway_dual
-from compas.datastructures import mesh_conway_expand
-from compas.datastructures import mesh_conway_gyro
-from compas.datastructures import mesh_conway_join
-from compas.datastructures import mesh_conway_kis
-from compas.datastructures import mesh_conway_meta
-from compas.datastructures import mesh_conway_needle
-from compas.datastructures import mesh_conway_ortho
-from compas.datastructures import mesh_conway_snub
-from compas.datastructures import mesh_conway_truncate
-from compas.datastructures import mesh_conway_zip
 from compas_viewer.viewer import Viewer
 
 # =============================================================================
