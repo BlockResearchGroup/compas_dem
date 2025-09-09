@@ -24,23 +24,15 @@ class Block(Element):
 
     Parameters
     ----------
-    shape : :class:`compas.datastructures.Mesh`
-        The base shape of the block.
-    features : list[:class:`BlockFeature`], optional
-        Additional block features.
+    geometry : :class:`compas.datastructures.Mesh`
+        The base geometry of the block.
+    transformation : :class:`compas.geometry.Transformation`, optional
+        The transformation of the block to model coordinates.
     is_support : bool, optional
         Flag indicating that the block is a support.
-    frame : :class:`compas.geometry.Frame`, optional
-        The coordinate frame of the block.
-    name : str, optional
-        The name of the element.
 
     Attributes
     ----------
-    shape : :class:`compas.datastructures.Mesh`
-        The base shape of the block.
-    features : list[:class:`BlockFeature`]
-        A list of additional block features.
     is_support : bool
         Flag indicating that the block is a support.
 
@@ -61,12 +53,11 @@ class Block(Element):
     def __init__(
         self,
         geometry: Mesh,
-        features: Optional[list[BlockFeature]] = None,
         transformation: Optional[Transformation] = None,
-        name: Optional[str] = None,
         is_support: bool = False,
+        **kwargs,
     ) -> None:
-        super().__init__(geometry=geometry, transformation=transformation, features=features, name=name)
+        super().__init__(geometry=geometry, transformation=transformation, **kwargs)
 
         self.is_support = is_support
 
