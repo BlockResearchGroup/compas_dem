@@ -567,30 +567,22 @@ document.write(`
 <h1>Block</h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="compas_dem.elements.Block">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_dem.elements.</span></span><span class="sig-name descname"><span class="pre">Block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_support</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_dem.elements.</span></span><span class="sig-name descname"><span class="pre">Block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_support</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code></p>
 <p>Class representing block elements.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/compas.datastructures.Mesh.html#compas.datastructures.Mesh" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Mesh</span></code></a></span></dt><dd><p>The base shape of the block.</p>
+<dt><strong>geometry</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/compas.datastructures.Mesh.html#compas.datastructures.Mesh" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Mesh</span></code></a></span></dt><dd><p>The base geometry of the block.</p>
 </dd>
-<dt><strong>features</strong><span class="classifier">list[<a class="reference internal" href="compas_dem.elements.BlockFeature.html#compas_dem.elements.BlockFeature" title="compas_dem.elements.BlockFeature"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockFeature</span></code></a>], optional</span></dt><dd><p>Additional block features.</p>
+<dt><strong>transformation</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.geometry.Transformation.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.Transformation</span></code></a>, optional</span></dt><dd><p>The transformation of the block to model coordinates.</p>
 </dd>
 <dt><strong>is_support</strong><span class="classifier">bool, optional</span></dt><dd><p>Flag indicating that the block is a support.</p>
-</dd>
-<dt><strong>frame</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.geometry.Frame.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.Frame</span></code></a>, optional</span></dt><dd><p>The coordinate frame of the block.</p>
-</dd>
-<dt><strong>name</strong><span class="classifier">str, optional</span></dt><dd><p>The name of the element.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Attributes<span class="colon">:</span></dt>
-<dd class="field-even"><dl>
-<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/compas.datastructures.Mesh.html#compas.datastructures.Mesh" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Mesh</span></code></a></span></dt><dd><p>The base shape of the block.</p>
-</dd>
-<dt><strong>features</strong><span class="classifier">list[<a class="reference internal" href="compas_dem.elements.BlockFeature.html#compas_dem.elements.BlockFeature" title="compas_dem.elements.BlockFeature"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockFeature</span></code></a>]</span></dt><dd><p>A list of additional block features.</p>
-</dd>
+<dd class="field-even"><dl class="simple">
 <dt><strong>is_support</strong><span class="classifier">bool</span></dt><dd><p>Flag indicating that the block is a support.</p>
 </dd>
 </dl>
