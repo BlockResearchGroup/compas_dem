@@ -250,7 +250,7 @@ class BlockModel(Model):
     # =============================================================================
 
     @classmethod
-    def from_triangulation_dual(cls, mesh: Mesh, lengthfactor: float = 1.0, tmin=None, tmax=None) -> "BlockModel":
+    def from_triangulation_dual(cls, mesh: Mesh, lengthfactor: float = 1.0, tmin=None, tmax=None, fixed_vertices=[]) -> "BlockModel":
         """Construct a Block Model from the dual of an isotropically remeshed triangulation of the input mesh.
 
         Parameters
@@ -265,6 +265,8 @@ class BlockModel(Model):
         tmax : float, optional
             Maximum thickness of the blocks.
             If none is provided, the maximum thickness will be 50/1000 of the diagonal of the xy bounding box of the input mesh.
+        fixed_vertices : list[list[float]], optional
+            A list of fixed points on the target mesh.
 
         Returns
         -------
@@ -275,8 +277,55 @@ class BlockModel(Model):
         temp.quads_to_triangles()
         M = temp.to_vertices_and_faces()
 
-        V1, F1, V2, F2 = trimesh_dual(M, length_factor=lengthfactor, number_of_iterations=100)  # type: ignore
+        V1, F1, V2, F2 = trimesh_dual(M, length_factor=lengthfactor, number_of_iterations=100, fixed_vertices=fixed_vertices)  # type: ignore
         dual = Mesh.from_vertices_and_faces(V2, F2)
+        dual.unify_cycles()
+
+        pattern_inverse_height_thickness(dual, tmin=tmin, tmax=tmax)
+        idos = pattern_idos(dual)
+        face_block: dict[int, Mesh] = pattern_blocks(dual, idos)
+
+        face: int
+        face_node: dict[int, int] = {}
+
+        model = cls()
+        for face, block in face_block.items():
+            node = model.add_block_from_mesh(block)
+            face_node[face] = node
+
+        for face in dual.faces():  # type: ignore
+            u = face_node[face]
+            nbrs = dual.face_neighbors(face)
+            for nbr in nbrs:
+                v = face_node[nbr]
+                model.graph.add_edge(u, v)
+
+        return model
+
+
+    @classmethod
+    def from_dual(cls, mesh: Mesh, tmin=None, tmax=None, include_boundary=True) -> "BlockModel":
+        """Construct a Block Model from the dual of an the input mesh. Note: It does not triangulate the mesh
+
+        Parameters
+        ----------
+        mesh : :class:`Mesh`
+            The input mesh.
+        tmin : float, optional
+            Minimum thickness of the blocks.
+            If none is provided, the minimum thickness will be 3/1000 of the diagonal of the xy bounding box of the input mesh.
+        tmax : float, optional
+            Maximum thickness of the blocks.
+            If none is provided, the maximum thickness will be 50/1000 of the diagonal of the xy bounding box of the input mesh.
+        include_boundary : bool, optional
+            Whether to include boundary faces for the dual mesh.
+
+        Returns
+        -------
+        :class:`BlockModel`
+
+        """
+        dual = mesh.dual(cls=Mesh, include_boundary=include_boundary)
         dual.unify_cycles()
 
         pattern_inverse_height_thickness(dual, tmin=tmin, tmax=tmax)

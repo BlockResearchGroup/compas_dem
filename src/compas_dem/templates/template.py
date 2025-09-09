@@ -7,6 +7,16 @@ class Template:
 
     def interfaces(self):
         raise NotImplementedError
+    
+    def intrados_and_extrados(self):
+        """Return the intrados and extrados surfaces as meshes.
+        Returns
+        -------
+        tuple
+            0. Mesh representing the intrados surface.
+            1. Mesh representing the extrados surface.
+        """
+        raise NotImplementedError
 
     def to_blocks_and_interfaces(self):
         """Convert the geometry to a list of block meshes,
