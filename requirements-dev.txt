@@ -1,8 +1,6 @@
 attrs >=17.4
 bump-my-version
 compas_invocations2 >=0.4.0
-compas_notebook
-compas_viewer
 invoke >=0.14
 ruff
 sphinx_compas2_theme

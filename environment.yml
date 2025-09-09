@@ -9,7 +9,7 @@ dependencies:
   - pyomo ==6.4.2
   - numpy <2.0
   - pip:
-      - tessagon
       - -r requirements-dev.txt
+      - -r requirements-viz.txt
       - -r requirements-analysis.txt
-      - .
+      - -e .

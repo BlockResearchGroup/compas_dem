@@ -9,9 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added `compas_viewer` and `compas_notebook` to `requirements-viz.txt`.
+* Added optional "viz" dependencies to `pyproject.toml`.
+
 ### Changed
 
+* Fixed bug in serialisation mechanism of block elements due to unhandled `material` parameter.
+
 ### Removed
+
+* Removed `compas_viewer` and `compas_notebook` from dev requirements.
 
 
 ## [0.4.1] 2025-09-09
