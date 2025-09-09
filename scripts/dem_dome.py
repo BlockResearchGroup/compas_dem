@@ -1,3 +1,6 @@
+import pathlib
+
+import compas
 from compas.datastructures import Mesh
 from compas.geometry import SphericalSurface
 
@@ -55,6 +58,8 @@ model.compute_contacts(tolerance=0.001)
 # =============================================================================
 # Export
 # =============================================================================
+
+compas.json_dump(model, pathlib.Path(__file__).parent / "dome.json")
 
 # =============================================================================
 # Viz
