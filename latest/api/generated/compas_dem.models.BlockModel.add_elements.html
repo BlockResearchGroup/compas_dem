@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 
 
@@ -7,7 +6,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="../../_static/compas.ico" type="image/x-icon">
     <title>BlockModel.add_elements &#8212; COMPAS Discrete Element Models</title>
   
@@ -29,28 +28,29 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/compas.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/compas.css?v=617b33e2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=4c969af8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=bb99e320"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/tabs.js?v=3ee01567"></script>
     <script>let toggleHintShow = 'Click to show';</script>
     <script>let toggleHintHide = 'Click to hide';</script>
     <script>let toggleOpenOnPrint = 'true';</script>
-    <script src="../../_static/togglebutton.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/compas_dem.models.BlockModel.add_elements';</script>
     <script>
@@ -59,7 +59,7 @@
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="BlockModel.add_interaction" href="compas_dem.models.BlockModel.add_interaction.html" />
+    <link rel="next" title="BlockModel.add_group" href="compas_dem.models.BlockModel.add_group.html" />
     <link rel="prev" title="BlockModel.add_element" href="compas_dem.models.BlockModel.add_element.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -465,18 +465,27 @@ document.write(`
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_stack.html">DEM of a Stack of Blocks</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorial.html">Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/dem_datastructure_overview.html">DEM Data Structure: Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/dem_datastructure_raw_data_extraction.html">DEM Data Structure: Raw Data Extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/dem_datastructure_results.html">DEM Data Structure: Results</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.html">compas_dem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.analysis.html">analysis</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_arch.html">DEM of an Arch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_armadillo.html">DEM of an Armadillo Vault</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_dome.html">DEM of a Dome</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_stack.html">DEM of a Stack of Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_vault_barrel.html">DEM of a Barrel Vault</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_vault_cross.html">DEM of a Cross Vault</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_wall.html">DEM of a Wall</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.html">compas_dem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.elements.html">elements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.interactions.html">interactions</a></li>
 <li class="toctree-l3 current active"><a class="reference internal" href="../compas_dem.models.html">models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.notebook.html">notebook</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.templates.html">templates</a></li>
 </ul>
 </li>
@@ -558,21 +567,33 @@ document.write(`
 <h1>BlockModel.add_elements</h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_dem.models.BlockModel.add_elements">
-<span class="sig-prename descclassname"><span class="pre">BlockModel.</span></span><span class="sig-name descname"><span class="pre">add_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Add multiple elements to the model.</p>
+<span class="sig-prename descclassname"><span class="pre">BlockModel.</span></span><span class="sig-name descname"><span class="pre">add_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Add a list of elements to the model.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>elements</strong><span class="classifier">list[<code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code>]</span></dt><dd><p>The model elements.</p>
+<dt><strong>elements</strong><span class="classifier">list[<code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code>]</span></dt><dd><p>The elements to add.</p>
 </dd>
-<dt><strong>parent</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">GroupNode</span></code>, optional</span></dt><dd><p>The parent group node of the elements.
-If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the elements will be added directly under the root node.</p>
+<dt><strong>parent</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code>, optional</span></dt><dd><p>The parent element of the elements.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the elements will be added directly under the root element.</p>
+</dd>
+<dt><strong>material</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code>, optional</span></dt><dd><p>A material to assign to the elements.
+Note that the material should have already been added to the model before it can be assigned.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>list[<code class="xref py py-class docutils literal notranslate"><span class="pre">ElementNode</span></code>]</dt><dd></dd>
+<dt>list[<code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code>]</dt><dd><p>The list of elements added to the model.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the parent node is not a GroupNode.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If a material is provided that is not part of the model.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -637,7 +658,7 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

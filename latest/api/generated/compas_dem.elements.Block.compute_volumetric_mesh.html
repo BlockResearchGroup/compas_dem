@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="../../_static/compas.ico" type="image/x-icon">
-    <title>BlockModel.add_group &#8212; COMPAS Discrete Element Models</title>
+    <title>Block.compute_volumetric_mesh &#8212; COMPAS Discrete Element Models</title>
   
   
   
@@ -52,15 +52,15 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/compas_dem.models.BlockModel.add_group';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/compas_dem.elements.Block.compute_volumetric_mesh';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/blockresearchgroup/compas_dem/gh-pages/versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="BlockModel.add_interaction" href="compas_dem.models.BlockModel.add_interaction.html" />
-    <link rel="prev" title="BlockModel.add_elements" href="compas_dem.models.BlockModel.add_elements.html" />
+    <link rel="next" title="Block.copy" href="compas_dem.elements.Block.copy.html" />
+    <link rel="prev" title="Block.compute_surface_mesh" href="compas_dem.elements.Block.compute_surface_mesh.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -483,9 +483,9 @@ document.write(`
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.html">compas_dem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.elements.html">elements</a></li>
+<li class="toctree-l3 current active"><a class="reference internal" href="../compas_dem.elements.html">elements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.interactions.html">interactions</a></li>
-<li class="toctree-l3 current active"><a class="reference internal" href="../compas_dem.models.html">models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../compas_dem.models.html">models</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../compas_dem.templates.html">templates</a></li>
 </ul>
 </li>
@@ -544,9 +544,9 @@ document.write(`
     <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
     
     
-    <li class="breadcrumb-item"><a href="compas_dem.models.BlockModel.html" class="nav-link">BlockModel</a></li>
+    <li class="breadcrumb-item"><a href="compas_dem.elements.Block.html" class="nav-link">Block</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">BlockModel.add_group</li>
+    <li class="breadcrumb-item active" aria-current="page">Block.compute_volumetric_mesh</li>
   </ul>
 </nav>
 </div>
@@ -563,22 +563,24 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="blockmodel-add-group">
-<h1>BlockModel.add_group</h1>
+  <section id="block-compute-volumetric-mesh">
+<h1>Block.compute_volumetric_mesh</h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="compas_dem.models.BlockModel.add_group">
-<span class="sig-prename descclassname"><span class="pre">BlockModel.</span></span><span class="sig-name descname"><span class="pre">add_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Add a group to the model.</p>
+<dt class="sig sig-object py" id="compas_dem.elements.Block.compute_volumetric_mesh">
+<span class="sig-prename descclassname"><span class="pre">Block.</span></span><span class="sig-name descname"><span class="pre">compute_volumetric_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meshsize_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshsize_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Computes the tetrahedral volumetric mesh of the element’s model geometry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>The name of the group.</p>
+<dt><strong>meshsize_min</strong><span class="classifier">float, optional</span></dt><dd><p>Minimum size of the mesh elements.</p>
+</dd>
+<dt><strong>meshsize_max</strong><span class="classifier">float, optional</span></dt><dd><p>Maximum size of the mesh elements.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Group</span></code></dt><dd><p>The group added to the model.</p>
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.VolMesh</span></code></dt><dd><p>The polyhedral mesh.</p>
 </dd>
 </dl>
 </dd>
@@ -608,7 +610,7 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compas_dem.models.BlockModel.add_group"><code class="docutils literal notranslate"><span class="pre">BlockModel.add_group()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compas_dem.elements.Block.compute_volumetric_mesh"><code class="docutils literal notranslate"><span class="pre">Block.compute_volumetric_mesh()</span></code></a></li>
 </ul>
   </nav></div>
 
