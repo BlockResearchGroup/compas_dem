@@ -16,7 +16,7 @@ model: BlockModel = compas.json_load(pathlib.Path(__file__).parent / "Masonry_DE
 # Contacts
 # =============================================================================
 
-model.compute_contacts(tolerance=0.001)
+# model.compute_contacts(tolerance=0.001)
 
 # =============================================================================
 # Supports
@@ -27,6 +27,12 @@ model.compute_contacts(tolerance=0.001)
 # =============================================================================
 
 cra_penalty_solve(model)
+
+# =============================================================================
+# Export
+# =============================================================================
+
+compas.json_dump(model, pathlib.Path(__file__).parent / "Masonry_DEM_cra.json")  # type: ignore
 
 # =============================================================================
 # Viz
