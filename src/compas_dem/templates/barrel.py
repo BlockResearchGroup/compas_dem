@@ -85,39 +85,75 @@ class BarrelVaultTemplate(Template):
         bottom: list[list[float]] = transform_points([a, d], R)
         brick_pts: list[list[list[float]]] = []
         for i in range(vou_span + 1):
-            R_angle: Rotation = Rotation.from_axis_and_angle([0, 1.0, 0], -angle * i, center)
+            R_angle: Rotation = Rotation.from_axis_and_angle(
+                [0, 1.0, 0], -angle * i, center
+            )
             points: list[list[float]] = transform_points(bottom, R_angle)
             brick_pts.append(points)
 
         depth: float = length / vou_length
-        grouped_data: list[list[float]] = [pair[0] + pair[1] for pair in zip(brick_pts, brick_pts[1:])]
+        grouped_data: list[list[float]] = [
+            pair[0] + pair[1] for pair in zip(brick_pts, brick_pts[1:])
+        ]
 
         meshes: list[Mesh] = []
         for i in range(vou_length):
             for l, group in enumerate(grouped_data):  # noqa: E741
                 is_support: bool = l == 0 or l == (len(grouped_data) - 1)
                 if l % 2 == 0:
-                    point_l: list[list[float]] = [group[0], group[1], group[2], group[3]]
+                    point_l: list[list[float]] = [
+                        group[0],
+                        group[1],
+                        group[2],
+                        group[3],
+                    ]
                     point_list: list[list[float]] = [
                         [group[0][0], group[0][1] + (depth * i), group[0][2]],
                         [group[1][0], group[1][1] + (depth * i), group[1][2]],
                         [group[2][0], group[2][1] + (depth * i), group[2][2]],
                         [group[3][0], group[3][1] + (depth * i), group[3][2]],
                     ]
-                    p_t: list[list[float]] = translate_points(point_l, [0, depth * (i + 1), 0])
+                    p_t: list[list[float]] = translate_points(
+                        point_l, [0, depth * (i + 1), 0]
+                    )
                     vertices: list[list[float]] = point_list + p_t
-                    faces: list[list[int]] = [[0, 1, 3, 2], [0, 4, 5, 1], [4, 6, 7, 5], [6, 2, 3, 7], [1, 5, 7, 3], [2, 6, 4, 0]]
+                    faces: list[list[int]] = [
+                        [0, 1, 3, 2],
+                        [0, 4, 5, 1],
+                        [4, 6, 7, 5],
+                        [6, 2, 3, 7],
+                        [1, 5, 7, 3],
+                        [2, 6, 4, 0],
+                    ]
                     mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
                     mesh.attributes["is_support"] = is_support
                     meshes.append(mesh)
                 else:
-                    point_l: list[list[float]] = [group[0], group[1], group[2], group[3]]
-                    points_base: list[list[float]] = translate_points(point_l, [0, depth / 2, 0])
-                    points_b_t: list[list[float]] = translate_points(points_base, [0, depth * i, 0])
-                    points_t: list[list[float]] = translate_points(points_base, [0, depth * (i + 1), 0])
+                    point_l: list[list[float]] = [
+                        group[0],
+                        group[1],
+                        group[2],
+                        group[3],
+                    ]
+                    points_base: list[list[float]] = translate_points(
+                        point_l, [0, depth / 2, 0]
+                    )
+                    points_b_t: list[list[float]] = translate_points(
+                        points_base, [0, depth * i, 0]
+                    )
+                    points_t: list[list[float]] = translate_points(
+                        points_base, [0, depth * (i + 1), 0]
+                    )
                     vertices: list[list[float]] = points_b_t + points_t
                     if i != vou_length - 1:
-                        faces: list[list[int]] = [[0, 1, 3, 2], [0, 4, 5, 1], [4, 6, 7, 5], [6, 2, 3, 7], [1, 5, 7, 3], [2, 6, 4, 0]]
+                        faces: list[list[int]] = [
+                            [0, 1, 3, 2],
+                            [0, 4, 5, 1],
+                            [4, 6, 7, 5],
+                            [6, 2, 3, 7],
+                            [1, 5, 7, 3],
+                            [2, 6, 4, 0],
+                        ]
                         mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
                         mesh.attributes["is_support"] = is_support
                         meshes.append(mesh)
@@ -128,7 +164,14 @@ class BarrelVaultTemplate(Template):
                 point_l: list[list[float]] = [group[0], group[1], group[2], group[3]]
                 p_t: list[list[float]] = translate_points(point_l, [0, depth / 2, 0])
                 vertices: list[list[float]] = point_l + p_t
-                faces: list[list[int]] = [[0, 1, 3, 2], [0, 4, 5, 1], [4, 6, 7, 5], [6, 2, 3, 7], [1, 5, 7, 3], [2, 6, 4, 0]]
+                faces: list[list[int]] = [
+                    [0, 1, 3, 2],
+                    [0, 4, 5, 1],
+                    [4, 6, 7, 5],
+                    [6, 2, 3, 7],
+                    [1, 5, 7, 3],
+                    [2, 6, 4, 0],
+                ]
                 mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
                 mesh.attributes["is_support"] = is_support
                 meshes.append(mesh)
@@ -136,14 +179,26 @@ class BarrelVaultTemplate(Template):
                 point_f: list[list[float]] = translate_points(point_l, [0, length, 0])
                 p_f: list[list[float]] = translate_points(point_f, [0, -depth / 2, 0])
                 vertices: list[list[float]] = p_f + point_f
-                faces: list[list[int]] = [[0, 1, 3, 2], [0, 4, 5, 1], [4, 6, 7, 5], [6, 2, 3, 7], [1, 5, 7, 3], [2, 6, 4, 0]]
+                faces: list[list[int]] = [
+                    [0, 1, 3, 2],
+                    [0, 4, 5, 1],
+                    [4, 6, 7, 5],
+                    [6, 2, 3, 7],
+                    [1, 5, 7, 3],
+                    [2, 6, 4, 0],
+                ]
                 mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
                 mesh.attributes["is_support"] = is_support
                 meshes.append(mesh)
 
         # Find the lowest z-coordinate and move all the block to zero.
         if not self.zero_is_centerline_or_lowest_point:
-            min_z: float = min([min(mesh.vertex_coordinates(key)[2] for key in mesh.vertices()) for mesh in meshes])
+            min_z: float = min(
+                [
+                    min(mesh.vertex_coordinates(key)[2] for key in mesh.vertices())
+                    for mesh in meshes
+                ]
+            )
             for mesh in meshes:
                 mesh.translate([0, 0, -min_z])
 
