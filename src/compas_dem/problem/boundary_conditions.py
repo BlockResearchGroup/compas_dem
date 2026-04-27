@@ -25,7 +25,6 @@ class BoundaryConditions(Data):
     >>> bc.add_point_load(block_index=10, force=[0, 0, -5000])
     >>> bc.add_fixed(block_index=0)
     >>> bc.add_fixed(block_index=99)
-    >>> problem.apply_bc(bc)
     """
 
     def __init__(

@@ -12,10 +12,6 @@ from compas_dem.problem.boundary_conditions import BoundaryConditions
 class Problem(Data):
     """Defines a structural problem over a block model.
 
-    Forces are resolved to (force, moment) pairs at block centroids immediately
-    when added via :meth:`apply_bc`. The resolved pairs are stored and reused
-    by the solver without recomputation.
-
     Parameters
     ----------
     model : :class:`compas_dem.models.BlockModel`
@@ -25,9 +21,13 @@ class Problem(Data):
 
     Examples
     --------
+    >>> from compas_dem.models import BlockModel
+    >>> from compas_dem.problem import BoundaryConditions
+    >>> model = BlockModel()
+    >>> bc = BoundaryConditions(gravity=True)
     >>> problem = Problem(model)
     >>> problem.apply_bc(bc)
-    >>> problem.solve("CRA")
+    >>> result = problem.solve(solver="LMGC90")
     """
 
     def __init__(self, model: BlockModel, name: Optional[str] = None) -> None:
