@@ -27,7 +27,7 @@ class Problem(Data):
     >>> bc = BoundaryConditions(gravity=True)
     >>> problem = Problem(model)
     >>> problem.apply_bc(bc)
-    >>> result = problem.solve(solver="LMGC90")
+    >>> result = problem.solve(solver="LMGC90")  # doctest: +SKIP
     """
 
     def __init__(self, model: BlockModel, name: Optional[str] = None) -> None:

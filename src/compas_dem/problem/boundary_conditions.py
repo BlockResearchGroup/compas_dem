@@ -44,7 +44,7 @@ class BoundaryConditions(Data):
     # =========================================================================
     # Forces
     # =========================================================================
-    def add_gravity(self, g: float = 9.81) -> "BoundaryConditions":
+    def add_gravity(self, g: float = 9.81) -> None:
         """Apply self-weight to all blocks using material density.
 
         Parameters
@@ -54,9 +54,8 @@ class BoundaryConditions(Data):
         """
         self.gravity = True
         self.g = g
-        return self
 
-    def add_global_body_force(self, ax: float, ay: float, az: float) -> "BoundaryConditions":
+    def add_global_body_force(self, ax: float, ay: float, az: float) -> None:
         """Add a global body acceleration applied to all blocks.
 
         The resultant force on each block is F = [ax, ay, az] * density * volume.
@@ -67,7 +66,6 @@ class BoundaryConditions(Data):
             Acceleration components in [m/s²].
         """
         self._body_forces.append([ax, ay, az])
-        return self
 
     def add_point_load(
         self,
@@ -76,7 +74,7 @@ class BoundaryConditions(Data):
         moment: Optional[list[float]] = None,
         point: Optional[list[float]] = None,
         loading_type: str = "ramp",
-    ) -> "BoundaryConditions":
+    ) -> None:
         """Add a concentrated force to a specific block.
 
         Parameters
@@ -115,7 +113,6 @@ class BoundaryConditions(Data):
                 "loading_type": loading_type,
             }
         )
-        return self
 
     def add_surface_load(
         self,
@@ -123,7 +120,7 @@ class BoundaryConditions(Data):
         polygon: Polygon,
         magnitude: float,
         direction: Optional[list[float]] = None,
-    ) -> "BoundaryConditions":
+    ) -> None:
         """Add a distributed pressure load over a polygon on a block face.
 
         Parameters
@@ -145,13 +142,12 @@ class BoundaryConditions(Data):
                 "direction": direction,
             }
         )
-        return self
 
     # =========================================================================
     # Displacement BCs
     # =========================================================================
 
-    def add_displacement(self, block_index: int, displacement: list[float]) -> "BoundaryConditions":
+    def add_displacement(self, block_index: int, displacement: list[float]) -> None:
         """Prescribe a translational displacement on a block.
 
         Parameters
@@ -168,9 +164,8 @@ class BoundaryConditions(Data):
                 "rotation": None,
             }
         )
-        return self
 
-    def add_rotation(self, block_index: int, rotation: list[float]) -> "BoundaryConditions":
+    def add_rotation(self, block_index: int, rotation: list[float]) -> None:
         """Prescribe a rotation on a block about its centroid.
 
         Parameters
@@ -187,9 +182,8 @@ class BoundaryConditions(Data):
                 "rotation": rotation,
             }
         )
-        return self
 
-    def add_fixed(self, block_index: int) -> "BoundaryConditions":
+    def add_fixed(self, block_index: int) -> None:
         """Fix a block — zero translation and zero rotation.
 
         Parameters
@@ -204,7 +198,6 @@ class BoundaryConditions(Data):
                 "rotation": [0.0, 0.0, 0.0],
             }
         )
-        return self
 
     # =========================================================================
     # Access
