@@ -1,10 +1,13 @@
 from collections import defaultdict
 
 import numpy as np
-from compas_lmgc90.solver import Solver
 
 from compas_dem.problem.problem import Problem
 
+try:
+    from compas_lmgc90.solver import Solver
+except ImportError:
+    raise ImportError("compas_lmgc90 is not installed. Install it to use the LMGC90 solver.")
 # ---------------------------------------------------------------------------
 # UFR – Unbalanced Force Ratio
 # ---------------------------------------------------------------------------
