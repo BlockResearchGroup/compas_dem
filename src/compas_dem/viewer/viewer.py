@@ -2,7 +2,6 @@ from compas.colors import Color
 from compas.geometry import Line
 from compas.scene import Group
 from compas_viewer.config import Config
-from compas_viewer.config import MenubarConfig
 from compas_viewer.scene import ViewerSceneObject
 from compas_viewer.viewer import Viewer
 
@@ -83,7 +82,7 @@ def show_interactions():
     viewer.renderer.update()
 
 
-MenubarConfig._items.append(
+config.ui.menubar.items.append(
     {
         "title": "COMPAS DEM",
         "items": [
@@ -154,10 +153,18 @@ class DEMViewer(Viewer):
 
     def setup_groups(self):
         self.groups["model"] = self.scene.add_group(name="Model")
-        self.groups["supports"] = self.scene.add_group(name="Supports", parent=self.groups["model"])
-        self.groups["blocks"] = self.scene.add_group(name="Blocks", parent=self.groups["model"])
-        self.groups["contacts"] = self.scene.add_group(name="Contacts", parent=self.groups["model"], show=False)
-        self.groups["interactions"] = self.scene.add_group(name="Interactions", parent=self.groups["model"], show=False)
+        self.groups["supports"] = self.scene.add_group(
+            name="Supports", parent=self.groups["model"]
+        )
+        self.groups["blocks"] = self.scene.add_group(
+            name="Blocks", parent=self.groups["model"]
+        )
+        self.groups["contacts"] = self.scene.add_group(
+            name="Contacts", parent=self.groups["model"], show=False
+        )
+        self.groups["interactions"] = self.scene.add_group(
+            name="Interactions", parent=self.groups["model"], show=False
+        )
 
     # =============================================================================
     # Blocks and Contacts
@@ -193,7 +200,9 @@ class DEMViewer(Viewer):
         for contact in self.model.contacts():
             geometry = contact.polygon
             color = self.interfacecolor
-            parent.add(geometry, linewidth=1, surfacecolor=color, linecolor=color.contrast)  # type: ignore
+            parent.add(
+                geometry, linewidth=1, surfacecolor=color, linecolor=color.contrast
+            )  # type: ignore
 
     # =============================================================================
     # Graph
@@ -202,12 +211,88 @@ class DEMViewer(Viewer):
     def add_graph(self):
         parent: Group = self.groups["interactions"]
 
-        node_point = {node: self.model.graph.node_element(node).point for node in self.model.graph.nodes()}  # type: ignore
+        node_point = {
+            node: self.model.graph.node_element(node).point
+            for node in self.model.graph.nodes()
+        }  # type: ignore
         points = list(node_point.values())
-        lines = [Line(node_point[u], node_point[v]) for u, v in self.model.graph.edges()]
+        lines = [
+            Line(node_point[u], node_point[v]) for u, v in self.model.graph.edges()
+        ]
 
         nodegroup = self.scene.add_group(name="Nodes", parent=parent)  # type: ignore
         edgegroup = self.scene.add_group(name="Edges", parent=parent)  # type: ignore
 
         nodegroup.add_from_list(points, pointsize=10, pointcolor=self.graphnodecolor)  # type: ignore
         edgegroup.add_from_list(lines, linewidth=1, linecolor=self.graphedgecolor)  # type: ignore
+
+    def add_solution(self, solver_name, solution, **kwargs):
+        """
+        Adds the solution to the viewer.
+
+        Parameters
+        ----------
+        solver_name : str
+            The name of the solver used to generate the solution. This is used to determine how to interpret the solution data and update the viewer accordingly.
+            Currently supported solvers:
+            - "LMGC90"
+            - "CRA" - pending
+            - "PRD" - pending
+            - "3DEC" - pending
+
+        solution : object
+            The solution object returned by the solver. This is expected to contain the updated block geometries and contact information after the simulation run.
+
+        For LMGC90, the following KWARGS are expected:
+        - scale_normal: float
+            Scaling factor for visualizing contact normals.
+        - scale_force: float
+            Scaling factor for visualizing contact forces.
+
+        """
+        if solver_name == "LMGC90":
+            scale_normal = kwargs.get("scale_normal", 0.00001)
+            scale_force = kwargs.get("scale_force", 0.00001)
+            contacts = solution.get_contacts(
+                scale_normal=scale_normal, scale_force=scale_force
+            )
+
+            solution_group = self.scene.add_group(name="Solution")
+            updated_blocks = self.scene.add_group(
+                name="Updated_Blocks", parent=solution_group
+            )
+            resultant_forces = self.scene.add_group(
+                name="Forces", parent=solution_group
+            )
+            contact_polygons = self.scene.add_group(
+                name="Contact_Polygons", parent=solution_group
+            )
+
+            supports = solution.supports if solution.supports else []
+            for i, mesh in enumerate(solution.trimeshes):
+                is_support = supports[i] if i < len(supports) else False
+                color = (255, 0, 0) if is_support else (200, 200, 200)
+                updated_blocks.add(
+                    mesh,
+                    name=f"block_{i}",
+                    facecolor=color,
+                    show_edges=True,
+                    opacity=0.25,
+                )
+
+            for i, line in enumerate(contacts["force_resultants"]):
+                resultant_forces.add(
+                    line,
+                    name=f"force_resultant_{i}",
+                    linewidth=2.5,
+                    color=(0, 0, 255),
+                )
+
+            for i, polygon in enumerate(contacts["contact_polygons"]):
+                contact_polygons.add(polygon, name=f"polygon_{i}", color=(0, 100, 0))
+            # solution.finalize()  # Ensure proper cleanup of LMGC90 resources
+
+        else:
+            raise NotImplementedError(
+                f"Viewer update not implemented for solver: {solver_name}"
+            )
