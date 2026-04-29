@@ -1,12 +1,8 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from compas_model.materials import Concrete
-
-# import a compas_dem specific material
 from compas_dem.material import Stone
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.templates import ArchTemplate
+from compas_dem.viewer import DEMViewer
 
 # Block Model using compas_dem's Arch Template
 template: ArchTemplate = ArchTemplate(rise=4.393, span=21.213, thickness=0.5, depth=3.0, n=100)
@@ -74,7 +70,7 @@ problem.add_joint_model(kn=10e10, kt=10e7)
 # from compas_dem.problem import BoundaryConditions  # noqa: E402
 
 # bc = BoundaryConditions()
-# bc.add_point_load(block_index=70, force=[0, 0, -151500])
+# bc.add_point_load(block_index=70, force=[0, 0, -151500],point=[10.606, 10.606, 0])  # Apply a point load at the centroid of block 70
 # bc.add_support(block_index=0)
 # bc.add_support(block_index=99)
 
@@ -123,15 +119,15 @@ solution = problem.solve(solver="LMGC90", duration=1.0, n_steps=100, urf_thresho
 # plt.tight_layout()
 # plt.show()
 
-graph = model.graph
+# graph = model.graph
 # for edge in model.graph.edges():
 #     print(
 #         f"Edge {edge} attributes: \n Force: {graph.edge_attribute(edge, 'force')}, \n contact_points: {graph.edge_attribute(edge, 'contact_point')},\n contact_polygon: {graph.edge_attribute(edge, 'contact_polygon')}, friction_contact: {graph.edge_attribute(edge, 'friction_contact')}"
 #     )
+
 for block in model.blocks():
     print(f"Block {block.graphnode} attributes: \n Displacement: {block.displacement.translation_vector}, rotation: {block.displacement.rotation}")
 
-from compas_dem.viewer import DEMViewer  # noqa: E402
 
 viewer = DEMViewer(model)
 viewer.add_solution(solution=solution, scale_force=10e-7)

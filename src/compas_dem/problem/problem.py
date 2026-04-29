@@ -51,7 +51,7 @@ class Problem(Data):
     # ============================================================================
     # Pre-visualization utilities
     # ===========================================================================
-    def inspect_model(self, show_indices: bool = True) -> None:
+    def inspect_model(self, show_indices: bool = False) -> None:
         from compas_viewer.scene import Tag
         from compas_viewer.viewer import Viewer
 
@@ -351,12 +351,7 @@ class Problem(Data):
 
             return lmgc90_solve(self, **kwargs)
 
-        if name == "CRA":
-            from compas_dem.analysis.cra import cra_solve
-
-            return cra_solve(self, **kwargs)
-
-        raise ValueError(f"Solver '{solver}' is not recognised. Available: 'LMGC90', 'CRA'.")
+        raise ValueError(f"Solver '{solver}' is not recognised. Available: 'LMGC90'.")
 
     # =============================================================================
     # Serialization

@@ -212,9 +212,6 @@ def lmgc90_solve(
     solver.contact_law(contact_law, mu)
 
     solver.preprocess()
-    results_init = solver.lmgc90.get_initial_state()
-
-    print(np.array(results_init.init_body_frames[0]).reshape(3, 3))
 
     # raise NotImplementedError("The LMGC90 solver run loop and postprocessing are still being developed. This function is not yet complete.")
     force_time = []
@@ -287,10 +284,8 @@ def lmgc90_solve(
 
 
 def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
-    """Annotate BlockModel elements and edges with LMGC90 results in-place.
+    """Post-process results from the LMGC90 solver into BlockModel on the graph's edges and nodes.
 
-    Iterates elements in the same order the Solver used, so the sequential
-    index directly maps to LMGC90's 1-based body numbering.
 
     Block attributes set
     --------------------
@@ -320,13 +315,20 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
     _per_point_keys = ["contact_points", "force_magnitudes", "force_vectors", "force_normal", "force_tangent1", "force_tangent2", "gaps", "status"]
     _new_key_name = ["contact_point", "force_magnitude", "force_vector", "force_normal", "force_tangent1", "force_tangent2", "gap", "status"]
 
-    # body_pair → polygon index (one polygon per pair, many contact points per pair)
-    polygon_pair_index = {pair: i for i, pair in enumerate(solver.contact_groups.keys()) if i < len(contact_data["contact_polygons"])}
+    # Group contact points by body pairs - Taken directly from compas_LMGC90's post-processing method.
+    contact_groups = {}
+    for i in range(len(solver.last_result.interaction_coords)):
+        body_pair = tuple(sorted(solver.last_result.interaction_bodies[i]))
+        if body_pair not in contact_groups:
+            contact_groups[body_pair] = []
+        contact_groups[body_pair].append(i)
+
+    polygon_pair_index = {pair: i for i, pair in enumerate(contact_groups.keys()) if i < len(contact_data["contact_polygons"])}
 
     result = solver.last_result
     graph = problem.model.graph
 
-    for pair, indices in solver.contact_groups.items():
+    for pair, indices in contact_groups.items():
         u, v = pair  # already (min, max) — matches graphnode ordering
 
         if not indices:
