@@ -4,6 +4,7 @@ from compas.datastructures import Mesh
 from compas.files import OBJ
 
 from compas_dem.models import BlockModel
+from compas_dem.problem import Problem
 from compas_dem.viewer import DEMViewer
 
 # =============================================================================
@@ -40,10 +41,21 @@ for element in model.elements():
         element.is_support = True
 
 # =============================================================================
+# Problem
+# ============================================================================
+
+problem = Problem(model)
+problem.add_supports_from_model()
+problem.add_contact_model("MohrCoulomb", phi=30, c=0)
+# solution = problem.solve("CRA")
+solution = problem.solve("LMGC90", duration=1.0, n_steps=100, urf_threshold=0.001)
+
+
+# =============================================================================
 # Viz
 # =============================================================================
 
 viewer = DEMViewer(model)
 
-viewer.setup()
+viewer.add_solution(solution=solution)
 viewer.show()

@@ -127,6 +127,7 @@ def lmgc90_solve(
     # ------------------------------------------------------------------
     # Density: first non-support block with material, or fallback
     # ------------------------------------------------------------------
+    density = 2000.0
     for block in model.blocks():
         if block.material and block.material.density:
             density = block.material.density
@@ -303,17 +304,17 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
     """
     elements = list(problem.model.elements())
     contact_data = solver.get_contacts()
-
+    result = solver.last_result
     # Annotate each block directly
     for i, block in enumerate(elements):
-        pos = np.array(solver.last_result.bodies[i])
-        rot = np.array(solver.last_result.body_frames[i]).reshape(3, 3)
+        pos = np.array(result.bodies[i])
+        rot = np.array(result.body_frames[i]).reshape(3, 3)
         new_frame = cg.Frame(pos, rot[0, :], rot[1, :])
         block.displacement = cg.Transformation.from_frame_to_frame(block.init_frame, new_frame)
 
-    # contact_polygons is one entry per body pair, not per contact point — handle separately
-    _per_point_keys = ["contact_points", "force_magnitudes", "force_vectors", "force_normal", "force_tangent1", "force_tangent2", "gaps", "status"]
-    _new_key_name = ["contact_point", "force_magnitude", "force_vector", "force_normal", "force_tangent1", "force_tangent2", "gap", "status"]
+    # contact_polygons is one entry per body pair, not per contact point
+    _per_point_keys = ["contact_points", "force_magnitudes", "force_normal", "force_tangent1", "force_tangent2", "gaps", "status"]
+    _new_key_name = ["contact_point", "force_magnitude", "force_normal", "force_tangent1", "force_tangent2", "gap", "status"]
 
     # Group contact points by body pairs - Taken directly from compas_LMGC90's post-processing method.
     contact_groups = {}
@@ -323,13 +324,11 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
             contact_groups[body_pair] = []
         contact_groups[body_pair].append(i)
 
-    polygon_pair_index = {pair: i for i, pair in enumerate(contact_groups.keys()) if i < len(contact_data["contact_polygons"])}
-
     result = solver.last_result
     graph = problem.model.graph
 
     for pair, indices in contact_groups.items():
-        u, v = pair  # already (min, max) — matches graphnode ordering
+        u, v = pair
 
         if not indices:
             continue
@@ -342,35 +341,24 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
         for k, name in zip(_per_point_keys, _new_key_name):
             graph.edge_attribute((u, v), name, [contact_data[k][i] for i in indices])
 
-        graph.edge_attribute((u, v), "force", np.sum([contact_data["force_vectors"][i] for i in indices], axis=0).tolist())
+        graph.edge_attribute((u, v), "force_vector", [list(result.interaction_force_global[i]) for i in indices])
+        graph.edge_attribute((u, v), "force", np.sum([result.interaction_force_global[i] for i in indices], axis=0).tolist())
 
-        poly_idx = polygon_pair_index.get(pair)
-        if poly_idx is not None:
-            graph.edge_attribute((u, v), "contact_polygon", contact_data["contact_polygons"][poly_idx])
+        graph.edge_attribute((u, v), "contact_polygon", cg.Polygon([result.interaction_coords[i] for i in indices]))
 
         # --- contact frames (T, N at each contact point) ---
         contact_frames = [cg.Frame(result.interaction_coords[i], result.interaction_tangent1[i], result.interaction_normals[i]) for i in indices]
         graph.edge_attribute((u, v), "contact_frames", contact_frames)
-
-        # --- frame consistency check: LMGC90 normals should agree across the interface ---
-        if len(contact_frames) > 1:
-            ref = contact_frames[0].yaxis
-            for i, cf in zip(indices[1:], contact_frames[1:]):
-                dot = ref.dot(cf.yaxis)
-                if abs(dot) < 0.9:
-                    print(f"Warning: inconsistent LMGC90 normals on edge ({u},{v}) at point {i}: dot={dot:.3f}")
 
         fv_vecs = graph.edge_attribute((u, v), "force_vector")
         contact_pts = graph.edge_attribute((u, v), "contact_point")
         contact_frames = graph.edge_attribute((u, v), "contact_frames")
         if contact_pts and fv_vecs:
             fc = FrictionContact(points=[cg.Point(*p) for p in contact_pts])
-            if len(contact_pts) < 3:
-                lmgc_normal = contact_frames[0].yaxis  # LMGC90 contact normal
-                lmgc_tangent = contact_frames[0].xaxis  # LMGC90 tangent1
-                tangent2 = lmgc_normal.cross(lmgc_tangent).unitized()
-                fc._frame = cg.Frame(contact_frames[0].point, lmgc_tangent, tangent2)
-                # zaxis = lmgc_tangent × tangent2 = lmgc_tangent × (lmgc_normal × lmgc_tangent) = lmgc_normal
+            lmgc_normal = contact_frames[0].yaxis
+            lmgc_tangent = contact_frames[0].xaxis
+            tangent2 = lmgc_normal.cross(lmgc_tangent).unitized()
+            fc._frame = cg.Frame(contact_frames[0].point, lmgc_tangent, tangent2)
             frame = fc.frame
             fc.forces = [
                 {

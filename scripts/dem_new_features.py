@@ -103,9 +103,6 @@ solution = problem.solve(solver="LMGC90", duration=1.0, n_steps=100, urf_thresho
 # Visualize the model in the DEM Native viewer
 # =============================================================================
 
-# for block in model.blocks():
-#     print(f"Block {block.graphnode} transformation: {block.result_transformation.translation}, {block.result_transformation.rotation}")
-
 # for edge in model.graph.edges():
 #     print(f"Force in edge {edge}: {model.graph.edge_attribute(edge, 'gap')}")
 # force_time = solution.force_time
@@ -125,11 +122,11 @@ solution = problem.solve(solver="LMGC90", duration=1.0, n_steps=100, urf_thresho
 #         f"Edge {edge} attributes: \n Force: {graph.edge_attribute(edge, 'force')}, \n contact_points: {graph.edge_attribute(edge, 'contact_point')},\n contact_polygon: {graph.edge_attribute(edge, 'contact_polygon')}, friction_contact: {graph.edge_attribute(edge, 'friction_contact')}"
 #     )
 
-for block in model.blocks():
-    print(f"Block {block.graphnode} attributes: \n Displacement: {block.displacement.translation_vector}, rotation: {block.displacement.rotation}")
+# for block in model.blocks():
+#     print(f"Block {block.graphnode} attributes: \n Displacement: {block.displacement.translation_vector}, rotation: {block.displacement.rotation}")
 
 
 viewer = DEMViewer(model)
-viewer.add_solution(solution=solution, scale_force=10e-7)
+viewer.add_solution(solution=solution, solver_name="LMGC90", scale_force=8e-7)
 viewer.show()
 solution.finalize()

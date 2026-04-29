@@ -350,6 +350,15 @@ class Problem(Data):
             from compas_dem.analysis.lmgc90 import lmgc90_solve
 
             return lmgc90_solve(self, **kwargs)
+        if name == "CRA":
+            from compas_dem.analysis.cra import cra_solve
+
+            return cra_solve(self, method="penalty", **kwargs)
+
+        if name == "RBE":
+            from compas_dem.analysis.cra import cra_solve
+
+            return cra_solve(self, method="rbe", **kwargs)
 
         raise ValueError(f"Solver '{solver}' is not recognised. Available: 'LMGC90'.")
 

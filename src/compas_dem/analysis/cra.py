@@ -40,10 +40,8 @@ def _post_processing_cra(assembly: Assembly, asm_to_graphnode: dict, problem: Pr
 
     Block attributes set
     --------------------
-    displacement : list[float]
-        Always [0, 0, 0] — CRA is static.
-    local_frame : :class:`compas.geometry.Frame`
-        World-aligned frame at the block centroid (no motion in CRA).
+    displacement : :class:`compas.geometry.Transformation`
+        Identity transformation — CRA is static, blocks do not move.
 
     Edge attributes set
     -------------------
@@ -58,9 +56,7 @@ def _post_processing_cra(assembly: Assembly, asm_to_graphnode: dict, problem: Pr
 
     # Block annotations (static — no displacement)
     for block in model.elements():
-        centroid = block.modelgeometry.centroid()
         block.displacement = cg.Transformation()
-        block.local_frame = cg.Frame(centroid, [1, 0, 0], [0, 1, 0])
 
     # Edge annotations from solved interfaces
     for u_asm, v_asm in assembly.graph.edges():
@@ -99,8 +95,8 @@ def cra_solve(
     method: str = "penalty",
     mu: float = None,
     density: float = None,
-    d_bnd: float = 0.001,
-    eps: float = 0.0001,
+    d_bnd: float = 0.01,
+    eps: float = 0.001,
     verbose: bool = True,
     timer: bool = False,
 ) -> None:

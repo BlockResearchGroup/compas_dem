@@ -1,5 +1,7 @@
+from typing import Optional
+
+import compas.geometry as cg
 from compas.colors import Color
-from compas.geometry import Line
 from compas.scene import Group
 from compas_viewer.config import Config
 from compas_viewer.scene import ViewerSceneObject
@@ -203,7 +205,7 @@ class DEMViewer(Viewer):
 
         node_point = {node: self.model.graph.node_element(node).point for node in self.model.graph.nodes()}  # type: ignore
         points = list(node_point.values())
-        lines = [Line(node_point[u], node_point[v]) for u, v in self.model.graph.edges()]
+        lines = [cg.Line(node_point[u], node_point[v]) for u, v in self.model.graph.edges()]
 
         nodegroup = self.scene.add_group(name="Nodes", parent=parent)  # type: ignore
         edgegroup = self.scene.add_group(name="Edges", parent=parent)  # type: ignore
@@ -211,7 +213,7 @@ class DEMViewer(Viewer):
         nodegroup.add_from_list(points, pointsize=10, pointcolor=self.graphnodecolor)  # type: ignore
         edgegroup.add_from_list(lines, linewidth=1, linecolor=self.graphedgecolor)  # type: ignore
 
-    def add_solution(self, solution, **kwargs):
+    def add_solution(self, solution=None, solver_name: Optional[str] = None, **kwargs):
         """
         Adds the solution to the viewer.
 
@@ -292,25 +294,22 @@ class DEMViewer(Viewer):
             force = self.model.graph.edge_attribute(edge, "force")
             contact_pts = self.model.graph.edge_attribute(edge, "contact_point")
             fc = self.model.graph.edge_attribute(edge, "friction_contact")
-            # print(f"Edge ({u}, {v}): force={force}, contact_pts={contact_pts}, friction_contact={fc}")
             if not force or not contact_pts:
                 continue
 
-            resultant_line = None
-            if fc and len(contact_pts) >= 3:
-                try:
-                    resultant_line = fc.resultantforce[0]
-                    center = resultant_line.midpoint
-                    resultant_line.translate([-center.x, -center.y, -center.z])
-                    resultant_line.scale(scale_force, scale_force, scale_force)
-                    resultant_line.translate([center.x, center.y, center.z])
-                except ZeroDivisionError:
-                    pass
-            if resultant_line is None:
+            fn_vals = [f["c_np"] - f["c_nn"] for f in fc.forces] if fc else None
+            fn_sum = sum(fn_vals) if fn_vals else 0.0
+
+            if fn_vals and abs(fn_sum) > 1e-12:  # To avoid division by zero
+                normal = fc.frame.zaxis
+                pos = cg.Point(*cg.centroid_points_weighted([list(p) for p in fc.points], fn_vals))
+                half = [normal[j] * fn_sum * scale_force * 0.5 for j in range(3)]
+            else:
                 n = len(contact_pts)
-                centroid = [sum(p[j] for p in contact_pts) / n for j in range(3)]
+                pos = cg.Point(*[sum(p[j] for p in contact_pts) / n for j in range(3)])
                 half = [force[j] * scale_force * 0.5 for j in range(3)]
-                resultant_line = Line([centroid[j] + half[j] for j in range(3)], [centroid[j] - half[j] for j in range(3)])
+
+            resultant_line = cg.Line([pos[j] + half[j] for j in range(3)], [pos[j] - half[j] for j in range(3)])
 
             resultant_forces.add(
                 resultant_line,
