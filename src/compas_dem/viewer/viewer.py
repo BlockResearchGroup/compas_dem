@@ -1,5 +1,3 @@
-from typing import Optional
-
 import compas.geometry as cg
 from compas.colors import Color
 from compas.scene import Group
@@ -301,9 +299,8 @@ class DEMViewer(Viewer):
             fn_sum = sum(fn_vals) if fn_vals else 0.0
 
             if fn_vals and abs(fn_sum) > 1e-12:  # To avoid division by zero
-                normal = fc.frame.zaxis
                 pos = cg.Point(*cg.centroid_points_weighted([list(p) for p in fc.points], fn_vals))
-                half = [normal[j] * fn_sum * scale_force * 0.5 for j in range(3)]
+                half = [force[j] * fn_sum * scale_force * 0.5 for j in range(3)]
             else:
                 n = len(contact_pts)
                 pos = cg.Point(*[sum(p[j] for p in contact_pts) / n for j in range(3)])

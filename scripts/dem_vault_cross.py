@@ -57,5 +57,5 @@ solution = problem.solve("RBE")
 
 viewer = DEMViewer(model)
 
-viewer.add_solution(scale=1e-4)
+viewer.add_solution(scale=1e-8)
 viewer.show()
