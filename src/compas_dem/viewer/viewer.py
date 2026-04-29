@@ -213,7 +213,7 @@ class DEMViewer(Viewer):
         nodegroup.add_from_list(points, pointsize=10, pointcolor=self.graphnodecolor)  # type: ignore
         edgegroup.add_from_list(lines, linewidth=1, linecolor=self.graphedgecolor)  # type: ignore
 
-    def add_solution(self, solution=None, solver_name: Optional[str] = None, **kwargs):
+    def add_solution(self, scale=1e-7):
         """
         Adds the solution to the viewer.
 
@@ -275,7 +275,7 @@ class DEMViewer(Viewer):
         # else:
         #     raise NotImplementedError(f"Viewer update not implemented for solver: {solver_name}")
 
-        scale_force = kwargs.get("scale_force", 0.00001)
+        scale_force = scale
         moved_blocks = []
 
         solution_group = self.scene.add_group(name="Solution")

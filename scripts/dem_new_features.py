@@ -127,6 +127,5 @@ solution = problem.solve(solver="LMGC90", duration=1.0, n_steps=100, urf_thresho
 
 
 viewer = DEMViewer(model)
-viewer.add_solution(solution=solution, solver_name="LMGC90", scale_force=8e-7)
+viewer.add_solution(scale=8e-7)
 viewer.show()
-solution.finalize()

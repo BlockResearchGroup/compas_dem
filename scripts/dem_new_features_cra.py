@@ -1,8 +1,3 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from compas_model.materials import Concrete
-
-# import a compas_dem specific material
 from compas_dem.material import Stone
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
@@ -80,5 +75,5 @@ solution = problem.solve("cra", method="rbe")
 from compas_dem.viewer import DEMViewer  # noqa: E402
 
 viewer = DEMViewer(model)
-viewer.add_solution(solution=solution, scale_force=1e-5)
+viewer.add_solution(scale=1e-5)
 viewer.show()

@@ -47,8 +47,8 @@ for element in model.elements():
 problem = Problem(model)
 problem.add_supports_from_model()
 problem.add_contact_model("MohrCoulomb", phi=30, c=0)
-# solution = problem.solve("CRA")
-solution = problem.solve("LMGC90", duration=1.0, n_steps=100, urf_threshold=0.001)
+solution = problem.solve("RBE")
+# solution = problem.solve("LMGC90", duration=1.0, n_steps=100, urf_threshold=0.001, ehem=True)
 
 
 # =============================================================================
@@ -57,5 +57,5 @@ solution = problem.solve("LMGC90", duration=1.0, n_steps=100, urf_threshold=0.00
 
 viewer = DEMViewer(model)
 
-viewer.add_solution(solution=solution)
+viewer.add_solution(scale=1e-4)
 viewer.show()

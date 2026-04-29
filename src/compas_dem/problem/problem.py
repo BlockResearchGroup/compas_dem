@@ -331,9 +331,10 @@ class Problem(Data):
         Parameters
         ----------
         solver : str
-            Name of the solver. Supported: ``"LMGC90"``, ``"CRA"`` (pending).
+            Solver name: ``"LMGC90"``, ``"CRA"``, or ``"RBE"``.
         **kwargs
-            Passed through to the solver function.
+            Solver-specific parameters. Unknown names raise ``TypeError``
+            immediately — see :class:`~compas_dem.problem.Solver` for valid options per solver.
 
         Returns
         -------
@@ -343,24 +344,30 @@ class Problem(Data):
         ------
         ValueError
             If the solver name is not recognised.
+        TypeError
+            If an unknown parameter is passed for the given solver.
         """
-        name = solver.upper()
+        from compas_dem.problem.solvers import Solver
 
-        if name == "LMGC90":
+        if solver == "LMGC90":
             from compas_dem.analysis.lmgc90 import lmgc90_solve
 
-            return lmgc90_solve(self, **kwargs)
-        if name == "CRA":
+            params = Solver().LMGC90(**kwargs).parameters
+            return lmgc90_solve(self, **{k: v for k, v in params.items() if v is not None})
+
+        if solver == "CRA":
             from compas_dem.analysis.cra import cra_solve
 
-            return cra_solve(self, method="penalty", **kwargs)
+            params = Solver().CRA(**kwargs).parameters
+            return cra_solve(self, **{k: v for k, v in params.items() if v is not None})
 
-        if name == "RBE":
+        if solver == "RBE":
             from compas_dem.analysis.cra import cra_solve
 
-            return cra_solve(self, method="rbe", **kwargs)
+            params = Solver().RBE(**kwargs).parameters
+            return cra_solve(self, **{k: v for k, v in params.items() if v is not None})
 
-        raise ValueError(f"Solver '{solver}' is not recognised. Available: 'LMGC90'.")
+        raise ValueError(f"Solver '{solver}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE'.")
 
     # =============================================================================
     # Serialization

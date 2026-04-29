@@ -281,7 +281,9 @@ def lmgc90_solve(
 
     solver.name = "LMGC90"
 
-    return solver
+    solver.finalize()
+
+    return
 
 
 def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
