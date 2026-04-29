@@ -16,7 +16,12 @@ class ContactProperties(Data):
 
     """
 
-    def __init__(self, contact_model: ContactModel, joint_model: JointModel, name: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        contact_model: Optional[ContactModel] = None,
+        joint_model: Optional[JointModel] = None,
+        name: Optional[str] = None,
+    ) -> None:
         self.contact_model = contact_model
         self.joint_model = joint_model
         super().__init__(name=name)

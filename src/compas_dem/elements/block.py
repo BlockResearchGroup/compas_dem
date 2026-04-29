@@ -2,6 +2,7 @@ from typing import Optional
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
+from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polyhedron
 from compas.geometry import Transformation
@@ -60,6 +61,22 @@ class Block(Element):
         super().__init__(geometry=geometry, transformation=transformation, **kwargs)
 
         self.is_support = is_support
+        self._local_frame: Optional[Frame] = None
+
+    @property
+    def local_frame(self) -> Frame:
+        """The block's current local frame.
+
+        Defaults to a world-axis-aligned frame at the block centroid when not set.
+        Any solver can write to this to track the block's evolving orientation.
+        """
+        if self._local_frame is not None:
+            return self._local_frame
+        return Frame(self.modelgeometry.centroid(), [1, 0, 0], [0, 1, 0])
+
+    @local_frame.setter
+    def local_frame(self, value: Frame) -> None:
+        self._local_frame = value
 
     # =============================================================================
     # Constructors

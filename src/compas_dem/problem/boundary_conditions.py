@@ -7,8 +7,8 @@ from compas.geometry import Polygon
 class BoundaryConditions(Data):
     """Container for all forces and displacement BCs applied to a block model.
 
-    Build up conditions via method calls, then pass to :class:`Problem` via
-    :meth:`~compas_dem.problem.Problem.apply_bc`.
+    Build up conditions via method calls on :class:`~compas_dem.problem.Problem`,
+    or construct standalone and inspect via :attr:`~compas_dem.problem.Problem.boundary_conditions`.
 
     Parameters
     ----------
@@ -23,8 +23,8 @@ class BoundaryConditions(Data):
     --------
     >>> bc = BoundaryConditions(gravity=True)
     >>> bc.add_point_load(block_index=10, force=[0, 0, -5000])
-    >>> bc.add_fixed(block_index=0)
-    >>> bc.add_fixed(block_index=99)
+    >>> bc.add_support(block_index=0)
+    >>> bc.add_support(block_index=99)
     """
 
     def __init__(
@@ -147,20 +147,26 @@ class BoundaryConditions(Data):
     # Displacement BCs
     # =========================================================================
 
-    def add_displacement(self, block_index: int, displacement: list[float]) -> None:
-        """Prescribe a translational displacement on a block.
+    def add_displacement(
+        self,
+        block_index: int,
+        dx: Optional[float] = None,
+        dy: Optional[float] = None,
+        dz: Optional[float] = None,
+    ) -> None:
+        """Prescribe a translational displacement on a block, per component.
 
         Parameters
         ----------
         block_index : int
             Graph node index of the target block.
-        displacement : list[float]
-            Translation vector [dx, dy, dz] in [m].
+        dx, dy, dz : float, optional
+            Displacement components in [m]. ``None`` leaves that DOF unconstrained.
         """
         self._displacements.append(
             {
                 "block_index": block_index,
-                "translation": displacement,
+                "translation": [dx, dy, dz],
                 "rotation": None,
             }
         )
@@ -183,7 +189,7 @@ class BoundaryConditions(Data):
             }
         )
 
-    def add_fixed(self, block_index: int) -> None:
+    def add_support(self, block_index: int) -> None:
         """Fix a block — zero translation and zero rotation.
 
         Parameters

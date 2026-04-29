@@ -153,18 +153,10 @@ class DEMViewer(Viewer):
 
     def setup_groups(self):
         self.groups["model"] = self.scene.add_group(name="Model")
-        self.groups["supports"] = self.scene.add_group(
-            name="Supports", parent=self.groups["model"]
-        )
-        self.groups["blocks"] = self.scene.add_group(
-            name="Blocks", parent=self.groups["model"]
-        )
-        self.groups["contacts"] = self.scene.add_group(
-            name="Contacts", parent=self.groups["model"], show=False
-        )
-        self.groups["interactions"] = self.scene.add_group(
-            name="Interactions", parent=self.groups["model"], show=False
-        )
+        self.groups["supports"] = self.scene.add_group(name="Supports", parent=self.groups["model"])
+        self.groups["blocks"] = self.scene.add_group(name="Blocks", parent=self.groups["model"])
+        self.groups["contacts"] = self.scene.add_group(name="Contacts", parent=self.groups["model"], show=False)
+        self.groups["interactions"] = self.scene.add_group(name="Interactions", parent=self.groups["model"], show=False)
 
     # =============================================================================
     # Blocks and Contacts
@@ -200,9 +192,7 @@ class DEMViewer(Viewer):
         for contact in self.model.contacts():
             geometry = contact.polygon
             color = self.interfacecolor
-            parent.add(
-                geometry, linewidth=1, surfacecolor=color, linecolor=color.contrast
-            )  # type: ignore
+            parent.add(geometry, linewidth=1, surfacecolor=color, linecolor=color.contrast)  # type: ignore
 
     # =============================================================================
     # Graph
@@ -211,14 +201,9 @@ class DEMViewer(Viewer):
     def add_graph(self):
         parent: Group = self.groups["interactions"]
 
-        node_point = {
-            node: self.model.graph.node_element(node).point
-            for node in self.model.graph.nodes()
-        }  # type: ignore
+        node_point = {node: self.model.graph.node_element(node).point for node in self.model.graph.nodes()}  # type: ignore
         points = list(node_point.values())
-        lines = [
-            Line(node_point[u], node_point[v]) for u, v in self.model.graph.edges()
-        ]
+        lines = [Line(node_point[u], node_point[v]) for u, v in self.model.graph.edges()]
 
         nodegroup = self.scene.add_group(name="Nodes", parent=parent)  # type: ignore
         edgegroup = self.scene.add_group(name="Edges", parent=parent)  # type: ignore
@@ -226,7 +211,7 @@ class DEMViewer(Viewer):
         nodegroup.add_from_list(points, pointsize=10, pointcolor=self.graphnodecolor)  # type: ignore
         edgegroup.add_from_list(lines, linewidth=1, linecolor=self.graphedgecolor)  # type: ignore
 
-    def add_solution(self, solver_name, solution, **kwargs):
+    def add_solution(self, solution, **kwargs):
         """
         Adds the solution to the viewer.
 
@@ -250,49 +235,86 @@ class DEMViewer(Viewer):
             Scaling factor for visualizing contact forces.
 
         """
-        if solver_name == "LMGC90":
-            scale_normal = kwargs.get("scale_normal", 0.00001)
-            scale_force = kwargs.get("scale_force", 0.00001)
-            contacts = solution.get_contacts(
-                scale_normal=scale_normal, scale_force=scale_force
+        # solver_name = solver_name.lower()  # Ensure solver name is case-insensitive
+
+        # if solver_name == "lmgc90":
+        #     scale_normal = kwargs.get("scale_normal", 0.00001)
+        #     scale_force = kwargs.get("scale_force", 0.00001)
+        #     contacts = solution.get_contacts(scale_normal=scale_normal, scale_force=scale_force)
+
+        #     solution_group = self.scene.add_group(name="Solution")
+        #     updated_blocks = self.scene.add_group(name="Updated_Blocks", parent=solution_group)
+        #     resultant_forces = self.scene.add_group(name="Forces", parent=solution_group)
+        #     contact_polygons = self.scene.add_group(name="Contact_Polygons", parent=solution_group)
+
+        #     supports = solution.supports if solution.supports else []
+        #     for i, mesh in enumerate(solution.trimeshes):
+        #         is_support = supports[i] if i < len(supports) else False
+        #         color = (255, 0, 0) if is_support else (200, 200, 200)
+        #         updated_blocks.add(
+        #             mesh,
+        #             name=f"block_{i}",
+        #             facecolor=color,
+        #             show_edges=True,
+        #             opacity=0.25,
+        #         )
+        #     for i, line in enumerate(contacts["force_resultants"]):
+        #         resultant_forces.add(
+        #             line,
+        #             name=f"force_resultant_{i}",
+        #             linewidth=2.5,
+        #             color=(0, 0, 255),
+        #         )
+
+        #     for i, polygon in enumerate(contacts["contact_polygons"]):
+        #         contact_polygons.add(polygon, name=f"polygon_{i}", color=(0, 100, 0))
+        #     # solution.finalize()  # Ensure proper cleanup of LMGC90 resourcesif solver_name == "LMGC90":
+
+        # else:
+        #     raise NotImplementedError(f"Viewer update not implemented for solver: {solver_name}")
+
+        scale_force = kwargs.get("scale_force", 0.00001)
+        moved_blocks = []
+
+        solution_group = self.scene.add_group(name="Solution")
+        updated_blocks = self.scene.add_group(name="Updated_Blocks", parent=solution_group)
+        resultant_forces = self.scene.add_group(name="Forces", parent=solution_group)
+        for block in self.model.elements():
+            new_block = block.modelgeometry.transformed(block.displacement)
+            moved_blocks.append(new_block)
+            updated_blocks.add(
+                new_block,
+                name=f"block_{block.graphnode}",
+                opacity=0.25,
             )
+        for u, v in self.model.graph.edges():
+            edge = (min(u, v), max(u, v))
+            force       = self.model.graph.edge_attribute(edge, "force")
+            contact_pts = self.model.graph.edge_attribute(edge, "contact_point")
+            fc          = self.model.graph.edge_attribute(edge, "friction_contact")
+            # print(f"Edge ({u}, {v}): force={force}, contact_pts={contact_pts}, friction_contact={fc}")
+            if not force or not contact_pts:
+                continue
 
-            solution_group = self.scene.add_group(name="Solution")
-            updated_blocks = self.scene.add_group(
-                name="Updated_Blocks", parent=solution_group
-            )
-            resultant_forces = self.scene.add_group(
-                name="Forces", parent=solution_group
-            )
-            contact_polygons = self.scene.add_group(
-                name="Contact_Polygons", parent=solution_group
-            )
+            resultant_line = None
+            if fc and len(contact_pts) >= 3:
+                try:
+                    resultant_line = fc.resultantforce[0]
+                    center = resultant_line.midpoint
+                    resultant_line.translate([-center.x, -center.y, -center.z])
+                    resultant_line.scale(scale_force, scale_force, scale_force)
+                    resultant_line.translate([center.x, center.y, center.z])
+                except ZeroDivisionError:
+                    pass
+            if resultant_line is None:
+                n = len(contact_pts)
+                centroid = [sum(p[j] for p in contact_pts) / n for j in range(3)]
+                half = [force[j] * scale_force * 0.5 for j in range(3)]
+                resultant_line = Line([centroid[j] + half[j] for j in range(3)], [centroid[j] - half[j] for j in range(3)])
 
-            supports = solution.supports if solution.supports else []
-            for i, mesh in enumerate(solution.trimeshes):
-                is_support = supports[i] if i < len(supports) else False
-                color = (255, 0, 0) if is_support else (200, 200, 200)
-                updated_blocks.add(
-                    mesh,
-                    name=f"block_{i}",
-                    facecolor=color,
-                    show_edges=True,
-                    opacity=0.25,
-                )
-
-            for i, line in enumerate(contacts["force_resultants"]):
-                resultant_forces.add(
-                    line,
-                    name=f"force_resultant_{i}",
-                    linewidth=2.5,
-                    color=(0, 0, 255),
-                )
-
-            for i, polygon in enumerate(contacts["contact_polygons"]):
-                contact_polygons.add(polygon, name=f"polygon_{i}", color=(0, 100, 0))
-            # solution.finalize()  # Ensure proper cleanup of LMGC90 resources
-
-        else:
-            raise NotImplementedError(
-                f"Viewer update not implemented for solver: {solver_name}"
+            resultant_forces.add(
+                resultant_line,
+                name=f"force_resultant_{edge}",
+                linewidth=2.5,
+                linecolor=Color.blue(),
             )
