@@ -7,7 +7,8 @@ class Solver(Data):
     Examples
     --------
     >>> s = Solver()
-    >>> s.lmgc90(duration=1.0, n_steps=100)
+    >>> s.LMGC90(duration=1.0, n_steps=100)
+    >>> s.CRA(d_bnd=0.001, eps=0.0001)
     >>> problem.solve(s)
     """
 
