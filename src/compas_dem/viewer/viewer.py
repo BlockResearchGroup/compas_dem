@@ -289,9 +289,9 @@ class DEMViewer(Viewer):
             )
         for u, v in self.model.graph.edges():
             edge = (min(u, v), max(u, v))
-            force       = self.model.graph.edge_attribute(edge, "force")
+            force = self.model.graph.edge_attribute(edge, "force")
             contact_pts = self.model.graph.edge_attribute(edge, "contact_point")
-            fc          = self.model.graph.edge_attribute(edge, "friction_contact")
+            fc = self.model.graph.edge_attribute(edge, "friction_contact")
             # print(f"Edge ({u}, {v}): force={force}, contact_pts={contact_pts}, friction_contact={fc}")
             if not force or not contact_pts:
                 continue

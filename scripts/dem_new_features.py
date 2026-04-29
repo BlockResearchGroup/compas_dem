@@ -123,6 +123,14 @@ solution = problem.solve(solver="LMGC90", duration=1.0, n_steps=100, urf_thresho
 # plt.tight_layout()
 # plt.show()
 
+graph = model.graph
+# for edge in model.graph.edges():
+#     print(
+#         f"Edge {edge} attributes: \n Force: {graph.edge_attribute(edge, 'force')}, \n contact_points: {graph.edge_attribute(edge, 'contact_point')},\n contact_polygon: {graph.edge_attribute(edge, 'contact_polygon')}, friction_contact: {graph.edge_attribute(edge, 'friction_contact')}"
+#     )
+for block in model.blocks():
+    print(f"Block {block.graphnode} attributes: \n Displacement: {block.displacement.translation_vector}, rotation: {block.displacement.rotation}")
+
 from compas_dem.viewer import DEMViewer  # noqa: E402
 
 viewer = DEMViewer(model)

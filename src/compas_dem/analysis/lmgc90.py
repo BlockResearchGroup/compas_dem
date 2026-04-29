@@ -5,7 +5,6 @@ import numpy as np
 
 from compas_dem.interactions import FrictionContact
 from compas_dem.problem.problem import Problem
-from compas_dem.viewer import viewer
 
 try:
     from compas_lmgc90.solver import Solver
