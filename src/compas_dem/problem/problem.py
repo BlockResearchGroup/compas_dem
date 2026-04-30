@@ -160,9 +160,9 @@ class Problem(Data):
     def add_displacement(
         self,
         block_index: int,
-        dx: Optional[float] = None,
-        dy: Optional[float] = None,
-        dz: Optional[float] = None,
+        dx: Optional[float] = 0,
+        dy: Optional[float] = 0,
+        dz: Optional[float] = 0,
     ) -> None:
         """Prescribe a translational displacement on a block, per component.
 

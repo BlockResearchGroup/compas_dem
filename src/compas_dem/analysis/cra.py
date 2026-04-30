@@ -1,4 +1,5 @@
 import compas.geometry as cg
+import numpy as np
 from compas_assembly.datastructures import Assembly
 from compas_assembly.datastructures import Block
 from compas_cra.equilibrium import cra_penalty_solve as _cra_penalty_solve
@@ -88,6 +89,7 @@ def _post_processing_cra(assembly: Assembly, asm_to_graphnode: dict, problem: Pr
             v_ax = list(interface.frame.yaxis)
             force = [fn * w[j] + fu * u_ax[j] + fv * v_ax[j] for j in range(3)]
             model.graph.edge_attribute((u, v), "force", force)
+            model.graph.edge_attribute((u, v), "force_magnitude", np.linalg.norm(force))
 
 
 def cra_solve(

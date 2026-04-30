@@ -90,6 +90,32 @@ class FrictionContact(Contact):
         data["forces"] = self.forces
         return data
 
+    @classmethod
+    def __from_data__(cls, data: dict) -> "FrictionContact":
+        if not data.get("points"):
+            from compas.data import Data
+
+            obj = object.__new__(cls)
+            Data.__init__(obj, data.get("name"))
+            obj._frame = data.get("frame")
+            obj._size = data.get("size")
+            obj._mesh = data.get("mesh")
+            poly = Polygon.__new__(Polygon)
+            poly._points = []
+            poly._lines = []
+            poly._vertices = []
+            poly._faces = []
+            obj._polygon = poly
+            obj._points2 = None
+            obj._polygon2 = None
+            obj._forces = data.get("forces") or []
+            obj._compressiondata = None
+            obj._tensiondata = None
+            obj._frictiondata = None
+            obj._resultantdata = None
+            return obj
+        return super().__from_data__(data)
+
     def __init__(self, forces=None, **kwargs):
         super().__init__(**kwargs)
 

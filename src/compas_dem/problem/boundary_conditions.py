@@ -52,15 +52,16 @@ class BoundaryConditions(Data):
 
     @classmethod
     def __from_data__(cls, data: dict) -> "BoundaryConditions":
-        return cls(
+        obj = cls(
             gravity=data["gravity"],
             g=data["g"],
             name=data.get("name"),
-            _body_forces=data["body_forces"],
-            _point_loads=data["point_loads"],
-            _surface_loads=data["surface_loads"],
-            _displacements=data["displacements"],
         )
+        obj._body_forces = data["body_forces"]
+        obj._point_loads = data["point_loads"]
+        obj._surface_loads = data["surface_loads"]
+        obj._displacements = data["displacements"]
+        return obj
 
     # =========================================================================
     # Forces

@@ -1,6 +1,7 @@
 from compas_dem.material import Stone
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
+from compas_dem.problem import Solver  # noqa: E402
 from compas_dem.templates import ArchTemplate
 
 # Block Model using compas_dem's Arch Template
@@ -37,7 +38,7 @@ model.assign_material(limestone, elements=list(model.blocks()))
 
 problem = Problem(model)
 
-problem.add_contact_model("MohrCoulomb", phi=30, c=0)
+problem.add_contact_model("MohrCoulomb", phi=60, c=0)
 problem.add_joint_model(kn=10e10, kt=10e7)
 
 # problem.inspect_model()  # This will print the block indices in the console for reference when adding BCs
@@ -46,11 +47,10 @@ problem.add_support(block_index=9)
 
 # Solve the problem using the CRA solver
 # -----------------------------------------
-# from compas_dem.analysis.solvers import SolverCRA  # noqa: E402
 
-# solver = SolverCRA()
+solver = Solver.RBE(verbose=True)
 
-solution = problem.solve("cra")
+solution = problem.solve(solver)
 
 # =============================================================================
 # Visualize the model in the DEM Native viewer

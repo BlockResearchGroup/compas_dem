@@ -339,7 +339,10 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
             continue
 
         if not graph.has_edge([u, v]):
-            print(f"Warning: contact between bodies {u} and {v} has no corresponding edge in the model graph. Adding edge with contact attributes.")
+            if not graph.has_node(u) or not graph.has_node(v):
+                print(f"Warning: body {u} or {v} not in model graph (support/boundary body). Skipping contact.")
+                continue
+            print(f"Warning: contact between bodies {u} and {v} has no corresponding edge in the model graph. Adding edge.")
             graph.add_edge(u, v)
 
         # --- per-point contact data ---
@@ -349,7 +352,9 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
         graph.edge_attribute((u, v), "force_vector", [list(result.interaction_force_global[i]) for i in indices])
         graph.edge_attribute((u, v), "force", np.sum([result.interaction_force_global[i] for i in indices], axis=0).tolist())
 
-        graph.edge_attribute((u, v), "contact_polygon", cg.Polygon([result.interaction_coords[i] for i in indices]))
+        polygon_pts = [result.interaction_coords[i] for i in indices]
+        if len(polygon_pts) >= 2:
+            graph.edge_attribute((u, v), "contact_polygon", cg.Polygon(polygon_pts))
 
         # --- contact frames (T, N at each contact point) ---
         contact_frames = [cg.Frame(result.interaction_coords[i], result.interaction_tangent1[i], result.interaction_normals[i]) for i in indices]
@@ -358,7 +363,7 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
         fv_vecs = graph.edge_attribute((u, v), "force_vector")
         contact_pts = graph.edge_attribute((u, v), "contact_point")
         contact_frames = graph.edge_attribute((u, v), "contact_frames")
-        if contact_pts and fv_vecs:
+        if contact_pts and fv_vecs and len(contact_pts) >= 2:
             fc = FrictionContact(points=[cg.Point(*p) for p in contact_pts])
             lmgc_normal = contact_frames[0].yaxis
             lmgc_tangent = contact_frames[0].xaxis

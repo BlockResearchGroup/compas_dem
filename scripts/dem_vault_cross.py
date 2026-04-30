@@ -49,7 +49,7 @@ problem = Problem(model)
 
 # problem.inspect_model()
 problem.add_supports_from_model()
-problem.add_contact_model("MohrCoulomb", phi=30, c=0)
+problem.add_contact_model("MohrCoulomb", phi=70, c=0)
 
 
 # rbe = Solver.RBE()
