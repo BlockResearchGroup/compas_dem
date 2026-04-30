@@ -171,7 +171,7 @@ class DEMViewer(Viewer):
                 facecolor=self.supportcolor,  # type: ignore
                 edgecolor=self.supportcolor.contrast,
                 linewidth=0.5,  # type: ignore
-                name=block.name,  # type: ignore
+                name=f"Block {block.graphnode}",  # type: ignore
             )
 
     def add_blocks(self):
@@ -183,7 +183,7 @@ class DEMViewer(Viewer):
                 facecolor=self.blockcolor,  # type: ignore
                 edgecolor=self.blockcolor.contrast,
                 linewidth=0.5,  # type: ignore
-                name=block.name,  # type: ignore
+                name=f"Block {block.graphnode}",  # type: ignore
             )
 
     def add_contacts(self):
@@ -280,7 +280,8 @@ class DEMViewer(Viewer):
         updated_blocks = self.scene.add_group(name="Updated_Blocks", parent=solution_group)
         resultant_forces = self.scene.add_group(name="Forces", parent=solution_group)
         for block in self.model.elements():
-            new_block = block.modelgeometry.transformed(block.displacement)
+            T = self.model.graph.node_attribute(block.graphnode, "transformation") or cg.Transformation()
+            new_block = block.modelgeometry.transformed(T)
             moved_blocks.append(new_block)
             updated_blocks.add(
                 new_block,
@@ -299,7 +300,11 @@ class DEMViewer(Viewer):
             fn_sum = sum(fn_vals) if fn_vals else 0.0
 
             if fn_vals and abs(fn_sum) > 1e-12:  # To avoid division by zero
-                pos = cg.Point(*cg.centroid_points_weighted([list(p) for p in fc.points], fn_vals))
+                try:
+                    pos = cg.Point(*cg.centroid_points_weighted(fc.points, fn_vals))
+                except:
+                    pos = cg.Point(*cg.centroid_points_weighted([list(p) for p in fc.points], fn_vals))
+
                 half = [force[j] * fn_sum * scale_force * 0.5 for j in range(3)]
             else:
                 n = len(contact_pts)

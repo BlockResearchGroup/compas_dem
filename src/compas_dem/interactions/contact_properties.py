@@ -32,3 +32,12 @@ class ContactProperties(Data):
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(name="{self.name}", contact_model="{self.contact_model}", joint_model={self.joint_model})'
+
+    @classmethod
+    def __from_data__(cls, data: dict) -> "ContactProperties":
+        contactproperties = cls(
+            contact_model=data["contact_model"],
+            joint_model=data["joint_model"],
+            name=data.get("name"),
+        )
+        return contactproperties

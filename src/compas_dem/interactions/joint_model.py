@@ -14,20 +14,16 @@ class JointModel(Data):
         Normal stiffness.
     kt : float, optional
         Tangential stiffness.
-    tc : float, optional
-        tension cut-off
     """
 
     def __init__(
         self,
         kn: Optional[float] = None,
         kt: Optional[float] = None,
-        tc: Optional[float] = None,
         name: Optional[str] = None,
     ):
         super().__init__(name=name)
 
-        self.tc = tc
         self.kn = kn
         self.kt = kt
 
@@ -36,7 +32,6 @@ class JointModel(Data):
         data = super().__data__
         data.update(
             {
-                "tc": self.tc,
                 "kn": self.kn,
                 "kt": self.kt,
             }

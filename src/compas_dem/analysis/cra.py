@@ -56,7 +56,7 @@ def _post_processing_cra(assembly: Assembly, asm_to_graphnode: dict, problem: Pr
 
     # Block annotations (static — no displacement)
     for block in model.elements():
-        block.displacement = cg.Transformation()
+        model.graph.node_attribute(block.graphnode, "transformation", cg.Transformation())
 
     # Edge annotations from solved interfaces
     for u_asm, v_asm in assembly.graph.edges():
@@ -153,11 +153,11 @@ def cra_solve(
 
     if method == "rbe":
         _rbe_solve(assembly, mu=mu, density=density, verbose=verbose, timer=timer)
-    elif method == "penalty":
+    elif method == "cra":
         _cra_penalty_solve(
             assembly,
             mu=mu,
-            density=density,
+            density=1.0,
             d_bnd=d_bnd,
             eps=eps,
             verbose=verbose,

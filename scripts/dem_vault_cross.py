@@ -5,6 +5,7 @@ from compas.files import OBJ
 
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
+from compas_dem.problem import Solver
 from compas_dem.viewer import DEMViewer
 
 # =============================================================================
@@ -30,7 +31,7 @@ for name in obj.objects:  # type: ignore
 
 model = BlockModel.from_boxes(meshes)
 
-model.compute_contacts(tolerance=0.001)
+# model.compute_contacts(tolerance=0.001)
 
 # =============================================================================
 # Supports
@@ -45,11 +46,20 @@ for element in model.elements():
 # ============================================================================
 
 problem = Problem(model)
+
+# problem.inspect_model()
 problem.add_supports_from_model()
 problem.add_contact_model("MohrCoulomb", phi=30, c=0)
-solution = problem.solve("RBE")
-# solution = problem.solve("LMGC90", duration=1.0, n_steps=100, urf_threshold=0.001, ehem=True)
 
+
+# rbe = Solver.RBE()
+
+lmgc90 = Solver.LMGC90(duration=1.0, n_steps=100, urf_threshold=0.001)
+solution = problem.solve(lmgc90)
+
+# solution = problem.solve("RBE")
+# solution = problem.solve("LMGC90", duration=1.0, n_steps=100, urf_threshold=0.001)
+# problem.solve()
 
 # =============================================================================
 # Viz
@@ -57,5 +67,5 @@ solution = problem.solve("RBE")
 
 viewer = DEMViewer(model)
 
-viewer.add_solution(scale=1e-8)
+viewer.add_solution(scale=1e-6)
 viewer.show()

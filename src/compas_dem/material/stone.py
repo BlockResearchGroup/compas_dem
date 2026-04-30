@@ -1,7 +1,8 @@
-from compas_model.materials import Concrete, Material
 from typing import Literal
 from typing import Optional
 
+from compas_model.materials import Concrete
+from compas_model.materials import Material
 from compas_model.materials.errors import PropertyNotDefined
 
 

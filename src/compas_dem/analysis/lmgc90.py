@@ -307,12 +307,15 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
     elements = list(problem.model.elements())
     contact_data = solver.get_contacts()
     result = solver.last_result
-    # Annotate each block directly
+    model = problem.model
+
+    # Annotate each block via graph node attribute (serializable)
     for i, block in enumerate(elements):
         pos = np.array(result.bodies[i])
         rot = np.array(result.body_frames[i]).reshape(3, 3)
         new_frame = cg.Frame(pos, rot[0, :], rot[1, :])
-        block.displacement = cg.Transformation.from_frame_to_frame(block.init_frame, new_frame)
+        T = cg.Transformation.from_frame_to_frame(block.init_frame, new_frame)
+        model.graph.node_attribute(block.graphnode, "transformation", T)
 
     # contact_polygons is one entry per body pair, not per contact point
     _per_point_keys = ["contact_points", "force_magnitudes", "force_normal", "force_tangent1", "force_tangent2", "gaps", "status"]

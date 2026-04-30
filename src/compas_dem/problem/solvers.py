@@ -19,8 +19,12 @@ class Solver(Data):
     def __repr__(self):
         return f"Solver(name={self.name}, parameters={self.parameters})"
 
+    def __data__(self):
+        return {"name": self.name, "parameters": self.parameters}
+
+    @classmethod
     def LMGC90(
-        self,
+        cls,
         duration: float = 1.0,
         n_steps: int = 100,
         dt: float = None,
@@ -48,6 +52,7 @@ class Solver(Data):
         contact_law : str
             Contact law to use in LMGC90. Default is "IQS_CLB" (a common choice for DEM simulations).
         """
+        self = cls()
         self.name = "LMGC90"
         self.parameters = {
             "duration": duration,
@@ -60,8 +65,9 @@ class Solver(Data):
         }
         return self
 
+    @classmethod
     def CRA(
-        self,
+        cls,
         d_bnd: float = 0.001,
         eps: float = 0.0001,
         verbose: bool = False,
@@ -80,9 +86,10 @@ class Solver(Data):
         timer : bool
             Print timing information.
         """
+        self = cls()
         self.name = "CRA"
         self.parameters = {
-            "method": "penalty",
+            "method": "cra",
             "d_bnd": d_bnd,
             "eps": eps,
             "verbose": verbose,
@@ -90,8 +97,9 @@ class Solver(Data):
         }
         return self
 
+    @classmethod
     def RBE(
-        self,
+        cls,
         verbose: bool = False,
         timer: bool = False,
     ):
@@ -103,6 +111,7 @@ class Solver(Data):
         timer : bool
             Print timing information.
         """
+        self = cls()
         self.name = "RBE"
         self.parameters = {
             "method": "rbe",

@@ -27,19 +27,40 @@ class BoundaryConditions(Data):
     >>> bc.add_support(block_index=99)
     """
 
-    def __init__(
-        self,
-        gravity: bool = False,
-        g: float = 9.81,
-        name: Optional[str] = None,
-    ) -> None:
-        super().__init__(name=name)
-        self.gravity = gravity
-        self.g = g
+    def __init__(self, gravity: bool = False, g: float = 9.81, name: Optional[str] = None, **kwargs) -> None:
         self._body_forces: list[list[float]] = []
         self._point_loads: list[dict] = []
         self._surface_loads: list[dict] = []
         self._displacements: list[dict] = []
+
+        super().__init__(name=name)
+
+        self.gravity = gravity
+        self.g = g
+
+    @property
+    def __data__(self) -> dict:
+        return {
+            "name": self.name,
+            "gravity": self.gravity,
+            "g": self.g,
+            "body_forces": self._body_forces,
+            "point_loads": self._point_loads,
+            "surface_loads": self._surface_loads,
+            "displacements": self._displacements,
+        }
+
+    @classmethod
+    def __from_data__(cls, data: dict) -> "BoundaryConditions":
+        return cls(
+            gravity=data["gravity"],
+            g=data["g"],
+            name=data.get("name"),
+            _body_forces=data["body_forces"],
+            _point_loads=data["point_loads"],
+            _surface_loads=data["surface_loads"],
+            _displacements=data["displacements"],
+        )
 
     # =========================================================================
     # Forces
@@ -224,19 +245,3 @@ class BoundaryConditions(Data):
     @property
     def displacements(self) -> list[dict]:
         return self._displacements
-
-    # =========================================================================
-    # Serialization
-    # =========================================================================
-
-    @property
-    def __data__(self) -> dict:
-        return {
-            "name": self.name,
-            "gravity": self.gravity,
-            "g": self.g,
-            "body_forces": self._body_forces,
-            "point_loads": self._point_loads,
-            "surface_loads": self._surface_loads,
-            "displacements": self._displacements,
-        }

@@ -24,6 +24,10 @@ class ContactModel(Data):
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(name="{self.name}")'
 
+    @classmethod
+    def __from_data__(cls, data: dict) -> "ContactModel":
+        return cls(name=data.get("name"))
+
 
 class MohrCoulomb(ContactModel):
     """Contact properties for the Mohr-Coulomb contact law.
@@ -46,10 +50,11 @@ class MohrCoulomb(ContactModel):
     ):
         super().__init__(name=name)
 
-        if phi is not None and mu is not None:
-            raise ValueError("Provide only one of `phi` (deg) or `mu`.")
-        if (phi is None) == (mu is None):
-            raise ValueError("Provide only one of `phi` (deg) or `mu`.")
+        # Find another way to do this
+        # if phi is not None and mu is not None:
+        #     raise ValueError("Do not provide both `phi` (deg) and `mu`.")
+        # if (phi is None) == (mu is None):
+        #     raise ValueError("Provide one of `phi` (deg) or `mu`.")
 
         if phi is not None:
             self._phi = float(phi)
@@ -79,6 +84,17 @@ class MohrCoulomb(ContactModel):
             }
         )
         return data
+
+    @classmethod
+    def __from_data__(cls, data: dict) -> "MohrCoulomb":
+        return cls(
+            phi=data["phi"],
+            c=data["c"],
+            t_c=data["t_c"],
+            k_n=data["k_n"],
+            k_t=data["k_t"],
+            name=data.get("name"),
+        )
 
     @property
     def phi(self) -> float:

@@ -10,6 +10,7 @@ from compas_dem.interactions import JointModel
 from compas_dem.interactions import MohrCoulomb
 from compas_dem.models import BlockModel
 from compas_dem.problem.boundary_conditions import BoundaryConditions
+from compas_dem.problem.solvers import Solver
 
 
 class Problem(Data):
@@ -32,7 +33,7 @@ class Problem(Data):
     >>> result = problem.solve(solver="LMGC90")  # doctest: +SKIP
     """
 
-    def __init__(self, model: BlockModel, name: Optional[str] = None) -> None:
+    def __init__(self, model: BlockModel, name: Optional[str] = None, **kwargs) -> None:
         super().__init__(name=name)
         self.model = model
         self._boundary_conditions = BoundaryConditions()
@@ -43,10 +44,28 @@ class Problem(Data):
             if block.material:
                 density = block.material.density
             else:
-                Warning(f"Block {block.graphnode} material density not specified, defaulting to 2400.0 kg/m3.")
-                density = 2400.0
+                raise ValueError(f"Block {block.graphnode} has no material assigned, cannot compute mass. Please assign a material with density or set block.mass manually.")
             volume = mesh_volume(block.modelgeometry.to_vertices_and_faces(True))
             block.mass = volume * density
+
+    @property
+    def __data__(self) -> dict:
+        return {
+            "name": self.name,
+            "model": self.model,
+            "boundary_conditions": self._boundary_conditions,
+            "contact_properties": self._contact_properties,
+        }
+
+    @classmethod
+    def __from_data__(cls, data: dict) -> "Problem":
+        problem = cls(
+            model=data["model"],
+            name=data.get("name"),
+        )
+        problem._boundary_conditions = data["boundary_conditions"]
+        problem._contact_properties = data["contact_properties"]
+        return problem
 
     # ============================================================================
     # Pre-visualization utilities
@@ -175,6 +194,7 @@ class Problem(Data):
         block_index : int
             Node index of the block to fix.
         """
+        self._blocks[block_index].is_support = True
         self._boundary_conditions.add_support(block_index)
 
     def add_supports_from_model(self) -> None:
@@ -302,7 +322,7 @@ class Problem(Data):
             raise ValueError(f"Contact model '{model}' is not recognised. Available: {list(self._CONTACT_MODELS)}.")
         self._contact_properties.contact_model = self._CONTACT_MODELS[model](**kwargs)
 
-    def add_joint_model(self, kn: float, kt: float, tc: Optional[float] = None) -> None:
+    def add_joint_model(self, kn: float, kt: float) -> None:
         """Set the joint stiffness model.
 
         Parameters
@@ -311,10 +331,8 @@ class Problem(Data):
             Normal stiffness [N/m].
         kt : float
             Tangential stiffness [N/m].
-        tc : float, optional
-            Tension cut-off [Pa].
         """
-        self._contact_properties.joint_model = JointModel(kn=kn, kt=kt, tc=tc)
+        self._contact_properties.joint_model = JointModel(kn=kn, kt=kt)
 
     @property
     def contact_properties(self) -> ContactProperties:
@@ -325,16 +343,13 @@ class Problem(Data):
     # Solve
     # =============================================================================
 
-    def solve(self, solver: str, **kwargs):
+    def solve(self, solver: Solver):
         """Solve the problem using the named solver.
 
         Parameters
         ----------
-        solver : str
-            Solver name: ``"LMGC90"``, ``"CRA"``, or ``"RBE"``.
-        **kwargs
-            Solver-specific parameters. Unknown names raise ``TypeError``
-            immediately — see :class:`~compas_dem.problem.Solver` for valid options per solver.
+        solver : Solver
+            The solver instance to use.
 
         Returns
         -------
@@ -344,40 +359,56 @@ class Problem(Data):
         ------
         ValueError
             If the solver name is not recognised.
-        TypeError
-            If an unknown parameter is passed for the given solver.
         """
-        from compas_dem.problem.solvers import Solver
+        self.check_model_validity()
 
-        if solver == "LMGC90":
+        if solver.name == "LMGC90":
             from compas_dem.analysis.lmgc90 import lmgc90_solve
 
-            params = Solver().LMGC90(**kwargs).parameters
+            params = solver.parameters
             return lmgc90_solve(self, **{k: v for k, v in params.items() if v is not None})
-
-        if solver == "CRA":
+        elif solver.name == "CRA":
             from compas_dem.analysis.cra import cra_solve
 
-            params = Solver().CRA(**kwargs).parameters
+            params = solver.parameters
             return cra_solve(self, **{k: v for k, v in params.items() if v is not None})
-
-        if solver == "RBE":
+        elif solver.name == "RBE":
             from compas_dem.analysis.cra import cra_solve
 
-            params = Solver().RBE(**kwargs).parameters
+            params = solver.parameters
             return cra_solve(self, **{k: v for k, v in params.items() if v is not None})
 
-        raise ValueError(f"Solver '{solver}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE'.")
+        else:
+            raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE'.")
+        # if solver == "LMGC90":
+        #     from compas_dem.analysis.lmgc90 import lmgc90_solve
 
-    # =============================================================================
-    # Serialization
-    # =============================================================================
+        #     params = Solver.LMGC90(**kwargs).parameters
+        #     return lmgc90_solve(self, **{k: v for k, v in params.items() if v is not None})
 
-    @property
-    def __data__(self) -> dict:
-        return {
-            "name": self.name,
-            "model": self.model,
-            "boundary_conditions": self._boundary_conditions,
-            "contact_properties": self._contact_properties,
-        }
+        # elif solver == "CRA":
+        #     from compas_dem.analysis.cra import cra_solve
+
+        #     params = Solver.CRA(**kwargs).parameters
+        #     return cra_solve(self, **{k: v for k, v in params.items() if v is not None})
+
+        # elif solver == "RBE":
+        #     from compas_dem.analysis.cra import cra_solve
+
+        #     params = Solver.RBE(**kwargs).parameters
+        #     return cra_solve(self, **{k: v for k, v in params.items() if v is not None})
+        # else:
+        #     raise ValueError(f"Solver '{solver}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE'.")
+
+    def check_model_validity(self) -> None:
+        """Check that the model is valid for solving.
+
+        Raises
+        ------
+        ValueError
+            If the model is invalid
+        """
+        if not list(self.model.supports()):
+            raise ValueError("The model has no supports defined. Please add supports before solving.")
+        if not self.contact_properties.contact_model:
+            raise ValueError("No contact model defined. Please add a contact model before solving.")

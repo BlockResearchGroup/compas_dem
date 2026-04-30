@@ -50,7 +50,7 @@ problem.add_support(block_index=9)
 
 # solver = SolverCRA()
 
-solution = problem.solve("cra", method="rbe")
+solution = problem.solve("cra")
 
 # =============================================================================
 # Visualize the model in the DEM Native viewer
