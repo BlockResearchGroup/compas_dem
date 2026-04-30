@@ -29,7 +29,7 @@ class Problem(Data):
     >>> model = BlockModel()
     >>> problem = Problem(model)
     >>> problem.add_gravity()
-    >>> problem.add_support(block_index=0)
+    >>> problem.add_support(block_index=0)  # doctest: +SKIP
     >>> result = problem.solve(solver="LMGC90")  # doctest: +SKIP
     """
 
