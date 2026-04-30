@@ -299,11 +299,8 @@ class DEMViewer(Viewer):
             fn_vals = [f["c_np"] - f["c_nn"] for f in fc.forces] if fc else None
             fn_sum = sum(fn_vals) if fn_vals else 0.0
 
-            if fn_vals and abs(fn_sum) > 1e-12:  # To avoid division by zero
-                try:
-                    pos = cg.Point(*cg.centroid_points_weighted(fc.points, fn_vals))
-                except:
-                    pos = cg.Point(*cg.centroid_points_weighted([list(p) for p in fc.points], fn_vals))
+            if fn_vals and abs(fn_sum) > 1e-12:
+                pos = cg.Point(*cg.centroid_points_weighted([list(p) for p in fc.points], fn_vals))
 
                 half = [force[j] * fn_sum * scale_force * 0.5 for j in range(3)]
             else:
