@@ -10,7 +10,7 @@ from compas.geometry import Plane
 from compas.geometry import Polyhedron
 from compas.geometry import bestfit_frame_numpy
 from compas.itertools import pairwise
-from compas_cgal.meshing import project_mesh_on_mesh
+from compas_cgal.projection import project_mesh_on_mesh
 from compas_cgal.meshing import trimesh_dual
 from compas_cgal.meshing import trimesh_remesh
 from compas_libigl.intersections import intersection_ray_mesh
