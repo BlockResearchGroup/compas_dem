@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* Fixed Compas_CGAL >= 0.9.1 import error
 * Fixed ruff F401 false positives on conditional re-exports in `compas_dem.analysis.__init__`.
 * Fixed doctest failures in `Problem` and `BoundaryConditions` docstrings.
 
