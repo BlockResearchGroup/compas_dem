@@ -160,19 +160,24 @@ class Problem(Data):
     def add_displacement(
         self,
         block_index: int,
-        dx: Optional[float] = 0,
-        dy: Optional[float] = 0,
-        dz: Optional[float] = 0,
+        displacement: Optional[list[float]] = None,
+        rotation: Optional[list[float]] = None,
     ) -> None:
-        """Prescribe a translational displacement on a block, per component.
+        """Prescribe a displacement and/or rotation on a block.
 
         Parameters
         ----------
         block_index : int
             Node index of the target block.
-        dx, dy, dz : float, optional
+        displacement : list[float], optional
+            Translational displacement [dx, dy, dz] in [m].
+        rotation : list[float], optional
+            Rotation vector [rx, ry, rz] in [rad].
         """
-        self._boundary_conditions.add_displacement(block_index, dx=dx, dy=dy, dz=dz)
+        if displacement is not None:
+            self._boundary_conditions.add_displacement(block_index, *displacement)
+        if rotation is not None:
+            self._boundary_conditions.add_rotation(block_index, rotation)
 
     def add_rotation(self, block_index: int, rotation: list[float]) -> None:
         """Prescribe a rotation on a block about its centroid.
@@ -196,6 +201,18 @@ class Problem(Data):
         """
         self._blocks[block_index].is_support = True
         self._boundary_conditions.add_support(block_index)
+
+    def add_supports(self, block_indices: list[int]) -> None:
+        """Fix a block — zero translation and zero rotation.
+
+        Parameters
+        ----------
+        block_indices : list[int]
+            List of node indices of the blocks to fix.
+        """
+        for block_index in block_indices:
+            self._blocks[block_index].is_support = True
+            self._boundary_conditions.add_support(block_index)
 
     def add_supports_from_model(self) -> None:
         """Fix all blocks whose ``is_support`` flag is ``True`` in the block model."""

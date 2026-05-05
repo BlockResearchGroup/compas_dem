@@ -166,7 +166,7 @@ def lmgc90_solve(
     for block in model.elements():
         idx = block.graphnode
         disp = problem.centroidal_displacements.get(idx)
-        if disp is None or block.is_support:
+        if disp is None:
             continue
 
         translation = disp["translation"] or [None, None, None]
@@ -318,8 +318,8 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
         model.graph.node_attribute(block.graphnode, "transformation", T)
 
     # contact_polygons is one entry per body pair, not per contact point
-    _per_point_keys = ["contact_points", "force_magnitudes", "force_normal", "force_tangent1", "force_tangent2", "gaps", "status"]
-    _new_key_name = ["contact_point", "force_magnitude", "force_normal", "force_tangent1", "force_tangent2", "gap", "status"]
+    _per_point_keys = ["contact_points", "force_normal", "force_tangent1", "force_tangent2", "gaps", "status"]
+    _new_key_name = ["contact_point", "force_normal", "force_tangent1", "force_tangent2", "gap", "status"]
 
     # Group contact points by body pairs - Taken directly from compas_LMGC90's post-processing method.
     contact_groups = {}
@@ -339,8 +339,6 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
         if not indices:
             continue
 
-        # print(f"Processing contact between bodies {u} and {v} with {len(indices)} contact points.")
-
         if not graph.has_edge([u, v]):
             if not graph.has_node(u) or not graph.has_node(v):
                 print(f"Warning: body {u} or {v} not in model graph (support/boundary body). Skipping contact.")
@@ -352,6 +350,7 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
         for k, name in zip(_per_point_keys, _new_key_name):
             graph.edge_attribute((u, v), name, [contact_data[k][i] for i in indices])
 
+        graph.edge_attribute((u, v), "force_magnitude", float(np.linalg.norm(np.sum([result.interaction_force_global[i] for i in indices], axis=0))))
         graph.edge_attribute((u, v), "force_vector", [list(result.interaction_force_global[i]) for i in indices])
         graph.edge_attribute((u, v), "force", np.sum([result.interaction_force_global[i] for i in indices], axis=0).tolist())
 

@@ -25,8 +25,8 @@ class Solver(Data):
     @classmethod
     def LMGC90(
         cls,
-        duration: float = 1.0,
-        n_steps: int = 100,
+        duration: float = None,
+        n_steps: int = None,
         dt: float = None,
         theta: float = 0.5,
         urf_threshold: float = None,

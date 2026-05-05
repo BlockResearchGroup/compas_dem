@@ -3,7 +3,6 @@ import os
 import compas
 
 from compas_dem.problem import Solver
-from compas_dem.viewer import DEMViewer
 
 # =============================================================================
 # Load Problem
@@ -18,11 +17,8 @@ problem = compas.json_load(
 # Create Problem
 # =============================================================================
 
-# lmgc90 = Solver.LMGC90(duration=1.0, n_steps=100, urf_threshold=0.001)
-# problem.solve(lmgc90)
-
-rbe = Solver.RBE(verbose=True)
-problem.solve(rbe)
+cra = Solver.CRA(verbose=True)
+problem.solve(cra)
 
 # =============================================================================
 # Save results
@@ -30,11 +26,3 @@ problem.solve(rbe)
 
 HERE = os.path.dirname(__file__)
 compas.json_dump(problem, os.path.join(HERE, "DEM_results.json"))
-
-# # =============================================================================
-# # Visualize problem
-# # =============================================================================
-
-viewer = DEMViewer(problem.model)
-viewer.add_solution(scale=10e-12)
-viewer.show()

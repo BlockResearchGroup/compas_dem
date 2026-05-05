@@ -218,22 +218,8 @@ class DEMViewer(Viewer):
 
         Parameters
         ----------
-        solver_name : str
-            The name of the solver used to generate the solution. This is used to determine how to interpret the solution data and update the viewer accordingly.
-            Currently supported solvers:
-            - "LMGC90"
-            - "CRA" - pending
-            - "PRD" - pending
-            - "3DEC" - pending
-
-        solution : object
-            The solution object returned by the solver. This is expected to contain the updated block geometries and contact information after the simulation run.
-
-        For LMGC90, the following KWARGS are expected:
-        - scale_normal: float
-            Scaling factor for visualizing contact normals.
-        - scale_force: float
-            Scaling factor for visualizing contact forces.
+        - scale : float
+            A scaling factor for the resultant force lines, to make them visible in the viewer. Adjust as needed based on the magnitude of forces in the model.
 
         """
 
@@ -242,6 +228,7 @@ class DEMViewer(Viewer):
         solution_group = self.scene.add_group(name="Solution")
         updated_blocks = self.scene.add_group(name="Updated_Blocks", parent=solution_group)
         resultant_forces = self.scene.add_group(name="Forces", parent=solution_group)
+        contact_polygons = self.scene.add_group(name="Contact_Polygons", parent=solution_group)
         block_ln = []
         for block in self.model.elements():
             T = self.model.graph.node_attribute(block.graphnode, "transformation") or cg.Transformation()
@@ -264,6 +251,7 @@ class DEMViewer(Viewer):
             force = self.model.graph.edge_attribute(edge, "force")
             contact_pts = self.model.graph.edge_attribute(edge, "contact_point")
             fc = self.model.graph.edge_attribute(edge, "friction_contact")
+            contact_polygon = self.model.graph.edge_attribute(edge, "contact_polygon")
             if not force or not contact_pts:
                 continue
             fn_vals = [f["c_np"] - f["c_nn"] for f in fc.forces] if fc else None
@@ -284,4 +272,10 @@ class DEMViewer(Viewer):
                 name=f"force_resultant_{edge}",
                 linewidth=2.5,
                 linecolor=Color.blue(),
+            )
+            contact_polygons.add(
+                contact_polygon,
+                name=f"contact_polygon_{edge}",
+                color=Color.green(),
+                opacity=0.5,
             )
