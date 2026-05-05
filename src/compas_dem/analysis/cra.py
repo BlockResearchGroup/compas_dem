@@ -10,33 +10,30 @@ from compas_dem.models import BlockModel
 from compas_dem.problem.problem import Problem
 
 
-def _blockmodel_to_assembly(model: BlockModel) -> tuple[Assembly, dict]:
-    """Convert a BlockModel to a compas_assembly Assembly.
+def _blockmodel_to_assembly(model: BlockModel) -> Assembly:
+    element_block: dict[int, int] = {}
 
-    Returns
-    -------
-    tuple
-        (assembly, asm_to_graphnode)
-    """
-    graphnode_to_asm: dict[int, int] = {}
     assembly = Assembly()
 
     for element in model.elements():
         block: Block = element.modelgeometry.copy(cls=Block)
         x, y, z = element.point
         node = assembly.add_block(block, x=x, y=y, z=z, is_support=element.is_support)
-        graphnode_to_asm[element.graphnode] = node
+        element_block[element.graphnode] = node
 
-    for u, v in model.graph.edges():
-        u_asm = graphnode_to_asm[u]
-        v_asm = graphnode_to_asm[v]
-        contacts = model.graph.edge_attribute((u, v), name="contacts")
-        assembly.graph.add_edge(u_asm, v_asm, interfaces=contacts)
+        assembly.graph.node_attribute(node, "graphnode", element.graphnode)
 
-    return assembly, {v: k for k, v in graphnode_to_asm.items()}
+    for edge in model.graph.edges():
+        u = element_block[edge[0]]  # type: ignore
+        v = element_block[edge[1]]
+
+        contacts = model.graph.edge_attribute(edge, name="contacts")  # type: ignore
+        assembly.graph.add_edge(u, v, interfaces=contacts)
+
+    return assembly
 
 
-def _post_processing_cra(assembly: Assembly, asm_to_graphnode: dict, problem: Problem) -> None:
+def _post_processing_cra(assembly: Assembly, problem: Problem) -> None:
     """Write CRA results back to the Problem's BlockModel in-place.
 
     Block attributes set
@@ -65,8 +62,8 @@ def _post_processing_cra(assembly: Assembly, asm_to_graphnode: dict, problem: Pr
         if not interfaces:
             continue
 
-        u = asm_to_graphnode[u_asm]
-        v = asm_to_graphnode[v_asm]
+        u = assembly.graph.node_attribute(u_asm, "graphnode")
+        v = assembly.graph.node_attribute(v_asm, "graphnode")
 
         for interface in interfaces:
             if not interface.forces:
@@ -151,7 +148,7 @@ def cra_solve(
     if density is None:
         density = 2000.0
 
-    assembly, asm_to_graphnode = _blockmodel_to_assembly(model)
+    assembly = _blockmodel_to_assembly(model)
 
     if method == "rbe":
         _rbe_solve(assembly, mu=mu, density=density, verbose=verbose, timer=timer)
@@ -168,4 +165,4 @@ def cra_solve(
     else:
         raise ValueError(f"Unknown CRA method '{method}'. Use 'rbe' or 'penalty'.")
 
-    _post_processing_cra(assembly, asm_to_graphnode, problem)
+    _post_processing_cra(assembly, problem)

@@ -71,7 +71,9 @@ def pattern_idos(pattern: Mesh) -> Mesh:
         point = pattern.vertex_point(vertex)
         normal = pattern.vertex_normal(vertex)
         thickness = pattern.vertex_attribute(vertex, name="thickness")
-        idos.vertex_attributes(vertex, names="xyz", values=point - normal * (0.5 * thickness))  # type: ignore
+        idos.vertex_attributes(
+            vertex, names="xyz", values=point - normal * (0.5 * thickness)
+        )  # type: ignore
     return idos
 
 
@@ -88,7 +90,9 @@ def pattern_face_block(pattern: Mesh, idos: Mesh, face: int) -> Mesh:
         b = plane.intersection_with_line(Line(a, b))
         flattop.append(b)
     sides = []
-    for (a, b), (aa, bb) in zip(pairwise(bottom + bottom[:1]), pairwise(flattop + flattop[:1])):
+    for (a, b), (aa, bb) in zip(
+        pairwise(bottom + bottom[:1]), pairwise(flattop + flattop[:1])
+    ):
         sides.append([a, b, bb, aa])
     polygons = [bottom[::-1], flattop] + sides
     block: Mesh = Mesh.from_polygons(polygons)
@@ -250,7 +254,9 @@ class BlockModel(Model):
     # =============================================================================
 
     @classmethod
-    def from_triangulation_dual(cls, mesh: Mesh, lengthfactor: float = 1.0, tmin=None, tmax=None) -> "BlockModel":
+    def from_triangulation_dual(
+        cls, mesh: Mesh, lengthfactor: float = 1.0, tmin=None, tmax=None
+    ) -> "BlockModel":
         """Construct a Block Model from the dual of an isotropically remeshed triangulation of the input mesh.
 
         Parameters
@@ -275,7 +281,9 @@ class BlockModel(Model):
         temp.quads_to_triangles()
         M = temp.to_vertices_and_faces()
 
-        V1, F1, V2, F2 = trimesh_dual(M, length_factor=lengthfactor, number_of_iterations=100)  # type: ignore
+        V1, F1, V2, F2 = trimesh_dual(
+            M, length_factor=lengthfactor, number_of_iterations=100
+        )  # type: ignore
         dual = Mesh.from_vertices_and_faces(V2, F2)
         dual.unify_cycles()
 
@@ -301,7 +309,9 @@ class BlockModel(Model):
         return model
 
     @classmethod
-    def from_meshpattern(cls, mesh: Mesh, patternname: str, tmin=None, tmax=None, **kwargs) -> "BlockModel":
+    def from_meshpattern(
+        cls, mesh: Mesh, patternname: str, tmin=None, tmax=None, **kwargs
+    ) -> "BlockModel":
         """Construct a Block Model from the dual of an isotropically remeshed triangulation of the input mesh.
 
         Parameters
@@ -322,12 +332,17 @@ class BlockModel(Model):
         :class:`BlockModel`
 
         """
-        average_length = sum(mesh.edge_length(edge) for edge in mesh.edges()) / mesh.number_of_edges()
+        average_length = (
+            sum(mesh.edge_length(edge) for edge in mesh.edges())
+            / mesh.number_of_edges()
+        )
         target_edge_length = 0.5 * average_length
         temp: Mesh = mesh.copy()
         temp.quads_to_triangles()
         M = temp.to_vertices_and_faces()
-        V, F = trimesh_remesh(M, target_edge_length=target_edge_length, number_of_iterations=100)  # type: ignore
+        V, F = trimesh_remesh(
+            M, target_edge_length=target_edge_length, number_of_iterations=100
+        )  # type: ignore
         trimesh = Mesh.from_vertices_and_faces(V, F)  # type: ignore
         pattern = map_pattern_to_mesh(patternname, trimesh, **kwargs)
         pattern.unify_cycles()
