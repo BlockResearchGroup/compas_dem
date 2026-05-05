@@ -1,4 +1,5 @@
 import compas.geometry as cg
+import numpy as np
 from compas.colors import Color
 from compas.scene import Group
 from compas_viewer.config import Config
@@ -211,7 +212,7 @@ class DEMViewer(Viewer):
         nodegroup.add_from_list(points, pointsize=10, pointcolor=self.graphnodecolor)  # type: ignore
         edgegroup.add_from_list(lines, linewidth=1, linecolor=self.graphedgecolor)  # type: ignore
 
-    def add_solution(self, scale=1e-7):
+    def add_solution(self, scale=1):
         """
         Adds the solution to the viewer.
 
@@ -235,50 +236,13 @@ class DEMViewer(Viewer):
             Scaling factor for visualizing contact forces.
 
         """
-        # solver_name = solver_name.lower()  # Ensure solver name is case-insensitive
 
-        # if solver_name == "lmgc90":
-        #     scale_normal = kwargs.get("scale_normal", 0.00001)
-        #     scale_force = kwargs.get("scale_force", 0.00001)
-        #     contacts = solution.get_contacts(scale_normal=scale_normal, scale_force=scale_force)
-
-        #     solution_group = self.scene.add_group(name="Solution")
-        #     updated_blocks = self.scene.add_group(name="Updated_Blocks", parent=solution_group)
-        #     resultant_forces = self.scene.add_group(name="Forces", parent=solution_group)
-        #     contact_polygons = self.scene.add_group(name="Contact_Polygons", parent=solution_group)
-
-        #     supports = solution.supports if solution.supports else []
-        #     for i, mesh in enumerate(solution.trimeshes):
-        #         is_support = supports[i] if i < len(supports) else False
-        #         color = (255, 0, 0) if is_support else (200, 200, 200)
-        #         updated_blocks.add(
-        #             mesh,
-        #             name=f"block_{i}",
-        #             facecolor=color,
-        #             show_edges=True,
-        #             opacity=0.25,
-        #         )
-        #     for i, line in enumerate(contacts["force_resultants"]):
-        #         resultant_forces.add(
-        #             line,
-        #             name=f"force_resultant_{i}",
-        #             linewidth=2.5,
-        #             color=(0, 0, 255),
-        #         )
-
-        #     for i, polygon in enumerate(contacts["contact_polygons"]):
-        #         contact_polygons.add(polygon, name=f"polygon_{i}", color=(0, 100, 0))
-        #     # solution.finalize()  # Ensure proper cleanup of LMGC90 resourcesif solver_name == "LMGC90":
-
-        # else:
-        #     raise NotImplementedError(f"Viewer update not implemented for solver: {solver_name}")
-
-        scale_force = scale
         moved_blocks = []
 
         solution_group = self.scene.add_group(name="Solution")
         updated_blocks = self.scene.add_group(name="Updated_Blocks", parent=solution_group)
         resultant_forces = self.scene.add_group(name="Forces", parent=solution_group)
+        block_ln = []
         for block in self.model.elements():
             T = self.model.graph.node_attribute(block.graphnode, "transformation") or cg.Transformation()
             new_block = block.modelgeometry.transformed(T)
@@ -288,6 +252,13 @@ class DEMViewer(Viewer):
                 name=f"block_{block.graphnode}",
                 opacity=0.25,
             )
+            block_ln.append(block.modelgeometry.edge_length([0, 1]))
+            # print(f"Length of block {block.graphnode}: {block.modelgeometry.edge_length([0, 1])}")
+
+        forces = [np.array((self.model.graph.edge_attribute((min(u, v), max(u, v)), "force") or [0, 0, 0])) for u, v in self.model.graph.edges()]
+        max_force = max(np.linalg.norm(force) for force in forces)
+        block_scale = max(block_ln) / max_force if max_force > 0 else 1.0
+
         for u, v in self.model.graph.edges():
             edge = (min(u, v), max(u, v))
             force = self.model.graph.edge_attribute(edge, "force")
@@ -295,18 +266,16 @@ class DEMViewer(Viewer):
             fc = self.model.graph.edge_attribute(edge, "friction_contact")
             if not force or not contact_pts:
                 continue
-
             fn_vals = [f["c_np"] - f["c_nn"] for f in fc.forces] if fc else None
             fn_sum = sum(fn_vals) if fn_vals else 0.0
 
             if fn_vals and abs(fn_sum) > 1e-12:
                 pos = cg.Point(*cg.centroid_points_weighted([list(p) for p in fc.points], fn_vals))
-
-                half = [force[j] * fn_sum * scale_force * 0.5 for j in range(3)]
+                half = [force[j] * block_scale * scale * 0.5 for j in range(3)]
             else:
                 n = len(contact_pts)
                 pos = cg.Point(*[sum(p[j] for p in contact_pts) / n for j in range(3)])
-                half = [force[j] * scale_force * 0.5 for j in range(3)]
+                half = [force[j] * block_scale * scale * 0.5 for j in range(3)]
 
             resultant_line = cg.Line([pos[j] + half[j] for j in range(3)], [pos[j] - half[j] for j in range(3)])
 

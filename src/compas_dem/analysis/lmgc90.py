@@ -324,19 +324,22 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
     # Group contact points by body pairs - Taken directly from compas_LMGC90's post-processing method.
     contact_groups = {}
     for i in range(len(solver.last_result.interaction_coords)):
-        body_pair = tuple(sorted(solver.last_result.interaction_bodies[i]))
+        body_pair = tuple(sorted(b - 1 for b in solver.last_result.interaction_bodies[i]))
         if body_pair not in contact_groups:
             contact_groups[body_pair] = []
         contact_groups[body_pair].append(i)
 
     result = solver.last_result
     graph = problem.model.graph
+    # print(f"Contact in Compas graph between nodes {graph.edge_index()}.")
 
     for pair, indices in contact_groups.items():
         u, v = pair
 
         if not indices:
             continue
+
+        # print(f"Processing contact between bodies {u} and {v} with {len(indices)} contact points.")
 
         if not graph.has_edge([u, v]):
             if not graph.has_node(u) or not graph.has_node(v):
