@@ -33,8 +33,18 @@ def _blockmodel_to_assembly(model: BlockModel) -> Assembly:
     return assembly
 
 
-def _post_processing_cra(assembly: Assembly, problem: Problem) -> None:
-    """Write CRA results back to the Problem's BlockModel in-place.
+def _post_processing_cra(assembly: Assembly, problem: Problem, density: float = 1.0) -> None:
+    """Post-process CRA results back to the Problem's BlockModel.
+
+    Parameters
+    ----------
+    assembly : :class:`compas_assembly.datastructures.Assembly`
+        The solved assembly returned by CRA / RBE.
+    problem : :class:`compas_dem.problem.Problem`
+        The problem whose model receives the results.
+    density : float, optional
+        Physical material density used to rescale forces from the
+        normalized solve. Default ``1.0`` (no rescaling).
 
     Block attributes set
     --------------------
@@ -73,19 +83,21 @@ def _post_processing_cra(assembly: Assembly, problem: Problem) -> None:
             if not interface.forces:
                 continue
 
-            # FrictionContact with frame already set from interface detection
+            # Rescale normalized solver outputs to physical units.
+            scaled_forces = [{k: v * density for k, v in f.items()} for f in interface.forces]
+
             fc = FrictionContact(points=interface.points, frame=interface.frame)
-            fc.forces = interface.forces
+            fc.forces = scaled_forces
             model.graph.edge_attribute((u, v), "contact_data", fc)
             model.graph.edge_attribute((u, v), "face_contact", True)
 
             model.graph.edge_attribute((u, v), "contact_point", [list(p) for p in interface.points])
             model.graph.edge_attribute((u, v), "contact_polygon", interface.polygon)
 
-            # Resultant global force vector from summed components
-            fn = sum(f["c_np"] - f["c_nn"] for f in interface.forces)
-            fu = sum(f["c_u"] for f in interface.forces)
-            fv = sum(f["c_v"] for f in interface.forces)
+            # Resultant global force vector from summed (already scaled) components
+            fn = sum(f["c_np"] - f["c_nn"] for f in scaled_forces)
+            fu = sum(f["c_u"] for f in scaled_forces)
+            fv = sum(f["c_v"] for f in scaled_forces)
             w = list(interface.frame.zaxis)
             u_ax = list(interface.frame.xaxis)
             v_ax = list(interface.frame.yaxis)
@@ -119,7 +131,6 @@ def cra_solve(
         or 0.6 if not set.
     density : float, optional
         Normalized material density. CRA uses unit-less relative density — default ``1.0``.
-        Do not pass actual kg/m³ values; they will make gravity forces too large for the solver.
     d_bnd : float, optional
         Penalty boundary parameter. Default ``0.001``.
     eps : float, optional
@@ -156,13 +167,12 @@ def cra_solve(
     assembly = _blockmodel_to_assembly(model)
 
     if method == "rbe":
-        _rbe_solve(assembly, mu=mu, density=density, verbose=verbose, timer=timer)
+        _rbe_solve(assembly, mu=mu, density=1.0, verbose=verbose, timer=timer)
     elif method == "cra":
         _cra_penalty_solve(
             assembly,
             mu=mu,
-            # density=1.0,
-            density=density,
+            density=1.0,
             d_bnd=d_bnd,
             eps=eps,
             verbose=verbose,
