@@ -73,6 +73,7 @@ class Problem(Data):
     def inspect_model(self, show_indices: bool = False) -> None:
         from compas_viewer.scene import Tag
         from compas_viewer.viewer import Viewer
+        # Add point load and disp viz if not none.
 
         viewer = Viewer()
         for element in self.model.elements():
