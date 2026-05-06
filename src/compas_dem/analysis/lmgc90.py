@@ -3,13 +3,15 @@ from collections import defaultdict
 import compas.geometry as cg
 import numpy as np
 
-from compas_dem.interactions import FrictionContact
+from compas_dem.interactions import FrictionContact, EdgeContact
 from compas_dem.problem.problem import Problem
 
 try:
     from compas_lmgc90.solver import Solver
 except ImportError:
-    raise ImportError("compas_lmgc90 is not installed. Install it to use the LMGC90 solver.")
+    raise ImportError(
+        "compas_lmgc90 is not installed. Install it to use the LMGC90 solver."
+    )
 # ---------------------------------------------------------------------------
 # UFR – Unbalanced Force Ratio
 # ---------------------------------------------------------------------------
@@ -24,7 +26,9 @@ def compute_urf(solver: Solver, problem: Problem) -> float:
     Returns 0.0 when no forces are present, and approaches 0 at equilibrium.
     """
     result = solver.last_result
-    lmgc_to_graphnode = {i: el.graphnode for i, el in enumerate(problem.model.elements())}
+    lmgc_to_graphnode = {
+        i: el.graphnode for i, el in enumerate(problem.model.elements())
+    }
 
     # Applied forces from the problem plus LMGC90's always-on gravity
     g_vec = np.array([0.0, 0.0, -9.81])
@@ -43,13 +47,19 @@ def compute_urf(solver: Solver, problem: Problem) -> float:
         contact_net[lmgc_to_graphnode[cd_id - 1]] += f
         contact_net[lmgc_to_graphnode[an_id - 1]] -= f
 
-    numerator = sum(np.linalg.norm(applied_forces.get(idx, np.zeros(3)) + cf) for idx, cf in contact_net.items())
+    numerator = sum(
+        np.linalg.norm(applied_forces.get(idx, np.zeros(3)) + cf)
+        for idx, cf in contact_net.items()
+    )
     for idx, af in applied_forces.items():
         if idx not in contact_net:
             numerator += np.linalg.norm(af)
 
     total_applied = sum(np.linalg.norm(af) for af in applied_forces.values())
-    total_contact = sum(result.interaction_force_magnitude[i] for i in range(len(result.interaction_bodies)))
+    total_contact = sum(
+        result.interaction_force_magnitude[i]
+        for i in range(len(result.interaction_bodies))
+    )
     denominator = total_applied + total_contact
 
     return 0.0 if denominator == 0.0 else numerator / denominator
@@ -107,7 +117,9 @@ def lmgc90_solve(
     """
     given = sum(x is not None for x in [duration, n_steps, dt])
     if given == 3:
-        raise ValueError("Provide exactly two of duration, n_steps, dt — the third is computed automatically.")
+        raise ValueError(
+            "Provide exactly two of duration, n_steps, dt — the third is computed automatically."
+        )
     elif given == 1:
         raise ValueError("Provide exactly two of duration, n_steps, dt.")
     elif given == 0:
@@ -139,7 +151,9 @@ def lmgc90_solve(
     if problem.contact_properties.contact_model:
         mu = problem.contact_properties.contact_model.mu
     else:
-        Warning("No contact properties with a contact model found in the problem; defaulting to mu=0.6.")
+        Warning(
+            "No contact properties with a contact model found in the problem; defaulting to mu=0.6."
+        )
         mu = 0.6
     # ------------------------------------------------------------------
     # Build solver
@@ -174,10 +188,14 @@ def lmgc90_solve(
 
         for component, value in zip(["Vx", "Vy", "Vz"], translation):
             if value is not None:
-                solver.apply_velocity(block_index=idx, component=component, value=value / duration)
+                solver.apply_velocity(
+                    block_index=idx, component=component, value=value / duration
+                )
         for component, value in zip(["Rx", "Ry", "Rz"], rotation):
             if value is not None:
-                solver.apply_velocity(block_index=idx, component=component, value=value / duration)
+                solver.apply_velocity(
+                    block_index=idx, component=component, value=value / duration
+                )
 
     # ------------------------------------------------------------------
     # Applied forces: decompose centroidal (force, moment) into per-axis
@@ -195,17 +213,29 @@ def lmgc90_solve(
             return [0, v, v] if ramp else [v, v, 0]
 
         if abs(f.x) > 1e-12:
-            solver.apply_force(block_index=idx, component="Fx", value=np.array([t_series, _vals(f.x)]))
+            solver.apply_force(
+                block_index=idx, component="Fx", value=np.array([t_series, _vals(f.x)])
+            )
         if abs(f.y) > 1e-12:
-            solver.apply_force(block_index=idx, component="Fy", value=np.array([t_series, _vals(f.y)]))
+            solver.apply_force(
+                block_index=idx, component="Fy", value=np.array([t_series, _vals(f.y)])
+            )
         if abs(f.z) > 1e-12:
-            solver.apply_force(block_index=idx, component="Fz", value=np.array([t_series, _vals(f.z)]))
+            solver.apply_force(
+                block_index=idx, component="Fz", value=np.array([t_series, _vals(f.z)])
+            )
         if abs(m.x) > 1e-12:
-            solver.apply_force(block_index=idx, component="Mx", value=np.array([t_series, _vals(m.x)]))
+            solver.apply_force(
+                block_index=idx, component="Mx", value=np.array([t_series, _vals(m.x)])
+            )
         if abs(m.y) > 1e-12:
-            solver.apply_force(block_index=idx, component="My", value=np.array([t_series, _vals(m.y)]))
+            solver.apply_force(
+                block_index=idx, component="My", value=np.array([t_series, _vals(m.y)])
+            )
         if abs(m.z) > 1e-12:
-            solver.apply_force(block_index=idx, component="Mz", value=np.array([t_series, _vals(m.z)]))
+            solver.apply_force(
+                block_index=idx, component="Mz", value=np.array([t_series, _vals(m.z)])
+            )
 
     # ------------------------------------------------------------------
     # Contact law
@@ -218,7 +248,11 @@ def lmgc90_solve(
     force_time = []
     urf_history = []
     displacement_history = []
-    initial_pos = np.array(solver.trimeshes[track_block].centroid()) if track_block is not None else None
+    initial_pos = (
+        np.array(solver.trimeshes[track_block].centroid())
+        if track_block is not None
+        else None
+    )
     print("Starting LMGC90 solver analysis...")
     for step in range(n_steps):
         if step == 0:
@@ -245,7 +279,9 @@ def lmgc90_solve(
                 urf_history.append(urf)
                 print(f"Completed step {step}/{n_steps}...  UFR = {urf:.2e}")
                 if urf >= 1.0:
-                    print(f"Diverged at step {step} (UFR = {urf:.2e} >= 1.0). Stopping.")
+                    print(
+                        f"Diverged at step {step} (UFR = {urf:.2e} >= 1.0). Stopping."
+                    )
                     break
 
                 _jump_window = 200  # Ignores URF jumps in the first n steps
@@ -256,10 +292,14 @@ def lmgc90_solve(
                 if len(urf_history) > _jump_window:
                     baseline = np.mean(urf_history[-_jump_window - 1 : -1])
                     if urf > baseline * _Max_URF_JUMP_FACTOR:
-                        print(f"Failure detected at step {step} (UFR jumped from ~{baseline:.2e} to {urf:.2e}). Stopping.")
+                        print(
+                            f"Failure detected at step {step} (UFR jumped from ~{baseline:.2e} to {urf:.2e}). Stopping."
+                        )
                         break
                 if urf < urf_threshold:
-                    print(f"Converged at step {step} (UFR = {urf:.2e} < {urf_threshold:.2e}). Stopping early.")
+                    print(
+                        f"Converged at step {step} (UFR = {urf:.2e} < {urf_threshold:.2e}). Stopping early."
+                    )
                     break
 
         elif step % 10 == 0:
@@ -267,7 +307,12 @@ def lmgc90_solve(
 
         if step % 10 == 0:
             result = solver.last_result
-            force_time.append([result.interaction_force_magnitude[i] for i in range(len(result.interaction_bodies))])
+            force_time.append(
+                [
+                    result.interaction_force_magnitude[i]
+                    for i in range(len(result.interaction_bodies))
+                ]
+            )
 
         # This is the solver loop, New tracking functions can be added here,
         # Such as tracking specific contact forces, displacements, or other quantities of interest at each step.
@@ -309,7 +354,10 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
     result = solver.last_result
     model = problem.model
 
-    # Annotate each block via graph node attribute (serializable)
+    # ==============================================================================
+    # Annotate each block result via graph node attribute (serializable)
+    # Attribute: "transformation"
+    # ==============================================================================
     for i, block in enumerate(elements):
         pos = np.array(result.bodies[i])
         rot = np.array(result.body_frames[i]).reshape(3, 3)
@@ -317,60 +365,134 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
         T = cg.Transformation.from_frame_to_frame(block.init_frame, new_frame)
         model.graph.node_attribute(block.graphnode, "transformation", T)
 
-    # contact_polygons is one entry per body pair, not per contact point
-    _per_point_keys = ["contact_points", "force_normal", "force_tangent1", "force_tangent2", "gaps", "status"]
-    _new_key_name = ["contact_point", "force_normal", "force_tangent1", "force_tangent2", "gap", "status"]
+    # ==============================================================================
+    # Annotate contact results via graph edge attributes (serializable)
+    # Attributes: "contact_point", "force_magnitude", "force_vector", "contact_polygon", "gap", "status"
+    # ==============================================================================
+    # Contact attributes are extracted from LMGC90's per contact point data.
 
+    _per_point_keys = [
+        "contact_points",
+        "force_normal",
+        "force_tangent1",
+        "force_tangent2",
+        "gaps",
+        "status",
+    ]
+    _new_key_name = [
+        "contact_point",
+        "force_normal",
+        "force_tangent1",
+        "force_tangent2",
+        "gap",
+        "status",
+    ]
+
+    # ==============================================================================
     # Group contact points by body pairs - Taken directly from compas_LMGC90's post-processing method.
+    # ==============================================================================
     contact_groups = {}
     for i in range(len(solver.last_result.interaction_coords)):
-        body_pair = tuple(sorted(b - 1 for b in solver.last_result.interaction_bodies[i]))
+        body_pair = tuple(
+            sorted(b - 1 for b in solver.last_result.interaction_bodies[i])
+        )
         if body_pair not in contact_groups:
             contact_groups[body_pair] = []
         contact_groups[body_pair].append(i)
 
+    # ==============================================================================
+    # Recall Last result from LMGC90
+
     result = solver.last_result
     graph = problem.model.graph
-    # print(f"Contact in Compas graph between nodes {graph.edge_index()}.")
 
-    for pair, indices in contact_groups.items():
+    # Loop through LMGC90's contact pairs and indices of contact points.
+
+    for pair, points in contact_groups.items():
         u, v = pair
 
-        if not indices:
+        if not points:
             continue
 
-        if not graph.has_edge([u, v]):
+        # -----------------------------------------------------------------------------
+        # LMGC90 body pairs are undirected (sorted); compas graph edges are directed.
+        # Checking for both orientations if they exist and setting the edge accordingly.
+        if graph.has_edge((u, v)):
+            edge = (u, v)
+        elif graph.has_edge((v, u)):
+            edge = (v, u)
+        else:
             if not graph.has_node(u) or not graph.has_node(v):
-                print(f"Warning: body {u} or {v} not in model graph (support/boundary body). Skipping contact.")
+                print(
+                    f"Warning: body {u} or {v} not in model graph (support/boundary body). Skipping contact."
+                )
                 continue
-            print(f"Warning: contact between bodies {u} and {v} has no corresponding edge in the model graph. Adding edge.")
+            print(
+                f"Warning: contact between bodies {u} and {v} has no corresponding edge in the model graph. Adding edge."
+            )
             graph.add_edge(u, v)
+            edge = (u, v)
+        # -----------------------------------------------------------------------------
 
-        # --- per-point contact data ---
+        # per-point contact data
+        # -------
         for k, name in zip(_per_point_keys, _new_key_name):
-            graph.edge_attribute((u, v), name, [contact_data[k][i] for i in indices])
+            graph.edge_attribute(edge, name, [contact_data[k][i] for i in points])
+        graph.edge_attribute(
+            edge,
+            "force_magnitude",
+            float(
+                np.linalg.norm(
+                    np.sum([result.interaction_force_global[p] for p in points], axis=0)
+                )
+            ),
+        )
+        graph.edge_attribute(
+            edge,
+            "force_vector",
+            [list(result.interaction_force_global[p]) for p in points],
+        )
+        graph.edge_attribute(
+            edge,
+            "force",
+            np.sum(
+                [result.interaction_force_global[p] for p in points], axis=0
+            ).tolist(),
+        )
+        # -----------------------------------------------------------------------------
 
-        graph.edge_attribute((u, v), "force_magnitude", float(np.linalg.norm(np.sum([result.interaction_force_global[i] for i in indices], axis=0))))
-        graph.edge_attribute((u, v), "force_vector", [list(result.interaction_force_global[i]) for i in indices])
-        graph.edge_attribute((u, v), "force", np.sum([result.interaction_force_global[i] for i in indices], axis=0).tolist())
+        # Identify contact type based on the number of contact points and set attributes accordingly.
+        # ----------
+        graph.edge_attribute(edge, "face_contact", False)
+        graph.edge_attribute(edge, "point_contact", False)
+        graph.edge_attribute(edge, "edge_contact", False)
 
-        polygon_pts = [result.interaction_coords[i] for i in indices]
-        if len(polygon_pts) >= 2:
-            graph.edge_attribute((u, v), "contact_polygon", cg.Polygon(polygon_pts))
+        contact_frames = [
+            cg.Frame(
+                point=cg.Point(*result.interaction_coords[p]),
+                xaxis=cg.Vector(*result.interaction_tangent1[p]),
+                yaxis=cg.Vector(*result.interaction_normals[p]),
+            )
+            for p in points
+        ]
 
-        # --- contact frames (T, N at each contact point) ---
-        contact_frames = [cg.Frame(result.interaction_coords[i], result.interaction_tangent1[i], result.interaction_normals[i]) for i in indices]
-        graph.edge_attribute((u, v), "contact_frames", contact_frames)
+        graph.edge_attribute(edge, "contact_frame", contact_frames[0])
 
-        fv_vecs = graph.edge_attribute((u, v), "force_vector")
-        contact_pts = graph.edge_attribute((u, v), "contact_point")
-        contact_frames = graph.edge_attribute((u, v), "contact_frames")
-        if contact_pts and fv_vecs and len(contact_pts) >= 2:
+        polygon_pts = [result.interaction_coords[p] for p in points]
+
+        fv_vecs = graph.edge_attribute(edge, "force_vector")
+        contact_pts = graph.edge_attribute(edge, "contact_point")
+        contact_frames = graph.edge_attribute(edge, "contact_frame")
+
+        if len(polygon_pts) >= 3:
+            graph.edge_attribute(edge, "contact_polygon", cg.Polygon(polygon_pts))
+
+            graph.edge_attribute(edge, "face_contact", True)
             fc = FrictionContact(points=[cg.Point(*p) for p in contact_pts])
-            lmgc_normal = contact_frames[0].yaxis
-            lmgc_tangent = contact_frames[0].xaxis
+            lmgc_normal = contact_frames.yaxis
+            lmgc_tangent = contact_frames.xaxis
             tangent2 = lmgc_normal.cross(lmgc_tangent).unitized()
-            fc._frame = cg.Frame(contact_frames[0].point, lmgc_tangent, tangent2)
+            fc._frame = cg.Frame(contact_frames.point, lmgc_tangent, tangent2)
             frame = fc.frame
             fc.forces = [
                 {
@@ -381,4 +503,56 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
                 }
                 for fv in fv_vecs
             ]
-            graph.edge_attribute((u, v), "friction_contact", fc)
+            graph.edge_attribute(edge, "contact_data", fc)
+
+        elif len(polygon_pts) == 2:
+            print(
+                f"Edge contact between bodies {u} and {v} with contact points {polygon_pts}. Setting edge_contact=True."
+            )
+            graph.edge_attribute(edge, "edge_contact", True)
+
+            lmgc_normal = contact_frames.yaxis
+            lmgc_tangent = contact_frames.xaxis
+            tangent2 = lmgc_normal.cross(lmgc_tangent).unitized()
+
+            ec = EdgeContact(
+                points=[cg.Point(*p) for p in polygon_pts],
+                frame=cg.Frame(
+                    cg.Line(
+                        cg.Point(*polygon_pts[0]), cg.Point(*polygon_pts[1])
+                    ).midpoint,
+                    lmgc_tangent,
+                    tangent2,
+                ),
+            )
+            ec.forces = [
+                {
+                    "c_np": max(cg.Vector(*fv).dot(ec.frame.zaxis), 0),
+                    "c_nn": max(-cg.Vector(*fv).dot(ec.frame.zaxis), 0),
+                    "c_u": cg.Vector(*fv).dot(ec.frame.xaxis),
+                    "c_v": cg.Vector(*fv).dot(ec.frame.yaxis),
+                }
+                for fv in fv_vecs
+            ]
+            graph.edge_attribute(edge, "edge_contact", True)
+            graph.edge_attribute(edge, "contact_data", ec)
+
+        elif len(polygon_pts) == 1:
+            graph.edge_attribute(edge, "point_contact", True)
+
+        else:
+            print(
+                f"Warning: contact between bodies {u} and {v} has no contact points. This is unexpected; check LMGC90 results."
+            )
+
+        # ------------------------------------------------------------------------------
+        # --- contact frames (T, N at each contact point) ---
+        contact_frames = [
+            cg.Frame(
+                result.interaction_coords[p],
+                result.interaction_tangent1[p],
+                result.interaction_normals[p],
+            )
+            for p in points
+        ]
+        graph.edge_attribute(edge, "contact_frames", contact_frames)
