@@ -1,6 +1,7 @@
 from typing import Optional
 
 import compas.geometry as cg
+from compas.colors import Color
 from compas.data import Data
 from compas.geometry import Vector
 from compas_cgal.measure import mesh_volume
@@ -70,17 +71,24 @@ class Problem(Data):
     # ============================================================================
     # Pre-visualization utilities
     # ===========================================================================
-    def inspect_model(self, show_indices: bool = False) -> None:
+    def inspect_model(self, show_indices: bool = False, show_loads: bool = True) -> None:
         from compas_viewer.scene import Tag
         from compas_viewer.viewer import Viewer
         # Add point load and disp viz if not none.
 
         viewer = Viewer()
-        for loads in self.boundary_conditions.point_loads:
-            block = self._blocks[loads["block_index"]]
-            force = Vector(*loads["force"])
-            line = cg.Line(block.point, block.point + force * 0.1)
-            viewer.scene.add(line, name=f"Point Load on Block {block.graphnode}", linewidth=2.5, linecolor=Color.red())
+        if show_loads:
+            for loads in self.boundary_conditions.point_loads:
+                block = self._blocks[loads["block_index"]]
+                scale = block.modelgeometry.edge_length([0, 1]) / 2
+                force = Vector(*loads["force"])
+                line = cg.Line(block.point, block.point - force.unitized() * scale)
+
+                tag = Tag(f"Point Load: [{force.x:.1f}, {force.y:.1f}, {force.z:.1f}]", block.point)
+                viewer.scene.add(tag, name=f"Block {block.graphnode} Tag", textcolor=Color.red())
+
+                viewer.scene.add(line, name=f"Point Load on Block {block.graphnode}", linewidth=2.5, linecolor=Color.red())
+
         for element in self.model.elements():
             block_ = viewer.scene.add_group(name=f"Block {element.graphnode}")
             if show_indices:

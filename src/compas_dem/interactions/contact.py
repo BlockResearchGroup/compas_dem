@@ -533,7 +533,10 @@ class FrictionContact(Contact):
         sum_n = sum(normalcomponents)
         sum_u = sum(f["c_u"] for f in self.forces)
         sum_v = sum(f["c_v"] for f in self.forces)
-        position = Point(*centroid_points_weighted(self.points, normalcomponents))
+        if abs(sum_n) > 1e-12:
+            position = Point(*centroid_points_weighted(self.points, normalcomponents))
+        else:
+            position = Point(*centroid_points_weighted(self.points, [1] * len(self.points)))
         frame = self.frame
         w, u, v = frame.zaxis, frame.xaxis, frame.yaxis
         forcevector = (w * sum_n + u * sum_u + v * sum_v) * 0.5
@@ -568,7 +571,7 @@ class FrictionContact(Contact):
         forcevector = (w * sum_n + u * sum_u + v * sum_v) * 0.5
         if forcevector.length == 0:
             return None
-        if abs(sum_n) > 1e-12:
+        if sum_n:
             position = Point(*centroid_points_weighted(self.points, normalcomponents))
         else:
             position = Point(*centroid_points_weighted(self.points, [1] * len(self.points)))

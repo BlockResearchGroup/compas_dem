@@ -3,7 +3,6 @@ import os
 import compas
 
 from compas_dem.problem import Problem
-from compas_dem.viewer import DEMViewer
 
 # =============================================================================
 # Load Problem
@@ -23,6 +22,7 @@ problem.add_point_load(block_index=14, force=[0, 0, -500000.0])
 # =============================================================================
 # Save results
 # =============================================================================
+problem.inspect_model()
 
 HERE = os.path.dirname(__file__)
 compas.json_dump(problem, os.path.join(HERE, "DEM_problem_updated.json"))
