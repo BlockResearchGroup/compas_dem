@@ -33,9 +33,7 @@ def _blockmodel_to_assembly(model: BlockModel) -> Assembly:
     return assembly
 
 
-def _post_processing_cra(
-    assembly: Assembly, problem: Problem, density: float = 1.0
-) -> None:
+def _post_processing_cra(assembly: Assembly, problem: Problem, density: float = 1.0) -> None:
     """Post-process CRA results back to the Problem's BlockModel.
 
     Parameters
@@ -70,9 +68,7 @@ def _post_processing_cra(
 
     # Block annotations (static — no displacement)
     for block in model.elements():
-        model.graph.node_attribute(
-            block.graphnode, "transformation", cg.Transformation()
-        )
+        model.graph.node_attribute(block.graphnode, "transformation", cg.Transformation())
 
     # Edge annotations from solved interfaces
     for u_asm, v_asm in assembly.graph.edges():
@@ -89,18 +85,14 @@ def _post_processing_cra(
 
             # Rescale normalized solver outputs to physical units.
             scale = density * 9.81
-            scaled_forces = [
-                {k: v * scale for k, v in f.items()} for f in interface.forces
-            ]
+            scaled_forces = [{k: v * scale for k, v in f.items()} for f in interface.forces]
 
             fc = FrictionContact(points=interface.points, frame=interface.frame)
             fc.forces = scaled_forces
             model.graph.edge_attribute((u, v), "contact_data", fc)
             model.graph.edge_attribute((u, v), "face_contact", True)
 
-            model.graph.edge_attribute(
-                (u, v), "contact_point", [list(p) for p in interface.points]
-            )
+            model.graph.edge_attribute((u, v), "contact_point", [list(p) for p in interface.points])
             model.graph.edge_attribute((u, v), "contact_polygon", interface.polygon)
 
             # Resultant global force vector from summed (already scaled) components
