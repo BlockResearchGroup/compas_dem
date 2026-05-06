@@ -3,7 +3,8 @@ from collections import defaultdict
 import compas.geometry as cg
 import numpy as np
 
-from compas_dem.interactions import FrictionContact, EdgeContact
+from compas_dem.interactions import EdgeContact
+from compas_dem.interactions import FrictionContact
 from compas_dem.problem.problem import Problem
 
 try:
