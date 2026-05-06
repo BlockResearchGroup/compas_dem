@@ -146,9 +146,7 @@ def lmgc90_solve(
     # Build solver
     # ------------------------------------------------------------------
     # Fully-fixed blocks (all-zero translation + rotation) must go through
-    # set_supports_from_model() so LMGC90 receives np.zeros([6]) with v[4]=0,
-    # matching the expected drvdof format. apply_velocity(value=0.0) produces
-    # [[0,0,0,0,1,0]] (v[4]=1) which activates the constraint differently.
+    # the supports mechanism for vizualization and later flagging.
     for block in model.elements():
         idx = block.graphnode
         disp = problem.centroidal_displacements.get(idx)
@@ -159,7 +157,7 @@ def lmgc90_solve(
                 block.is_support = True
 
     solver = Solver(model, density=density, dt=duration / n_steps, theta=theta)
-    solver.set_supports_from_model()
+    # solver.set_supports_from_model()
 
     # ------------------------------------------------------------------
     # Displacement BCs → apply_velocity (prescribed non-zero only)

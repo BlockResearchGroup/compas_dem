@@ -84,10 +84,18 @@ class Problem(Data):
                 force = Vector(*loads["force"])
                 line = cg.Line(block.point, block.point - force.unitized() * scale)
 
-                tag = Tag(f"Point Load: [{force.x:.1f}, {force.y:.1f}, {force.z:.1f}]", block.point)
+                tag = Tag(
+                    f"Point Load: [{force.x:.1f}, {force.y:.1f}, {force.z:.1f}]",
+                    block.point,
+                )
                 viewer.scene.add(tag, name=f"Block {block.graphnode} Tag", textcolor=Color.red())
 
-                viewer.scene.add(line, name=f"Point Load on Block {block.graphnode}", linewidth=2.5, linecolor=Color.red())
+                viewer.scene.add(
+                    line,
+                    name=f"Point Load on Block {block.graphnode}",
+                    linewidth=2.5,
+                    linecolor=Color.red(),
+                )
 
         for element in self.model.elements():
             block_ = viewer.scene.add_group(name=f"Block {element.graphnode}")
@@ -266,7 +274,14 @@ class Problem(Data):
     def centroidal_loads(self) -> dict[int, dict]:
         """Resolved (force, moment) pairs at each block centroid."""
         bc = self._boundary_conditions
-        loads = {idx: {"force": Vector(0, 0, 0), "moment": Vector(0, 0, 0), "loading_type": "ramp"} for idx in self._blocks}
+        loads = {
+            idx: {
+                "force": Vector(0, 0, 0),
+                "moment": Vector(0, 0, 0),
+                "loading_type": "ramp",
+            }
+            for idx in self._blocks
+        }
 
         if bc.gravity:
             g_vec = Vector(0, 0, -bc.g)
@@ -314,7 +329,10 @@ class Problem(Data):
         for entry in self._boundary_conditions.displacements:
             idx = entry["block_index"]
             if idx not in displacements:
-                displacements[idx] = {"translation": [None, None, None], "rotation": [None, None, None]}
+                displacements[idx] = {
+                    "translation": [None, None, None],
+                    "rotation": [None, None, None],
+                }
             if entry["translation"] is not None:
                 for j, v in enumerate(entry["translation"]):
                     if v is not None:
@@ -411,25 +429,6 @@ class Problem(Data):
 
         else:
             raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE'.")
-        # if solver == "LMGC90":
-        #     from compas_dem.analysis.lmgc90 import lmgc90_solve
-
-        #     params = Solver.LMGC90(**kwargs).parameters
-        #     return lmgc90_solve(self, **{k: v for k, v in params.items() if v is not None})
-
-        # elif solver == "CRA":
-        #     from compas_dem.analysis.cra import cra_solve
-
-        #     params = Solver.CRA(**kwargs).parameters
-        #     return cra_solve(self, **{k: v for k, v in params.items() if v is not None})
-
-        # elif solver == "RBE":
-        #     from compas_dem.analysis.cra import cra_solve
-
-        #     params = Solver.RBE(**kwargs).parameters
-        #     return cra_solve(self, **{k: v for k, v in params.items() if v is not None})
-        # else:
-        #     raise ValueError(f"Solver '{solver}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE'.")
 
     def check_model_validity(self) -> None:
         """Check that the model is valid for solving.

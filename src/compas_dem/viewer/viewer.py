@@ -212,7 +212,7 @@ class DEMViewer(Viewer):
         nodegroup.add_from_list(points, pointsize=10, pointcolor=self.graphnodecolor)  # type: ignore
         edgegroup.add_from_list(lines, linewidth=1, linecolor=self.graphedgecolor)  # type: ignore
 
-    def add_solution(self, scale=1):
+    def add_solution(self, scale=1.0):
         """
         Adds the solution to the viewer.
 
@@ -293,6 +293,11 @@ class DEMViewer(Viewer):
                     point_forces.append((fc.resultantpoint, resultant.vector))
 
                     contact_polygon = self.model.graph.edge_attribute(edge, "contact_polygon")
+
+                    if contact_polygon.area < 1e-6:
+                        print(f"WARNING:\nContact polygon for support edge {edge} has very small area ({contact_polygon.area:.2e}), skipping visualization. \n")
+                        continue
+
                     polyg = contact_polygon.to_brep()
                     support_contacts.add(
                         polyg,
