@@ -2,6 +2,7 @@ from typing import Annotated
 from typing import Optional
 from typing import Union
 
+from compas.data import Data
 from compas.geometry import Frame
 from compas.geometry import Line
 from compas.geometry import Point
@@ -13,7 +14,6 @@ from compas.geometry import dot_vectors
 from compas.geometry import transform_points
 from compas.itertools import pairwise
 from compas_model.interactions import Contact
-from compas.data import Data
 
 
 def outer_product(u, v):
@@ -212,7 +212,7 @@ class EdgeContact(Data):
         self._forces = forces
 
     @property
-    def contactpoint(self) -> Point:
+    def resultantpoint(self) -> Point:
         """Line of action through the contact: per-point normal-force-weighted centroid, falling back to the geometric midpoint when normal forces are absent or net to zero."""
         pts = [list(p) for p in self.points]
         if self._forces:
@@ -244,7 +244,7 @@ class EdgeContact(Data):
         if r is None or r.length == 0:
             return None
         half = r * 0.5
-        center = self.contactpoint
+        center = self.resultantpoint
         return Line(center - half, center + half)
 
     def resultantline(self, scale: float = 1.0) -> Line:
@@ -253,7 +253,7 @@ class EdgeContact(Data):
         if r is None or r.length == 0:
             return None
         half = r * 0.5 * scale
-        center = self.contactpoint
+        center = self.resultantpoint
         return Line(center - half, center + half)
 
 
@@ -367,9 +367,7 @@ class FrictionContact(Contact):
     def points2(self) -> list[Point]:
         if not self._points2:
             X = Transformation.from_frame_to_frame(self.frame, Frame.worldXY())
-            self._points2 = [
-                Point(*point) for point in transform_points(self.points, X)
-            ]
+            self._points2 = [Point(*point) for point in transform_points(self.points, X)]
         return self._points2
 
     @property
@@ -412,9 +410,7 @@ class FrictionContact(Contact):
             m2 = sum_matrices(
                 m2,
                 scale_matrix(
-                    sum_matrices(
-                        sum_matrices(aa, bb), scale_matrix(sum_matrices(ab, ba), 0.5)
-                    ),
+                    sum_matrices(sum_matrices(aa, bb), scale_matrix(sum_matrices(ab, ba), 0.5)),
                     m0,
                 ),
             )
@@ -466,9 +462,7 @@ class FrictionContact(Contact):
                 for point, force in zip(self.points, self.forces):
                     force = force["c_np"] - force["c_nn"]
                     if force > 0:
-                        self._compressiondata.append(
-                            list(point) + vector + [0.5 * force]
-                        )
+                        self._compressiondata.append(list(point) + vector + [0.5 * force])
         return self._compressiondata
 
     @property
@@ -520,9 +514,7 @@ class FrictionContact(Contact):
                 u, v = list(self.frame.xaxis), list(self.frame.yaxis)
                 for point, force in zip(self.points, self.forces):
                     xyz = list(point)
-                    self._frictiondata.append(
-                        xyz + u + v + [force["c_u"], force["c_v"]]
-                    )
+                    self._frictiondata.append(xyz + u + v + [force["c_u"], force["c_v"]])
         return self._frictiondata
 
     @property
@@ -579,9 +571,7 @@ class FrictionContact(Contact):
         if abs(sum_n) > 1e-12:
             position = Point(*centroid_points_weighted(self.points, normalcomponents))
         else:
-            position = Point(
-                *centroid_points_weighted(self.points, [1] * len(self.points))
-            )
+            position = Point(*centroid_points_weighted(self.points, [1] * len(self.points)))
         p1 = position + forcevector * scale
         p2 = position - forcevector * scale
         return Line(p1, p2)

@@ -76,6 +76,11 @@ class Problem(Data):
         # Add point load and disp viz if not none.
 
         viewer = Viewer()
+        for loads in self.boundary_conditions.point_loads:
+            block = self._blocks[loads["block_index"]]
+            force = Vector(*loads["force"])
+            line = cg.Line(block.point, block.point + force * 0.1)
+            viewer.scene.add(line, name=f"Point Load on Block {block.graphnode}", linewidth=2.5, linecolor=Color.red())
         for element in self.model.elements():
             block_ = viewer.scene.add_group(name=f"Block {element.graphnode}")
             if show_indices:

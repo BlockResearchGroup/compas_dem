@@ -9,9 +9,7 @@ from compas_dem.problem.problem import Problem
 try:
     from compas_lmgc90.solver import Solver
 except ImportError:
-    raise ImportError(
-        "compas_lmgc90 is not installed. Install it to use the LMGC90 solver."
-    )
+    raise ImportError("compas_lmgc90 is not installed. Install it to use the LMGC90 solver.")
 # ---------------------------------------------------------------------------
 # UFR – Unbalanced Force Ratio
 # ---------------------------------------------------------------------------
@@ -26,9 +24,7 @@ def compute_urf(solver: Solver, problem: Problem) -> float:
     Returns 0.0 when no forces are present, and approaches 0 at equilibrium.
     """
     result = solver.last_result
-    lmgc_to_graphnode = {
-        i: el.graphnode for i, el in enumerate(problem.model.elements())
-    }
+    lmgc_to_graphnode = {i: el.graphnode for i, el in enumerate(problem.model.elements())}
 
     # Applied forces from the problem plus LMGC90's always-on gravity
     g_vec = np.array([0.0, 0.0, -9.81])
@@ -47,19 +43,13 @@ def compute_urf(solver: Solver, problem: Problem) -> float:
         contact_net[lmgc_to_graphnode[cd_id - 1]] += f
         contact_net[lmgc_to_graphnode[an_id - 1]] -= f
 
-    numerator = sum(
-        np.linalg.norm(applied_forces.get(idx, np.zeros(3)) + cf)
-        for idx, cf in contact_net.items()
-    )
+    numerator = sum(np.linalg.norm(applied_forces.get(idx, np.zeros(3)) + cf) for idx, cf in contact_net.items())
     for idx, af in applied_forces.items():
         if idx not in contact_net:
             numerator += np.linalg.norm(af)
 
     total_applied = sum(np.linalg.norm(af) for af in applied_forces.values())
-    total_contact = sum(
-        result.interaction_force_magnitude[i]
-        for i in range(len(result.interaction_bodies))
-    )
+    total_contact = sum(result.interaction_force_magnitude[i] for i in range(len(result.interaction_bodies)))
     denominator = total_applied + total_contact
 
     return 0.0 if denominator == 0.0 else numerator / denominator
@@ -117,9 +107,7 @@ def lmgc90_solve(
     """
     given = sum(x is not None for x in [duration, n_steps, dt])
     if given == 3:
-        raise ValueError(
-            "Provide exactly two of duration, n_steps, dt — the third is computed automatically."
-        )
+        raise ValueError("Provide exactly two of duration, n_steps, dt — the third is computed automatically.")
     elif given == 1:
         raise ValueError("Provide exactly two of duration, n_steps, dt.")
     elif given == 0:
@@ -151,9 +139,7 @@ def lmgc90_solve(
     if problem.contact_properties.contact_model:
         mu = problem.contact_properties.contact_model.mu
     else:
-        Warning(
-            "No contact properties with a contact model found in the problem; defaulting to mu=0.6."
-        )
+        Warning("No contact properties with a contact model found in the problem; defaulting to mu=0.6.")
         mu = 0.6
     # ------------------------------------------------------------------
     # Build solver
@@ -188,14 +174,10 @@ def lmgc90_solve(
 
         for component, value in zip(["Vx", "Vy", "Vz"], translation):
             if value is not None:
-                solver.apply_velocity(
-                    block_index=idx, component=component, value=value / duration
-                )
+                solver.apply_velocity(block_index=idx, component=component, value=value / duration)
         for component, value in zip(["Rx", "Ry", "Rz"], rotation):
             if value is not None:
-                solver.apply_velocity(
-                    block_index=idx, component=component, value=value / duration
-                )
+                solver.apply_velocity(block_index=idx, component=component, value=value / duration)
 
     # ------------------------------------------------------------------
     # Applied forces: decompose centroidal (force, moment) into per-axis
@@ -213,29 +195,17 @@ def lmgc90_solve(
             return [0, v, v] if ramp else [v, v, 0]
 
         if abs(f.x) > 1e-12:
-            solver.apply_force(
-                block_index=idx, component="Fx", value=np.array([t_series, _vals(f.x)])
-            )
+            solver.apply_force(block_index=idx, component="Fx", value=np.array([t_series, _vals(f.x)]))
         if abs(f.y) > 1e-12:
-            solver.apply_force(
-                block_index=idx, component="Fy", value=np.array([t_series, _vals(f.y)])
-            )
+            solver.apply_force(block_index=idx, component="Fy", value=np.array([t_series, _vals(f.y)]))
         if abs(f.z) > 1e-12:
-            solver.apply_force(
-                block_index=idx, component="Fz", value=np.array([t_series, _vals(f.z)])
-            )
+            solver.apply_force(block_index=idx, component="Fz", value=np.array([t_series, _vals(f.z)]))
         if abs(m.x) > 1e-12:
-            solver.apply_force(
-                block_index=idx, component="Mx", value=np.array([t_series, _vals(m.x)])
-            )
+            solver.apply_force(block_index=idx, component="Mx", value=np.array([t_series, _vals(m.x)]))
         if abs(m.y) > 1e-12:
-            solver.apply_force(
-                block_index=idx, component="My", value=np.array([t_series, _vals(m.y)])
-            )
+            solver.apply_force(block_index=idx, component="My", value=np.array([t_series, _vals(m.y)]))
         if abs(m.z) > 1e-12:
-            solver.apply_force(
-                block_index=idx, component="Mz", value=np.array([t_series, _vals(m.z)])
-            )
+            solver.apply_force(block_index=idx, component="Mz", value=np.array([t_series, _vals(m.z)]))
 
     # ------------------------------------------------------------------
     # Contact law
@@ -248,11 +218,7 @@ def lmgc90_solve(
     force_time = []
     urf_history = []
     displacement_history = []
-    initial_pos = (
-        np.array(solver.trimeshes[track_block].centroid())
-        if track_block is not None
-        else None
-    )
+    initial_pos = np.array(solver.trimeshes[track_block].centroid()) if track_block is not None else None
     print("Starting LMGC90 solver analysis...")
     for step in range(n_steps):
         if step == 0:
@@ -279,9 +245,7 @@ def lmgc90_solve(
                 urf_history.append(urf)
                 print(f"Completed step {step}/{n_steps}...  UFR = {urf:.2e}")
                 if urf >= 1.0:
-                    print(
-                        f"Diverged at step {step} (UFR = {urf:.2e} >= 1.0). Stopping."
-                    )
+                    print(f"Diverged at step {step} (UFR = {urf:.2e} >= 1.0). Stopping.")
                     break
 
                 _jump_window = 200  # Ignores URF jumps in the first n steps
@@ -292,14 +256,10 @@ def lmgc90_solve(
                 if len(urf_history) > _jump_window:
                     baseline = np.mean(urf_history[-_jump_window - 1 : -1])
                     if urf > baseline * _Max_URF_JUMP_FACTOR:
-                        print(
-                            f"Failure detected at step {step} (UFR jumped from ~{baseline:.2e} to {urf:.2e}). Stopping."
-                        )
+                        print(f"Failure detected at step {step} (UFR jumped from ~{baseline:.2e} to {urf:.2e}). Stopping.")
                         break
                 if urf < urf_threshold:
-                    print(
-                        f"Converged at step {step} (UFR = {urf:.2e} < {urf_threshold:.2e}). Stopping early."
-                    )
+                    print(f"Converged at step {step} (UFR = {urf:.2e} < {urf_threshold:.2e}). Stopping early.")
                     break
 
         elif step % 10 == 0:
@@ -307,12 +267,7 @@ def lmgc90_solve(
 
         if step % 10 == 0:
             result = solver.last_result
-            force_time.append(
-                [
-                    result.interaction_force_magnitude[i]
-                    for i in range(len(result.interaction_bodies))
-                ]
-            )
+            force_time.append([result.interaction_force_magnitude[i] for i in range(len(result.interaction_bodies))])
 
         # This is the solver loop, New tracking functions can be added here,
         # Such as tracking specific contact forces, displacements, or other quantities of interest at each step.
@@ -393,9 +348,7 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
     # ==============================================================================
     contact_groups = {}
     for i in range(len(solver.last_result.interaction_coords)):
-        body_pair = tuple(
-            sorted(b - 1 for b in solver.last_result.interaction_bodies[i])
-        )
+        body_pair = tuple(sorted(b - 1 for b in solver.last_result.interaction_bodies[i]))
         if body_pair not in contact_groups:
             contact_groups[body_pair] = []
         contact_groups[body_pair].append(i)
@@ -423,13 +376,9 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
             edge = (v, u)
         else:
             if not graph.has_node(u) or not graph.has_node(v):
-                print(
-                    f"Warning: body {u} or {v} not in model graph (support/boundary body). Skipping contact."
-                )
+                print(f"Warning: body {u} or {v} not in model graph (support/boundary body). Skipping contact.")
                 continue
-            print(
-                f"Warning: contact between bodies {u} and {v} has no corresponding edge in the model graph. Adding edge."
-            )
+            print(f"Warning: contact between bodies {u} and {v} has no corresponding edge in the model graph. Adding edge.")
             graph.add_edge(u, v)
             edge = (u, v)
         # -----------------------------------------------------------------------------
@@ -441,11 +390,7 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
         graph.edge_attribute(
             edge,
             "force_magnitude",
-            float(
-                np.linalg.norm(
-                    np.sum([result.interaction_force_global[p] for p in points], axis=0)
-                )
-            ),
+            float(np.linalg.norm(np.sum([result.interaction_force_global[p] for p in points], axis=0))),
         )
         graph.edge_attribute(
             edge,
@@ -455,9 +400,7 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
         graph.edge_attribute(
             edge,
             "force",
-            np.sum(
-                [result.interaction_force_global[p] for p in points], axis=0
-            ).tolist(),
+            np.sum([result.interaction_force_global[p] for p in points], axis=0).tolist(),
         )
         # -----------------------------------------------------------------------------
 
@@ -506,9 +449,7 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
             graph.edge_attribute(edge, "contact_data", fc)
 
         elif len(polygon_pts) == 2:
-            print(
-                f"Edge contact between bodies {u} and {v} with contact points {polygon_pts}. Setting edge_contact=True."
-            )
+            print(f"Edge contact between bodies {u} and {v} with contact points {polygon_pts}. Setting edge_contact=True.")
             graph.edge_attribute(edge, "edge_contact", True)
 
             lmgc_normal = contact_frames.yaxis
@@ -518,9 +459,7 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
             ec = EdgeContact(
                 points=[cg.Point(*p) for p in polygon_pts],
                 frame=cg.Frame(
-                    cg.Line(
-                        cg.Point(*polygon_pts[0]), cg.Point(*polygon_pts[1])
-                    ).midpoint,
+                    cg.Line(cg.Point(*polygon_pts[0]), cg.Point(*polygon_pts[1])).midpoint,
                     lmgc_tangent,
                     tangent2,
                 ),
@@ -541,9 +480,7 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
             graph.edge_attribute(edge, "point_contact", True)
 
         else:
-            print(
-                f"Warning: contact between bodies {u} and {v} has no contact points. This is unexpected; check LMGC90 results."
-            )
+            print(f"Warning: contact between bodies {u} and {v} has no contact points. This is unexpected; check LMGC90 results.")
 
         # ------------------------------------------------------------------------------
         # --- contact frames (T, N at each contact point) ---
