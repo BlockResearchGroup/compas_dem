@@ -229,7 +229,7 @@ class DEMViewer(Viewer):
         updated_blocks = self.scene.add_group(name="Updated_Blocks", parent=solution_group)
         resultant_forces = self.scene.add_group(name="Forces", parent=solution_group)
         face_contacts = self.scene.add_group(name="Contact_Polygons", parent=solution_group)
-        edge_contacts = self.scene.add_group(name="Contact_Polygons", parent=solution_group)
+        edge_contacts = self.scene.add_group(name="Contact_Edges", parent=solution_group)
         supports = self.scene.add_group(name="Supports", parent=solution_group)
         reactions = self.scene.add_group(name="Reactions", parent=supports)
         support_contacts = self.scene.add_group(name="Support_Contacts", parent=supports)
@@ -362,6 +362,9 @@ class DEMViewer(Viewer):
         # --------------
         for edge in edge_contact_edges:
             ec = self.model.graph.edge_attribute(edge, "contact_data")
+
+            if ec.resultantforce is None:
+                continue
             resultant = ec.resultantforce.vector
             line = ec.resultantline(scale=block_scale) if ec else None
 
