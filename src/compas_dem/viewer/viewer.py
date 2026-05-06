@@ -246,8 +246,10 @@ class DEMViewer(Viewer):
                 name=f"block_{block.graphnode}",
                 opacity=0.25,
             )
-            block_ln.append(block.modelgeometry.edge_length([0, 1]))
-            # print(f"Length of block {block.graphnode}: {block.modelgeometry.edge_length([0, 1])}")
+            try:
+                block_ln.append(block.modelgeometry.edge_length([0, 1]))
+            except Exception:
+                pass
 
         forces = [np.array((self.model.graph.edge_attribute(edge, "force") or [0, 0, 0])) for edge in self.model.graph.edges()]
         max_force = max(np.linalg.norm(force) for force in forces)
