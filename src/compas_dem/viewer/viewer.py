@@ -231,7 +231,7 @@ class DEMViewer(Viewer):
         face_contacts = self.scene.add_group(name="Contact_Polygons", parent=solution_group)
         edge_contacts = self.scene.add_group(name="Contact_Polygons", parent=solution_group)
         supports = self.scene.add_group(name="Supports", parent=solution_group)
-        reactions = self.scene.add_group(name="reactions", parent=supports)
+        reactions = self.scene.add_group(name="Reactions", parent=supports)
         support_contacts = self.scene.add_group(name="Support_Contacts", parent=supports)
 
         # loads = self.scene.add_group(name="Loads", parent=solution_group)
@@ -284,8 +284,8 @@ class DEMViewer(Viewer):
                     if resultant is None:
                         continue
 
-                    to_support = cg.Vector.from_start_end(resultant.midpoint, support_point)
-                    if resultant.vector.dot(to_support) < 0:
+                    from_support = cg.Vector.from_start_end(support_point, resultant.midpoint)
+                    if resultant.vector.dot(from_support) < 0:
                         resultant.vector.flip()
 
                     point_forces.append((fc.resultantpoint, resultant.vector))
@@ -306,8 +306,9 @@ class DEMViewer(Viewer):
                     if ec.resultantline() is None:
                         continue
 
-                    to_support = cg.Vector.from_start_end(resultant.midpoint, support_point)
-                    if resultant.vector.dot(to_support) < 0:
+                    from_support = cg.Vector.from_start_end(support_point, resultant.midpoint)
+
+                    if resultant.vector.dot(from_support) < 0:
                         resultant.vector.flip()
                     point_forces.append((ec.resultantpoint, ec.resultantline().vector))
 

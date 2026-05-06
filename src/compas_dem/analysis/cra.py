@@ -43,10 +43,14 @@ def _post_processing_cra(assembly: Assembly, problem: Problem) -> None:
 
     Edge attributes set
     -------------------
-    friction_contact : :class:`FrictionContact`
-        Solved contact forces, in the same format as LMGC90 output.
+    contact_data : :class:`FrictionContact`
+        Surface-Surface contact data including forces and frame.
+    contact_point : list[list[float]]
+        Contact point in global XYZ coordinates.
     contact_polygon : :class:`compas.geometry.Polygon`
         The contact interface polygon.
+    face_contact : bool
+        Marks the edge as a face contact so the viewer renders it.
     force : list[float]
         Resultant force vector [fx, fy, fz] at the interface.
     """
@@ -72,7 +76,8 @@ def _post_processing_cra(assembly: Assembly, problem: Problem) -> None:
             # FrictionContact with frame already set from interface detection
             fc = FrictionContact(points=interface.points, frame=interface.frame)
             fc.forces = interface.forces
-            model.graph.edge_attribute((u, v), "friction_contact", fc)
+            model.graph.edge_attribute((u, v), "contact_data", fc)
+            model.graph.edge_attribute((u, v), "face_contact", True)
 
             model.graph.edge_attribute((u, v), "contact_point", [list(p) for p in interface.points])
             model.graph.edge_attribute((u, v), "contact_polygon", interface.polygon)
@@ -156,7 +161,8 @@ def cra_solve(
         _cra_penalty_solve(
             assembly,
             mu=mu,
-            density=1.0,
+            # density=1.0,
+            density=density,
             d_bnd=d_bnd,
             eps=eps,
             verbose=verbose,
