@@ -161,8 +161,11 @@ def cra_solve(
 
     # CRA uses normalized density (1.0 = unit mass per unit volume).
     # Passing actual kg/m³ values inflates forces far beyond solver tolerances.
-    if density is None:
-        density = 2000.0
+    density = 2000.0
+    for block in model.elements():
+        density = block.material.density
+        if density is not None:
+            break
 
     assembly = _blockmodel_to_assembly(model)
 
@@ -181,4 +184,4 @@ def cra_solve(
     else:
         raise ValueError(f"Unknown CRA method '{method}'. Use 'rbe' or 'penalty'.")
 
-    _post_processing_cra(assembly, problem)
+    _post_processing_cra(assembly, problem, density=density)
