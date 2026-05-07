@@ -1,29 +1,39 @@
 import os
 
 import compas
+import compas.geometry as cg
 
 from compas_dem.material import Stone
 from compas_dem.models import BlockModel
-from compas_dem.templates import BarrelVaultTemplate
 
 # =============================================================================
-# Template
+# Block Geometry
 # =============================================================================
 
-template = BarrelVaultTemplate(length=3, span=7, rise=0.1, vou_length=13)
+block_w = 1.0
+block_h = 1.0
 
-# =============================================================================
-# Block model
-# =============================================================================
 
-model = BlockModel.from_barrelvault(template)
+# Base Plate
+Pl = cg.Box.from_corner_corner_height([0, 0, -0.1], [block_w, block_w, -0.1], 0.1)
+
+block_bot = cg.Box.from_corner_corner_height([0, 0, 0], [block_w, block_w, 0], block_h)
+
+block_top = cg.Box.from_corner_corner_height([0, 0, block_h], [0 + block_w, block_w, block_h], block_h)
+
+blocks: list[cg.Box] = [Pl, block_bot, block_top]
+
+
+model = BlockModel.from_boxes(blocks)
 
 # =============================================================================
 # Compute contacts and supports
 # =============================================================================
 model.compute_contacts()
-for node in model.graph.nodes_where(degree=1):
-    model.graph.node_element(node).is_support = True  # type: ignore
+for block in model.elements():
+    if block.point.z < 0.1:
+        block.is_support = True
+
 
 # =============================================================================
 # Add material and assign to blocks

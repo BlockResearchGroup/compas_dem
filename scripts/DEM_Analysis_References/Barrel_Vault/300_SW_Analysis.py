@@ -3,7 +3,6 @@ import os
 import compas
 
 from compas_dem.problem import Solver
-from compas_dem.viewer import DEMViewer
 
 # =============================================================================
 # Load Problem
