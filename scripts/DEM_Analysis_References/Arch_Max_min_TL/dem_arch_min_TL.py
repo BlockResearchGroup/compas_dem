@@ -1,5 +1,4 @@
-from compas_model.materials import Concrete
-
+from compas_dem.material import Stone
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.problem import Solver
@@ -31,30 +30,30 @@ model.compute_contacts(tolerance=0.001)
 for node in model.graph.nodes_where(degree=1):
     model.graph.node_element(node).is_support = True  # type: ignore
 
-# ============================================================================
+# =============================================================================
 # Material
-# ============================================================================
-
-conc: Concrete = Concrete.from_strength_class("C30")
-model.add_material(conc)
-model.assign_material(conc, elements=list(model.elements()))
+# =============================================================================
+limestone = Stone.from_predefined_material("LimeStone")
+model.add_material(limestone)
+limestone.density = 2000
+model.assign_material(limestone, elements=list(model.elements()))
 
 # =============================================================================
 # Problem
 # =============================================================================
-
 problem = Problem(model)
-problem.add_contact_model("MohrCoulomb", mu=0.5, c=0.0)
-problem.add_supports_from_model()
+problem.add_contact_model("MohrCoulomb", phi=40, c=0)
+problem.add_support(49)
 
-lmgc90: Solver = Solver.LMGC90(dt=0.01, n_steps=100)
-problem.solve(lmgc90)
-
+problem.add_displacement(block_index=0, displacement=[0.1, 0, 0], rotation=[0, 0, 0])
+lmgc90 = Solver.LMGC90(n_steps=100, dt=0.01)
+solution = problem.solve(lmgc90)
 # =============================================================================
 # Viz
 # =============================================================================
 
 viewer = DEMViewer(model)
 
-viewer.add_solution()
+viewer.setup()
+viewer.add_solution(scale=0.5)
 viewer.show()

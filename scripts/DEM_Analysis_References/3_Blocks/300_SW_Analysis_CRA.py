@@ -2,35 +2,27 @@ import os
 
 import compas
 
-from compas_dem.problem import Problem
-from compas_dem.viewer import DEMViewer
+from compas_dem.problem import Solver
 
 # =============================================================================
 # Load Problem
 # =============================================================================
 
 HERE = os.path.dirname(__file__)
-problem: Problem = compas.json_load(
+problem = compas.json_load(
     os.path.join(HERE, "DEM_problem.json"),
 )
 
 # =============================================================================
-# Add point load to problem
+# Create Problem
 # =============================================================================
 
-problem.add_point_load(block_index=14, force=[0, 0, -500000.0])
+cra = Solver.CRA(verbose=True)
+problem.solve(cra)
 
 # =============================================================================
 # Save results
 # =============================================================================
 
 HERE = os.path.dirname(__file__)
-compas.json_dump(problem, os.path.join(HERE, "DEM_problem_updated.json"))
-
-# =============================================================================
-# Visualize problem
-# =============================================================================
-
-# viewer = DEMViewer(problem.model)
-# viewer.add_solution(scale=10e-12)
-# viewer.show()
+compas.json_dump(problem, os.path.join(HERE, "DEM_results.json"))

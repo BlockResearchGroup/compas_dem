@@ -2,26 +2,23 @@ import os
 
 import compas
 
-from compas_dem.problem import Problem
 from compas_dem.problem import Solver
-from compas_dem.viewer import DEMViewer
 
 # =============================================================================
 # Load Problem
 # =============================================================================
 
 HERE = os.path.dirname(__file__)
-problem: Problem = compas.json_load(
-    os.path.join(HERE, "DEM_problem_updated.json"),
+problem = compas.json_load(
+    os.path.join(HERE, "DEM_problem.json"),
 )
 
-print(f"Problem loaded with {problem.centroidal_loads[14]}")
 # =============================================================================
 # Create Problem
 # =============================================================================
-lmgc90 = Solver.LMGC90(duration=1.0, n_steps=100, urf_threshold=0.001)
-problem.solve(lmgc90)
 
+cra = Solver.CRA(verbose=True)
+problem.solve(cra)
 
 # =============================================================================
 # Save results

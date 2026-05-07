@@ -9,12 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Added `Problem` class, `BoundaryConditions`, and LMGC90 solver support.
+* Added `Problem` class and `BoundaryConditions` (gravity, body forces, point/surface loads, prescribed displacements/rotations, supports).
+* Added `Solver` abstraction in `compas_dem.problem.solvers` so additional backends can be plugged in alongside CRA, LMGC90, and RBE.
+* Added LMGC90 solver support (`compas_dem.analysis.lmgc90`).
+* Added CRA penalty and RBE solver support (`compas_dem.analysis.cra`), with results written back to the `BlockModel` graph in the same schema as LMGC90.
+* Added `compas_dem.interactions.ContactProperties` and `JointModel` / `MohrCoulomb` for configuring contact behaviour.
+* Added force visualization in `compas_dem.viewer.DEMViewer.add_solution`: per-edge contact resultants, per-support reaction resultants, contact polygons, and reaction labels showing force components and magnitude.
 
 ### Changed
 
-* Fixed ruff F401 false positives on conditional re-exports in `compas_dem.analysis.__init__`.
-* Fixed doctest failures in `Problem` and `BoundaryConditions` docstrings.
+* Fixed Compas_CGAL >= 0.9.1 import error.
 
 ### Removed
 
