@@ -1,3 +1,4 @@
 compas_assembly
 compas_cra
 compas_gmsh
+compas_lmgc90
