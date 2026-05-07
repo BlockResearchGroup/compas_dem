@@ -2,11 +2,13 @@ from typing import Annotated
 from typing import Optional
 from typing import Union
 
+from compas.data import Data
 from compas.geometry import Frame
 from compas.geometry import Line
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Transformation
+from compas.geometry import Vector
 from compas.geometry import centroid_points_weighted
 from compas.geometry import dot_vectors
 from compas.geometry import transform_points
@@ -35,6 +37,227 @@ def sum_matrices(A, B):
         for j in range(c):
             M[i][j] = A[i][j] + B[i][j]
     return M
+
+
+class VertexContact(Data):
+    """Class representing a point contact between two elements.
+
+    Parameters
+    ----------
+    point : :class:`compas.geometry.Point`
+        The point defining the contact.
+    frame : :class:`compas.geometry.Frame`, optional
+        The local coordinate system of the contact.
+    name : str, optional
+        A human-readable name.
+
+    Warnings
+    --------
+    The definition of vertex contacts is under active development and may change frequently.
+
+    """
+
+    @property
+    def __data__(self) -> dict:
+        return {
+            "point": self._point,
+            "frame": self._frame,
+            "name": self.name,
+        }
+
+    def __init__(
+        self,
+        point: Point,
+        frame: Frame = None,
+        name: Optional[str] = None,
+    ):
+        super().__init__(name)
+        self._point = point
+        self._frame = frame
+
+    @property
+    def point(self) -> Point:
+        return self._point
+
+    @property
+    def frame(self) -> Optional[Frame]:
+        return self._frame
+
+    @property
+    def geometry(self):
+        return self.point
+
+
+class EdgeContact(Data):
+    """Contact between a vertex and an edge, defined by two points and a frame.
+
+    Parameters
+    ----------
+    points : list[:class:`compas.geometry.Point`]
+        The two contact points.
+    frame : :class:`compas.geometry.Frame`
+        The contact frame. ``zaxis`` is the contact normal (n);
+        ``xaxis`` and ``yaxis`` are the tangential directions (t1, t2).
+    forces : list[dict[str, float]], optional
+        Force components at each contact point, expressed in the contact frame.
+        Each dict uses keys ``"c_np"`` (normal compression), ``"c_nn"`` (normal tension),
+        ``"c_u"`` (tangential t1), ``"c_v"`` (tangential t2).
+
+    """
+
+    def __init__(self, points, frame, forces=None, name=None, **kwargs):
+        super().__init__(name=name, **kwargs)
+        self._points = [Point(*p) for p in points]
+        self._frame = frame
+        self._forces = forces or []
+
+    @property
+    def points(self) -> list[Point]:
+        return self._points
+
+    @property
+    def frame(self) -> Frame:
+        return self._frame
+
+    # ==========================================================================
+    # Factory methods
+    # ==========================================================================
+
+    @property
+    def __data__(self) -> dict:
+        return {
+            "points": self._points,
+            "frame": self._frame,
+            "forces": self._forces,
+            "name": self.name,
+        }
+
+    @classmethod
+    def __from_data__(cls, data: dict) -> "EdgeContact":
+        return cls(
+            points=data["points"],
+            frame=data["frame"],
+            forces=data.get("forces") or [],
+            name=data.get("name"),
+        )
+
+    @classmethod
+    def from_face_and_transformations(
+        cls,
+        face,
+        transformation_a: Transformation,
+        transformation_b: Transformation,
+        points: list[Point],
+        forces=None,
+        **kwargs,
+    ) -> "EdgeContact":
+        """Construct from a shared mesh face and the two blocks' current transformations.
+
+        Used when the contact was originally face-face (before displacement).
+        The face is duplicated and transformed by each block's current transformation;
+        the contact frame's ``zaxis`` is the bisector of the two transformed face normals.
+        The frame's origin is the midpoint of the two contact points.
+
+        Parameters
+        ----------
+        face : :class:`compas.datastructures.Mesh`
+            The original shared face (single-face mesh) when contact was face-face.
+        transformation_a : :class:`compas.geometry.Transformation`
+            Current transformation of block A.
+        transformation_b : :class:`compas.geometry.Transformation`
+            Current transformation of block B.
+        points : list[:class:`compas.geometry.Point`]
+            The two new contact points (the edge after displacement).
+        forces : list[dict[str, float]], optional
+
+        Returns
+        -------
+        :class:`EdgeContact`
+
+        """
+        face_a = face.transformed(transformation_a)
+        face_b = face.transformed(transformation_b)
+
+        n_a = Vector(*face_a.face_normal(0))
+        n_b = Vector(*face_b.face_normal(0))
+
+        # Originally face-face: the two normals are opposite. Flip n_b so both
+        # point the same way, then average to get the bisector.
+        if dot_vectors(n_a, n_b) < 0:
+            n_b = n_b.scaled(-1)
+        zaxis = (n_a + n_b).unitized()
+
+        p0, p1 = points[0], points[1]
+        origin = Point(*((Point(*p0) + Point(*p1)) * 0.5))
+
+        # xaxis along the contact edge, projected into the bisector plane.
+        edge_dir = Vector(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2])
+        xaxis = edge_dir - zaxis * dot_vectors(edge_dir, zaxis)
+        xaxis = xaxis.unitized()
+        yaxis = zaxis.cross(xaxis)
+
+        frame = Frame(origin, xaxis, yaxis)
+        return cls(points=points, frame=frame, forces=forces, **kwargs)
+
+    # ==========================================================================
+    # Forces
+    # ==========================================================================
+
+    @property
+    def forces(self) -> list[dict[str, float]]:
+        return self._forces
+
+    @forces.setter
+    def forces(self, forces: list[dict[str, float]]) -> None:
+        self._forces = forces
+
+    @property
+    def resultantpoint(self) -> Point:
+        """Line of action through the contact: per-point normal-force-weighted centroid, falling back to the geometric midpoint when normal forces are absent or net to zero."""
+        pts = [list(p) for p in self.points]
+        if self._forces:
+            fn_vals = [f.get("c_np", 0.0) - f.get("c_nn", 0.0) for f in self._forces]
+            if abs(sum(fn_vals)) > 1e-12:
+                return Point(*centroid_points_weighted(pts, fn_vals))
+        return Point(*centroid_points_weighted(pts, [1] * len(pts)))
+
+    @property
+    def resultant(self) -> Optional[Vector]:
+        """Resultant force, projected onto global XYZ, as a :class:`compas.geometry.Vector`."""
+        if not self._forces:
+            return None
+        n = self.frame.zaxis
+        t1 = self.frame.xaxis
+        t2 = self.frame.yaxis
+        total = Vector(0, 0, 0)
+        for force in self._forces:
+            fn = force.get("c_np", 0.0) - force.get("c_nn", 0.0)
+            f1 = force.get("c_u", 0.0)
+            f2 = force.get("c_v", 0.0)
+            total += n * fn + t1 * f1 + t2 * f2
+        return total
+
+    @property
+    def resultantforce(self) -> Optional[Line]:
+        """Line of length ``|resultant|`` centered at the force-weighted contact point, oriented along the resultant force."""
+        r = self.resultant
+        if r is None or r.length == 0:
+            return None
+        half = r * 0.5
+        center = self.resultantpoint
+        return Line(center - half, center + half)
+
+    def resultantline(self, scale: float = 1.0) -> Line:
+        """Line ``|resultant|`` centered at the force-weighted contact point, oriented along the resultant force."""
+        r = self.resultant
+        if r is None or r.length == 0:
+            return None
+        half = r * 0.5 * scale
+        center = self.resultantpoint
+        return Line(center - half, center + half)
+
+
+# =============================================================================
 
 
 class FrictionContact(Contact):
@@ -310,7 +533,10 @@ class FrictionContact(Contact):
         sum_n = sum(normalcomponents)
         sum_u = sum(f["c_u"] for f in self.forces)
         sum_v = sum(f["c_v"] for f in self.forces)
-        position = Point(*centroid_points_weighted(self.points, normalcomponents))
+        if abs(sum_n) > 1e-12:
+            position = Point(*centroid_points_weighted(self.points, normalcomponents))
+        else:
+            position = Point(*centroid_points_weighted(self.points, [1] * len(self.points)))
         frame = self.frame
         w, u, v = frame.zaxis, frame.xaxis, frame.yaxis
         forcevector = (w * sum_n + u * sum_u + v * sum_v) * 0.5
@@ -332,3 +558,23 @@ class FrictionContact(Contact):
                 direction = list(forcevector.unitized())
                 self._resultantdata = position + direction + [0.5 * forcevector.length]
         return self._resultantdata
+
+    def resultantline(self, scale: float = 1.0) -> Line:
+        if not self.forces:
+            return None
+        normalcomponents = [f["c_np"] - f["c_nn"] for f in self.forces]
+        sum_n = sum(normalcomponents)
+        sum_u = sum(f["c_u"] for f in self.forces)
+        sum_v = sum(f["c_v"] for f in self.forces)
+        frame = self.frame
+        w, u, v = frame.zaxis, frame.xaxis, frame.yaxis
+        forcevector = (w * sum_n + u * sum_u + v * sum_v) * 0.5
+        if forcevector.length == 0:
+            return None
+        if sum_n:
+            position = Point(*centroid_points_weighted(self.points, normalcomponents))
+        else:
+            position = Point(*centroid_points_weighted(self.points, [1] * len(self.points)))
+        p1 = position + forcevector * scale
+        p2 = position - forcevector * scale
+        return Line(p1, p2)

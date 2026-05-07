@@ -10,34 +10,41 @@ from compas_dem.models import BlockModel
 from compas_dem.problem.problem import Problem
 
 
-def _blockmodel_to_assembly(model: BlockModel) -> tuple[Assembly, dict]:
-    """Convert a BlockModel to a compas_assembly Assembly.
+def _blockmodel_to_assembly(model: BlockModel) -> Assembly:
+    element_block: dict[int, int] = {}
 
-    Returns
-    -------
-    tuple
-        (assembly, asm_to_graphnode)
-    """
-    graphnode_to_asm: dict[int, int] = {}
     assembly = Assembly()
 
     for element in model.elements():
         block: Block = element.modelgeometry.copy(cls=Block)
         x, y, z = element.point
         node = assembly.add_block(block, x=x, y=y, z=z, is_support=element.is_support)
-        graphnode_to_asm[element.graphnode] = node
+        element_block[element.graphnode] = node
 
-    for u, v in model.graph.edges():
-        u_asm = graphnode_to_asm[u]
-        v_asm = graphnode_to_asm[v]
-        contacts = model.graph.edge_attribute((u, v), name="contacts")
-        assembly.graph.add_edge(u_asm, v_asm, interfaces=contacts)
+        assembly.graph.node_attribute(node, "graphnode", element.graphnode)
 
-    return assembly, {v: k for k, v in graphnode_to_asm.items()}
+    for edge in model.graph.edges():
+        u = element_block[edge[0]]  # type: ignore
+        v = element_block[edge[1]]
+
+        contacts = model.graph.edge_attribute(edge, name="contacts")  # type: ignore
+        assembly.graph.add_edge(u, v, interfaces=contacts)
+
+    return assembly
 
 
-def _post_processing_cra(assembly: Assembly, asm_to_graphnode: dict, problem: Problem) -> None:
-    """Write CRA results back to the Problem's BlockModel in-place.
+def _post_processing_cra(assembly: Assembly, problem: Problem, density: float = 1.0) -> None:
+    """Post-process CRA results back to the Problem's BlockModel.
+
+    Parameters
+    ----------
+    assembly : :class:`compas_assembly.datastructures.Assembly`
+        The solved assembly returned by CRA / RBE.
+    problem : :class:`compas_dem.problem.Problem`
+        The problem whose model receives the results.
+    density : float, optional
+        Physical material density used to rescale forces from the
+        normalized solve. Default ``1.0`` (no rescaling).
 
     Block attributes set
     --------------------
@@ -46,10 +53,14 @@ def _post_processing_cra(assembly: Assembly, asm_to_graphnode: dict, problem: Pr
 
     Edge attributes set
     -------------------
-    friction_contact : :class:`FrictionContact`
-        Solved contact forces, in the same format as LMGC90 output.
+    contact_data : :class:`FrictionContact`
+        Surface-Surface contact data including forces and frame.
+    contact_point : list[list[float]]
+        Contact point in global XYZ coordinates.
     contact_polygon : :class:`compas.geometry.Polygon`
         The contact interface polygon.
+    face_contact : bool
+        Marks the edge as a face contact so the viewer renders it.
     force : list[float]
         Resultant force vector [fx, fy, fz] at the interface.
     """
@@ -65,25 +76,29 @@ def _post_processing_cra(assembly: Assembly, asm_to_graphnode: dict, problem: Pr
         if not interfaces:
             continue
 
-        u = asm_to_graphnode[u_asm]
-        v = asm_to_graphnode[v_asm]
+        u = assembly.graph.node_attribute(u_asm, "graphnode")
+        v = assembly.graph.node_attribute(v_asm, "graphnode")
 
         for interface in interfaces:
             if not interface.forces:
                 continue
 
-            # FrictionContact with frame already set from interface detection
+            # Rescale normalized solver outputs to physical units.
+            scale = density * 9.81
+            scaled_forces = [{k: v * scale for k, v in f.items()} for f in interface.forces]
+
             fc = FrictionContact(points=interface.points, frame=interface.frame)
-            fc.forces = interface.forces
-            model.graph.edge_attribute((u, v), "friction_contact", fc)
+            fc.forces = scaled_forces
+            model.graph.edge_attribute((u, v), "contact_data", fc)
+            model.graph.edge_attribute((u, v), "face_contact", True)
 
             model.graph.edge_attribute((u, v), "contact_point", [list(p) for p in interface.points])
             model.graph.edge_attribute((u, v), "contact_polygon", interface.polygon)
 
-            # Resultant global force vector from summed components
-            fn = sum(f["c_np"] - f["c_nn"] for f in interface.forces)
-            fu = sum(f["c_u"] for f in interface.forces)
-            fv = sum(f["c_v"] for f in interface.forces)
+            # Resultant global force vector from summed (already scaled) components
+            fn = sum(f["c_np"] - f["c_nn"] for f in scaled_forces)
+            fu = sum(f["c_u"] for f in scaled_forces)
+            fv = sum(f["c_v"] for f in scaled_forces)
             w = list(interface.frame.zaxis)
             u_ax = list(interface.frame.xaxis)
             v_ax = list(interface.frame.yaxis)
@@ -117,7 +132,6 @@ def cra_solve(
         or 0.6 if not set.
     density : float, optional
         Normalized material density. CRA uses unit-less relative density — default ``1.0``.
-        Do not pass actual kg/m³ values; they will make gravity forces too large for the solver.
     d_bnd : float, optional
         Penalty boundary parameter. Default ``0.001``.
     eps : float, optional
@@ -148,13 +162,16 @@ def cra_solve(
 
     # CRA uses normalized density (1.0 = unit mass per unit volume).
     # Passing actual kg/m³ values inflates forces far beyond solver tolerances.
-    if density is None:
-        density = 2000.0
+    density = 2000.0
+    for block in model.elements():
+        density = block.material.density
+        if density is not None:
+            break
 
-    assembly, asm_to_graphnode = _blockmodel_to_assembly(model)
+    assembly = _blockmodel_to_assembly(model)
 
     if method == "rbe":
-        _rbe_solve(assembly, mu=mu, density=density, verbose=verbose, timer=timer)
+        _rbe_solve(assembly, mu=mu, density=1.0, verbose=verbose, timer=timer)
     elif method == "cra":
         _cra_penalty_solve(
             assembly,
@@ -168,4 +185,4 @@ def cra_solve(
     else:
         raise ValueError(f"Unknown CRA method '{method}'. Use 'rbe' or 'penalty'.")
 
-    _post_processing_cra(assembly, asm_to_graphnode, problem)
+    _post_processing_cra(assembly, problem, density=density)

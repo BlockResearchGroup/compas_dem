@@ -21,7 +21,6 @@ model.assign_material(limestone, elements=list(model.blocks()))
 # Create a problem instance
 # =============================================================================
 
-
 problem = Problem(model)
 
 # -----------------------------------------------
@@ -36,14 +35,14 @@ problem.add_point_load(block_index=70, force=[0, 0, -151500])
 
 # Solve the problem using the LMGC90 solver
 # -----------------------------------------
-
-lmgc90 = Solver.LMGC90(duration=1.0, n_steps=100, urf_threshold=0.001)
-solution = problem.solve(lmgc90)
+cra = Solver.CRA(verbose=True)
+# lmgc90 = Solver.LMGC90(duration=1.0, n_steps=100, urf_threshold=0.001)
+solution = problem.solve(cra)
 
 # =============================================================================
 # Visualize the model in the DEM Native viewer
 # =============================================================================
 
 viewer = DEMViewer(model)
-viewer.add_solution(scale=1e-12)
+viewer.add_solution(scale=0.5)
 viewer.show()

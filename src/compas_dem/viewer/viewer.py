@@ -1,4 +1,5 @@
 import compas.geometry as cg
+import numpy as np
 from compas.colors import Color
 from compas.scene import Group
 from compas_viewer.config import Config
@@ -153,10 +154,18 @@ class DEMViewer(Viewer):
 
     def setup_groups(self):
         self.groups["model"] = self.scene.add_group(name="Model")
-        self.groups["supports"] = self.scene.add_group(name="Supports", parent=self.groups["model"])
-        self.groups["blocks"] = self.scene.add_group(name="Blocks", parent=self.groups["model"])
-        self.groups["contacts"] = self.scene.add_group(name="Contacts", parent=self.groups["model"], show=False)
-        self.groups["interactions"] = self.scene.add_group(name="Interactions", parent=self.groups["model"], show=False)
+        self.groups["supports"] = self.scene.add_group(
+            name="Supports", parent=self.groups["model"]
+        )
+        self.groups["blocks"] = self.scene.add_group(
+            name="Blocks", parent=self.groups["model"]
+        )
+        self.groups["contacts"] = self.scene.add_group(
+            name="Contacts", parent=self.groups["model"], show=False
+        )
+        self.groups["interactions"] = self.scene.add_group(
+            name="Interactions", parent=self.groups["model"], show=False
+        )
 
     # =============================================================================
     # Blocks and Contacts
@@ -192,7 +201,9 @@ class DEMViewer(Viewer):
         for contact in self.model.contacts():
             geometry = contact.polygon
             color = self.interfacecolor
-            parent.add(geometry, linewidth=1, surfacecolor=color, linecolor=color.contrast)  # type: ignore
+            parent.add(
+                geometry, linewidth=1, surfacecolor=color, linecolor=color.contrast
+            )  # type: ignore
 
     # =============================================================================
     # Graph
@@ -201,9 +212,14 @@ class DEMViewer(Viewer):
     def add_graph(self):
         parent: Group = self.groups["interactions"]
 
-        node_point = {node: self.model.graph.node_element(node).point for node in self.model.graph.nodes()}  # type: ignore
+        node_point = {
+            node: self.model.graph.node_element(node).point
+            for node in self.model.graph.nodes()
+        }  # type: ignore
         points = list(node_point.values())
-        lines = [cg.Line(node_point[u], node_point[v]) for u, v in self.model.graph.edges()]
+        lines = [
+            cg.Line(node_point[u], node_point[v]) for u, v in self.model.graph.edges()
+        ]
 
         nodegroup = self.scene.add_group(name="Nodes", parent=parent)  # type: ignore
         edgegroup = self.scene.add_group(name="Edges", parent=parent)  # type: ignore
@@ -211,76 +227,48 @@ class DEMViewer(Viewer):
         nodegroup.add_from_list(points, pointsize=10, pointcolor=self.graphnodecolor)  # type: ignore
         edgegroup.add_from_list(lines, linewidth=1, linecolor=self.graphedgecolor)  # type: ignore
 
-    def add_solution(self, scale=1e-7):
+    def add_solution(self, scale=1.0):
         """
         Adds the solution to the viewer.
 
         Parameters
         ----------
-        solver_name : str
-            The name of the solver used to generate the solution. This is used to determine how to interpret the solution data and update the viewer accordingly.
-            Currently supported solvers:
-            - "LMGC90"
-            - "CRA" - pending
-            - "PRD" - pending
-            - "3DEC" - pending
-
-        solution : object
-            The solution object returned by the solver. This is expected to contain the updated block geometries and contact information after the simulation run.
-
-        For LMGC90, the following KWARGS are expected:
-        - scale_normal: float
-            Scaling factor for visualizing contact normals.
-        - scale_force: float
-            Scaling factor for visualizing contact forces.
+        - scale : float
+            A scaling factor for the resultant force lines, to make them visible in the viewer. Adjust as needed based on the magnitude of forces in the model.
 
         """
-        # solver_name = solver_name.lower()  # Ensure solver name is case-insensitive
 
-        # if solver_name == "lmgc90":
-        #     scale_normal = kwargs.get("scale_normal", 0.00001)
-        #     scale_force = kwargs.get("scale_force", 0.00001)
-        #     contacts = solution.get_contacts(scale_normal=scale_normal, scale_force=scale_force)
-
-        #     solution_group = self.scene.add_group(name="Solution")
-        #     updated_blocks = self.scene.add_group(name="Updated_Blocks", parent=solution_group)
-        #     resultant_forces = self.scene.add_group(name="Forces", parent=solution_group)
-        #     contact_polygons = self.scene.add_group(name="Contact_Polygons", parent=solution_group)
-
-        #     supports = solution.supports if solution.supports else []
-        #     for i, mesh in enumerate(solution.trimeshes):
-        #         is_support = supports[i] if i < len(supports) else False
-        #         color = (255, 0, 0) if is_support else (200, 200, 200)
-        #         updated_blocks.add(
-        #             mesh,
-        #             name=f"block_{i}",
-        #             facecolor=color,
-        #             show_edges=True,
-        #             opacity=0.25,
-        #         )
-        #     for i, line in enumerate(contacts["force_resultants"]):
-        #         resultant_forces.add(
-        #             line,
-        #             name=f"force_resultant_{i}",
-        #             linewidth=2.5,
-        #             color=(0, 0, 255),
-        #         )
-
-        #     for i, polygon in enumerate(contacts["contact_polygons"]):
-        #         contact_polygons.add(polygon, name=f"polygon_{i}", color=(0, 100, 0))
-        #     # solution.finalize()  # Ensure proper cleanup of LMGC90 resourcesif solver_name == "LMGC90":
-
-        # else:
-        #     raise NotImplementedError(f"Viewer update not implemented for solver: {solver_name}")
-
-        scale_force = scale
         moved_blocks = []
 
         solution_group = self.scene.add_group(name="Solution")
-        updated_blocks = self.scene.add_group(name="Updated_Blocks", parent=solution_group)
+        updated_blocks = self.scene.add_group(
+            name="Updated_Blocks", parent=solution_group
+        )
         resultant_forces = self.scene.add_group(name="Forces", parent=solution_group)
+        face_contacts = self.scene.add_group(
+            name="Contact_Polygons", parent=solution_group
+        )
+        edge_contacts = self.scene.add_group(
+            name="Contact_Edges", parent=solution_group
+        )
+        supports = self.scene.add_group(name="Supports", parent=solution_group)
+        reactions = self.scene.add_group(name="Reactions", parent=supports)
+        support_contacts = self.scene.add_group(
+            name="Support_Contacts", parent=supports
+        )
+        point_results = self.scene.add_group(
+            name="Point Results : [Fn, Ft1, Ft2]", parent=solution_group
+        )
+        degenerate_contacts = self.scene.add_group(
+            name="Degenerate_Contacts", parent=solution_group
+        )
+
+        block_ln = []
         for block in self.model.elements():
-            T = self.model.graph.node_attribute(block.graphnode, "transformation") or cg.Transformation()
+            T = (
+                self.model.graph.node_attribute(block.graphnode, "transformation")
+                or cg.Transformation()
+            )
             new_block = block.modelgeometry.transformed(T)
             moved_blocks.append(new_block)
             updated_blocks.add(
@@ -288,31 +276,236 @@ class DEMViewer(Viewer):
                 name=f"block_{block.graphnode}",
                 opacity=0.25,
             )
-        for u, v in self.model.graph.edges():
-            edge = (min(u, v), max(u, v))
-            force = self.model.graph.edge_attribute(edge, "force")
-            contact_pts = self.model.graph.edge_attribute(edge, "contact_point")
-            fc = self.model.graph.edge_attribute(edge, "friction_contact")
-            if not force or not contact_pts:
+            try:
+                block_ln.append(block.modelgeometry.edge_length([0, 1]))
+            except Exception:
+                pass
+
+        forces = [
+            np.array((self.model.graph.edge_attribute(edge, "force") or [0, 0, 0]))
+            for edge in self.model.graph.edges()
+        ]
+        max_force = max(np.linalg.norm(force) for force in forces)
+        block_scale = scale * max(block_ln) / max_force if max_force > 0 else 1.0
+
+        face_contact_edges = list(self.model.graph.edges_where(face_contact=True))
+        edge_contact_edges = list(self.model.graph.edges_where(edge_contact=True))
+
+        # =============================================================================
+        # Supports and reactions
+        # =============================================================================
+        supports = list(support.graphnode for support in self.model.supports())
+        support_edges = {s: [] for s in supports}
+        for edge in self.model.graph.edges():
+            u, v = edge
+            if u in supports:
+                support_edges[u].append(edge)
+            if v in supports:
+                support_edges[v].append(edge)
+
+        for support_node, edges in support_edges.items():
+            point_forces: list[tuple[cg.Point, cg.Vector]] = []
+            support_block = self.model.graph.node_element(support_node)
+            support_point = support_block.point
+
+            for edge in edges:
+                if edge in face_contact_edges:
+                    fc = self.model.graph.edge_attribute(edge, "contact_data")
+
+                    if fc is None:
+                        continue
+
+                    resultant = fc.resultantline()
+                    if resultant is None:
+                        continue
+
+                    from_support = cg.Vector.from_start_end(
+                        support_point, resultant.midpoint
+                    )
+                    if resultant.vector.dot(from_support) < 0:
+                        resultant.vector.flip()
+
+                    point_forces.append((fc.resultantpoint, resultant.vector))
+
+                    # Viz the contact polygon
+
+                    contact_polygon = self.model.graph.edge_attribute(
+                        edge, "contact_polygon"
+                    )
+
+                    if contact_polygon.area < 1e-6:
+                        print(
+                            f"WARNING:\nContact polygon for support edge {edge} has very small area ({contact_polygon.area:.2e}), skipping visualization. \n"
+                        )
+                        continue
+
+                    polyg = contact_polygon.to_brep()
+                    support_contacts.add(
+                        polyg,
+                        name=f"contact_polygon_{edge}",
+                        color=Color.brown(),
+                        opacity=0.5,
+                    )
+
+                elif edge in edge_contact_edges:
+                    ec = self.model.graph.edge_attribute(edge, "contact_data")
+                    support_contacts.add(
+                        cg.Line(ec.points[0], ec.points[1]),
+                        name=f"contact_line_{edge}",
+                        linewidth=2,
+                        linecolor=Color.brown(),
+                    )
+
+                    if ec.resultantline() is None:
+                        continue
+
+                    from_support = cg.Vector.from_start_end(
+                        support_point, resultant.midpoint
+                    )
+
+                    if resultant.vector.dot(from_support) < 0:
+                        resultant.vector.flip()
+                    point_forces.append((ec.resultantpoint, ec.resultantline().vector))
+
+            if point_forces:
+                weights = [f.length for _, f in point_forces]
+
+                total_weight = sum(weights)
+
+                if total_weight > 0:
+                    position = cg.Point(
+                        sum(p.x * w for (p, _), w in zip(point_forces, weights))
+                        / total_weight,
+                        sum(p.y * w for (p, _), w in zip(point_forces, weights))
+                        / total_weight,
+                        sum(p.z * w for (p, _), w in zip(point_forces, weights))
+                        / total_weight,
+                    )
+                    resultant = cg.Vector(0, 0, 0)
+
+                    for _, f in point_forces:
+                        if f:
+                            resultant += f
+
+                    # if resultant.dot(cg.Vector(0, 0, 1)) < 0:
+                    #     resultant.flip()
+                    forcevector = resultant * 0.5
+
+                    p1 = position + forcevector * block_scale
+                    p2 = position - forcevector * block_scale
+                    reactions.add(
+                        cg.Line(p1, p2),
+                        name=f"F=({resultant.x:.1f}, {resultant.y:.1f}, {resultant.z:.1f}) \n|F|={resultant.length:.1f}",
+                        linewidth=2.5,
+                        color=Color.red(),
+                    )
+
+        # =============================================================================
+        # Visualize forces at contacts
+        # =============================================================================
+
+        # Face contacts
+        # --------------
+        for edge in face_contact_edges:
+            fc = self.model.graph.edge_attribute(edge, "contact_data")
+            contact_polygon = self.model.graph.edge_attribute(edge, "contact_polygon")
+            resultant = fc.resultantforce[0].vector
+
+            if fc is None:
+                continue
+            resultant_line = fc.resultantline(scale=block_scale)
+            if resultant_line is not None:
+                resultant_forces.add(
+                    resultant_line,
+                    name=f"F=({resultant.x:.1f}, {resultant.y:.1f}, {resultant.z:.1f}) \n|F|={resultant.length:.1f}",
+                    linewidth=2.5,
+                    linecolor=Color.blue(),
+                )
+
+            if contact_polygon.area < 1e-6:
+                if len(contact_polygon.points) < 3:
+                    print(
+                        f"WARNING:\nContact polygon for edge {edge} has less than 3 points, skipping visualization. \n"
+                    )
+                    continue
+                # Collapse it to a line if it's very small, to avoid visualization issues
+                lines_polyg = []
+                for line in contact_polygon.lines:
+                    lines_polyg.append(line.length)
+                line_min = min(lines_polyg)
+                line_max = max(lines_polyg)
+
+                # collapse face contact to a line
+                if line_max > 0.001 and line_max / line_min > 10:
+                    longest_line = contact_polygon.lines[np.argmax(lines_polyg)]
+                    degenerate_contacts.add(
+                        longest_line,
+                        name=f"contact_line_{edge}",
+                        linewidth=2,
+                        linecolor=Color.red(),
+                    )
+                elif line_max / line_min <= 10:
+                    print(f"Contact_polygon {contact_polygon}")
+                    point = contact_polygon.centroid
+                    degenerate_contacts.add(
+                        point,
+                        name=f"contact_point_{edge}",
+                        pointsize=5,
+                        pointcolor=Color.red(),
+                    )
+
                 continue
 
-            fn_vals = [f["c_np"] - f["c_nn"] for f in fc.forces] if fc else None
-            fn_sum = sum(fn_vals) if fn_vals else 0.0
+            polyg = contact_polygon.to_brep()
+            face_contacts.add(
+                polyg,
+                name=f"contact_polygon_{edge}",
+                color=Color.green(),
+                opacity=0.5,
+            )
 
-            if fn_vals and abs(fn_sum) > 1e-12:
-                pos = cg.Point(*cg.centroid_points_weighted([list(p) for p in fc.points], fn_vals))
+            # Viz the point forces
 
-                half = [force[j] * fn_sum * scale_force * 0.5 for j in range(3)]
-            else:
-                n = len(contact_pts)
-                pos = cg.Point(*[sum(p[j] for p in contact_pts) / n for j in range(3)])
-                half = [force[j] * scale_force * 0.5 for j in range(3)]
+            for i, (point, force) in enumerate(zip(fc.points, fc.forces)):
+                c_np, c_u, c_v = force["c_np"], force["c_u"], force["c_v"]
+                t1, t2, n = fc.frame.xaxis, fc.frame.yaxis, fc.frame.zaxis
+                forcevector_unsc = n * c_np + t1 * c_u + t2 * c_v
 
-            resultant_line = cg.Line([pos[j] + half[j] for j in range(3)], [pos[j] - half[j] for j in range(3)])
+                # point = fc.points[i]
 
+                if forcevector_unsc and point is not None:
+                    forcevector = forcevector_unsc * block_scale
+                    p1 = point.translated(forcevector)
+                    p2 = point.translated(-forcevector)
+                    point_results.add(
+                        cg.Line(p1, p2),
+                        name=f"[{c_np:.1f}, {c_u:.1f}, {c_v:.1f}] \n|F|={forcevector_unsc.length:.1f}",
+                        linewidth=2.5,
+                        linecolor=Color.magenta(),
+                    )
+
+        # Edge contacts
+        # --------------
+        for edge in edge_contact_edges:
+            ec = self.model.graph.edge_attribute(edge, "contact_data")
+
+            if ec.resultantforce is None:
+                continue
+            resultant = ec.resultantforce.vector
+            line = ec.resultantline(scale=block_scale) if ec else None
+
+            if line is None:
+                continue
             resultant_forces.add(
-                resultant_line,
-                name=f"force_resultant_{edge}",
+                line,
+                name=f"F=({resultant.x:.1f}, {resultant.y:.1f}, {resultant.z:.1f}) \n|F|={resultant.length:.1f}",
                 linewidth=2.5,
                 linecolor=Color.blue(),
+            )
+
+            edge_contacts.add(
+                cg.Line(ec.points[0], ec.points[1]),
+                name=f"contact_line_{edge}",
+                linewidth=2,
+                linecolor=Color.red(),
             )
