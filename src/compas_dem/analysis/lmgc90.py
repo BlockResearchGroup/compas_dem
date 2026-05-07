@@ -359,7 +359,8 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
     graph = problem.model.graph
 
     # Loop through LMGC90's contact pairs and indices of contact points.
-
+    print(f"Result interaction coords: {result.interaction_coords}")
+    print(f"Lenght of interaction coords: {len(result.interaction_coords)}")
     for pair, points in contact_groups.items():
         u, v = pair
 
@@ -426,6 +427,8 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
         contact_pts = graph.edge_attribute(edge, "contact_point")
         contact_frames = graph.edge_attribute(edge, "contact_frame")
 
+        # print(f"Local forces (Ft, Fn, Fs) for edge {edge}: {Ft}, {Fn}, {Fs}")
+
         if len(polygon_pts) >= 3:
             graph.edge_attribute(edge, "contact_polygon", cg.Polygon(polygon_pts))
 
@@ -435,16 +438,18 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
             lmgc_tangent = contact_frames.xaxis
             tangent2 = lmgc_normal.cross(lmgc_tangent).unitized()
             fc._frame = cg.Frame(contact_frames.point, lmgc_tangent, tangent2)
-            frame = fc.frame
-            fc.forces = [
-                {
-                    "c_np": max(cg.Vector(*fv).dot(frame.zaxis), 0),
-                    "c_nn": max(-cg.Vector(*fv).dot(frame.zaxis), 0),
-                    "c_u": cg.Vector(*fv).dot(frame.xaxis),
-                    "c_v": cg.Vector(*fv).dot(frame.yaxis),
-                }
-                for fv in fv_vecs
-            ]
+            for p in points:
+                # Local forces
+                Ft, Fn, Fs = result.interaction_rloc[p]
+
+                fc.forces.append(
+                    {
+                        "c_np": max(Fn, 0),
+                        "c_nn": max(-Fn, 0),
+                        "c_u": Ft,
+                        "c_v": Fs,
+                    }
+                )
             graph.edge_attribute(edge, "contact_data", fc)
 
         elif len(polygon_pts) == 2:
@@ -463,15 +468,17 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
                     tangent2,
                 ),
             )
-            ec.forces = [
+            for p in points:
+                Ft, Fn, Fs = result.interaction_rloc[p]
+                # Decompose the local forces into the contact frame components
+            ec.forces.append(
                 {
-                    "c_np": max(cg.Vector(*fv).dot(ec.frame.zaxis), 0),
-                    "c_nn": max(-cg.Vector(*fv).dot(ec.frame.zaxis), 0),
-                    "c_u": cg.Vector(*fv).dot(ec.frame.xaxis),
-                    "c_v": cg.Vector(*fv).dot(ec.frame.yaxis),
+                    "c_np": max(Fn, 0),
+                    "c_nn": max(-Fn, 0),
+                    "c_u": Ft,
+                    "c_v": Fs,
                 }
-                for fv in fv_vecs
-            ]
+            )
             graph.edge_attribute(edge, "edge_contact", True)
             graph.edge_attribute(edge, "contact_data", ec)
 

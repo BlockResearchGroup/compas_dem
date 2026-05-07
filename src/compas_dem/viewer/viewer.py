@@ -233,8 +233,7 @@ class DEMViewer(Viewer):
         supports = self.scene.add_group(name="Supports", parent=solution_group)
         reactions = self.scene.add_group(name="Reactions", parent=supports)
         support_contacts = self.scene.add_group(name="Support_Contacts", parent=supports)
-
-        # loads = self.scene.add_group(name="Loads", parent=solution_group)
+        degenerate_contacts = self.scene.add_group(name="Degenerate_Contacts", parent=solution_group)
 
         block_ln = []
         for block in self.model.elements():
@@ -358,6 +357,60 @@ class DEMViewer(Viewer):
         # Visualize forces at contacts
         # =============================================================================
 
+        # Face contacts
+        # --------------
+        for edge in face_contact_edges:
+            fc = self.model.graph.edge_attribute(edge, "contact_data")
+            contact_polygon = self.model.graph.edge_attribute(edge, "contact_polygon")
+            resultant = fc.resultantforce[0].vector
+
+            if fc is None:
+                continue
+            resultant_line = fc.resultantline(scale=block_scale)
+            if resultant_line is not None:
+                resultant_forces.add(
+                    resultant_line,
+                    name=f"F=({resultant.x:.1f}, {resultant.y:.1f}, {resultant.z:.1f}) \n|F|={resultant.length:.1f}",
+                    linewidth=2.5,
+                    linecolor=Color.blue(),
+                )
+
+            if contact_polygon.area < 1e-6:
+                # Collapse it to a line if it's very small, to avoid visualization issues
+                lines_polyg = []
+                for line in contact_polygon.lines:
+                    lines_polyg.append(line.length)
+                line_min = min(lines_polyg)
+                line_max = max(lines_polyg)
+
+                # collapse face contact to a line
+                if line_max > 0.001 and line_max / line_min > 10:
+                    longest_line = contact_polygon.lines[np.argmax(lines_polyg)]
+                    degenerate_contacts.add(
+                        longest_line,
+                        name=f"contact_line_{edge}",
+                        linewidth=2,
+                        linecolor=Color.red(),
+                    )
+                if line_max / line_min <= 10:
+                    point = contact_polygon.centroid
+                    degenerate_contacts.add(
+                        point,
+                        name=f"contact_point_{edge}",
+                        pointsize=10,
+                        pointcolor=Color.red(),
+                    )
+
+                print(f"WARNING:\nContact polygon for edge {edge} has very small area ({contact_polygon.area:.2e}), skipping visualization. \n")
+                continue
+            polyg = contact_polygon.to_brep()
+            face_contacts.add(
+                polyg,
+                name=f"contact_polygon_{edge}",
+                color=Color.green(),
+                opacity=0.5,
+            )
+
         # Edge contacts
         # --------------
         for edge in edge_contact_edges:
@@ -382,32 +435,4 @@ class DEMViewer(Viewer):
                 name=f"contact_line_{edge}",
                 linewidth=2,
                 linecolor=Color.red(),
-            )
-
-        # Face contacts
-        # --------------
-        for edge in face_contact_edges:
-            fc = self.model.graph.edge_attribute(edge, "contact_data")
-            contact_polygon = self.model.graph.edge_attribute(edge, "contact_polygon")
-            resultant = fc.resultantforce[0].vector
-
-            if fc is None:
-                continue
-            resultant_line = fc.resultantline(scale=block_scale)
-            if resultant_line is not None:
-                resultant_forces.add(
-                    resultant_line,
-                    name=f"F=({resultant.x:.1f}, {resultant.y:.1f}, {resultant.z:.1f}) \n|F|={resultant.length:.1f}",
-                    linewidth=2.5,
-                    linecolor=Color.blue(),
-                )
-            if contact_polygon.area < 1e-6:
-                print(f"WARNING:\nContact polygon for edge {edge} has very small area ({contact_polygon.area:.2e}), skipping visualization. \n")
-                continue
-            polyg = contact_polygon.to_brep()
-            face_contacts.add(
-                polyg,
-                name=f"contact_polygon_{edge}",
-                color=Color.green(),
-                opacity=0.5,
             )
