@@ -569,20 +569,23 @@ document.write(`
 <dt class="sig sig-object py" id="compas_dem.elements.Block.compute_contacts">
 <span class="sig-prename descclassname"><span class="pre">Block.</span></span><span class="sig-name descname"><span class="pre">compute_contacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance=1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_area=0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contacttype=&lt;class</span> <span class="pre">'compas_model.interactions.contact.Contact'&gt;</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Compute the contacts between this element and another element.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>other</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code></span></dt><dd><p>The other element.</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>other</strong></dt><dd><p>The other element.</p>
 </dd>
-<dt><strong>tolerance</strong><span class="classifier">float, optional</span></dt><dd><p>A distance tolerance.</p>
+<dt><strong>tolerance</strong></dt><dd><p>A distance tolerance.</p>
 </dd>
-<dt><strong>minimum_area</strong><span class="classifier">float, optional</span></dt><dd><p>The minimum area of the contact polygon.</p>
+<dt><strong>minimum_area</strong></dt><dd><p>The minimum area of the contact polygon.</p>
+</dd>
+<dt><strong>contacttype</strong></dt><dd><p>The contact class to use for the generated contacts.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>list[<code class="xref py py-class docutils literal notranslate"><span class="pre">Contact</span></code>]</dt><dd></dd>
+<dt>list[Contact]</dt><dd><p>The contacts between the elements.</p>
+</dd>
 </dl>
 </dd>
 </dl>

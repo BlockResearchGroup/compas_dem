@@ -569,24 +569,19 @@ document.write(`
 <dt class="sig sig-object py" id="compas_dem.models.BlockModel.assign_material">
 <span class="sig-prename descclassname"><span class="pre">BlockModel.</span></span><span class="sig-name descname"><span class="pre">assign_material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Assign a material to an element or a list of elements.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>material</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code></span></dt><dd><p>The material.</p>
-</dd>
-<dt><strong>element</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code>, optional</span></dt><dd><p>The element to assign the material to.</p>
-</dd>
-<dt><strong>elements</strong><span class="classifier">list[<code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code>, optional]</span></dt><dd><p>The list of elements to assign the material to.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>None</dt><dd></dd>
-</dl>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
+<dt><strong>material</strong></dt><dd><p>The material.</p>
+</dd>
+<dt><strong>element</strong></dt><dd><p>The element to assign the material to.</p>
+</dd>
+<dt><strong>elements</strong></dt><dd><p>The list of elements to assign the material to.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
 <dt>ValueError</dt><dd><p>If neither <cite>element</cite> or <cite>elements</cite> is provided.</p>
 </dd>
 <dt>ValueError</dt><dd><p>If both <cite>element</cite> and <cite>elements</cite> are provided.</p>
