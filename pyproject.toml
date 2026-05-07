@@ -118,7 +118,14 @@ select = ["E", "F", "I"]
 
 [tool.ruff.lint.isort]
 force-single-line = true
-known-first-party = ["compas_dem"]
+known-first-party = [
+    "compas",
+    "compas_cgal",
+    "compas_libigl",
+    "compas_model",
+    "compas_occ",
+    "compas_dem",
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
