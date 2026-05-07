@@ -423,11 +423,8 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
 
         polygon_pts = [result.interaction_coords[p] for p in points]
 
-        fv_vecs = graph.edge_attribute(edge, "force_vector")
         contact_pts = graph.edge_attribute(edge, "contact_point")
         contact_frames = graph.edge_attribute(edge, "contact_frame")
-
-        # print(f"Local forces (Ft, Fn, Fs) for edge {edge}: {Ft}, {Fn}, {Fs}")
 
         if len(polygon_pts) >= 3:
             graph.edge_attribute(edge, "contact_polygon", cg.Polygon(polygon_pts))
@@ -470,15 +467,14 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
             )
             for p in points:
                 Ft, Fn, Fs = result.interaction_rloc[p]
-                # Decompose the local forces into the contact frame components
-            ec.forces.append(
-                {
-                    "c_np": max(Fn, 0),
-                    "c_nn": max(-Fn, 0),
-                    "c_u": Ft,
-                    "c_v": Fs,
-                }
-            )
+                ec.forces.append(
+                    {
+                        "c_np": max(Fn, 0),
+                        "c_nn": max(-Fn, 0),
+                        "c_u": Ft,
+                        "c_v": Fs,
+                    }
+                )
             graph.edge_attribute(edge, "edge_contact", True)
             graph.edge_attribute(edge, "contact_data", ec)
 
