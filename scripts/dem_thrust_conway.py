@@ -1,9 +1,10 @@
 import pathlib
 
+from compas_viewer.viewer import Viewer
+
 import compas
 from compas.datastructures import Mesh
 from compas.datastructures import mesh_conway_ambo
-from compas_viewer.viewer import Viewer
 
 # =============================================================================
 # ThrustDiagram

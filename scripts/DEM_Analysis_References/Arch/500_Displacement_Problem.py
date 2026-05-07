@@ -1,7 +1,6 @@
 import os
 
 import compas
-
 from compas_dem.problem import Problem
 from compas_dem.viewer import DEMViewer
 

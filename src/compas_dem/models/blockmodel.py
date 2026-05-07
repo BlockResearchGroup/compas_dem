@@ -13,15 +13,14 @@ from compas.itertools import pairwise
 from compas_cgal.meshing import trimesh_dual
 from compas_cgal.meshing import trimesh_remesh
 from compas_cgal.projection import project_mesh_on_mesh
-from compas_libigl.intersections import intersection_ray_mesh
-from compas_libigl.mapping import map_pattern_to_mesh
-from compas_model.interactions import Contact
-from compas_model.models import Model
-
 from compas_dem.elements import Block
 from compas_dem.interactions import FrictionContact
 from compas_dem.templates import BarrelVaultTemplate
 from compas_dem.templates import Template
+from compas_libigl.intersections import intersection_ray_mesh
+from compas_libigl.mapping import map_pattern_to_mesh
+from compas_model.interactions import Contact
+from compas_model.models import Model
 
 
 def project_mesh_to_target(mesh: Mesh, target: Mesh):

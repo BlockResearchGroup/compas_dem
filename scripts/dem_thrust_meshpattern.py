@@ -3,10 +3,9 @@ import random
 
 import compas
 from compas.datastructures import Mesh
-from compas_libigl.mapping import TESSAGON_TYPES
-
 from compas_dem.models import BlockModel
 from compas_dem.viewer import DEMViewer
+from compas_libigl.mapping import TESSAGON_TYPES
 
 # =============================================================================
 # ThrustDiagram

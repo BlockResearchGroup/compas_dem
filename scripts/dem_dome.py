@@ -3,7 +3,6 @@ import pathlib
 import compas
 from compas.datastructures import Mesh
 from compas.geometry import SphericalSurface
-
 from compas_dem.elements import Block
 from compas_dem.models import BlockModel
 from compas_dem.viewer import DEMViewer

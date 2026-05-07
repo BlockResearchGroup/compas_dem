@@ -1,8 +1,8 @@
 from collections import defaultdict
 
-import compas.geometry as cg
 import numpy as np
 
+import compas.geometry as cg
 from compas_dem.interactions import EdgeContact
 from compas_dem.interactions import FrictionContact
 from compas_dem.problem.problem import Problem

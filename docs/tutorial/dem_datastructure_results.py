@@ -1,9 +1,9 @@
 import pathlib
 
-import compas
-from compas.colors import Color
 from compas_viewer import Viewer
 
+import compas
+from compas.colors import Color
 from compas_dem.models import BlockModel
 from compas_dem.templates import ArchTemplate
 

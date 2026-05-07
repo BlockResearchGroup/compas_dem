@@ -1,10 +1,9 @@
-from compas_model.materials import Concrete
-
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.problem import Solver
 from compas_dem.templates import ArchTemplate
 from compas_dem.viewer import DEMViewer
+from compas_model.materials import Concrete
 
 # =============================================================================
 # Template

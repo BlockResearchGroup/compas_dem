@@ -1,11 +1,11 @@
-import compas.geometry as cg
 import numpy as np
-from compas.colors import Color
-from compas.scene import Group
 from compas_viewer.config import Config
 from compas_viewer.scene import ViewerSceneObject
 from compas_viewer.viewer import Viewer
 
+import compas.geometry as cg
+from compas.colors import Color
+from compas.scene import Group
 from compas_dem.models import BlockModel
 
 config = Config()

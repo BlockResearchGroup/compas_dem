@@ -12,7 +12,6 @@ import math
 import random
 
 from compas.geometry import Box
-
 from compas_dem.analysis.cra import cra_penalty_solve
 from compas_dem.models import BlockModel
 from compas_dem.viewer import DEMViewer

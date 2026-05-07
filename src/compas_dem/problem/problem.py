@@ -5,7 +5,6 @@ from compas.colors import Color
 from compas.data import Data
 from compas.geometry import Vector
 from compas_cgal.measure import mesh_volume
-
 from compas_dem.interactions import ContactProperties
 from compas_dem.interactions import JointModel
 from compas_dem.interactions import MohrCoulomb

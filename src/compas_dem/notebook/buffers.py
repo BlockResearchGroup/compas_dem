@@ -1,5 +1,6 @@
 import numpy as np
 import pythreejs as three
+
 from compas.colors import Color
 from compas.datastructures import Mesh
 from compas.geometry import Polygon

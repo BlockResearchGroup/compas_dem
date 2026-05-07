@@ -2,7 +2,6 @@ import pathlib
 
 from compas.datastructures import Mesh
 from compas.files import OBJ
-
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.problem import Solver

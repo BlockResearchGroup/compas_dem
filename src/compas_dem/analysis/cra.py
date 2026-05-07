@@ -1,13 +1,15 @@
-import compas.geometry as cg
+from typing import Optional
+
 import numpy as np
 from compas_assembly.datastructures import Assembly
 from compas_assembly.datastructures import Block
 from compas_cra.equilibrium import cra_penalty_solve as _cra_penalty_solve
 from compas_cra.equilibrium import rbe_solve as _rbe_solve
 
+import compas.geometry as cg
 from compas_dem.interactions import FrictionContact
 from compas_dem.models import BlockModel
-from compas_dem.problem.problem import Problem
+from compas_dem.problem import Problem
 
 
 def _blockmodel_to_assembly(model: BlockModel) -> Assembly:
@@ -110,8 +112,8 @@ def _post_processing_cra(assembly: Assembly, problem: Problem, density: float = 
 def cra_solve(
     problem: Problem,
     method: str = "penalty",
-    mu: float = None,
-    density: float = None,
+    mu: Optional[float] = None,
+    density: Optional[float] = None,
     d_bnd: float = 0.01,
     eps: float = 0.001,
     verbose: bool = True,

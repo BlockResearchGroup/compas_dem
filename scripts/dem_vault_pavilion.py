@@ -2,7 +2,6 @@ import pathlib
 
 import compas
 from compas.geometry import Scale
-
 from compas_dem.models import BlockModel
 from compas_dem.viewer import DEMViewer
 

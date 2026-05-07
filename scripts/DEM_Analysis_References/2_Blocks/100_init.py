@@ -2,7 +2,6 @@ import os
 
 import compas
 import compas.geometry as cg
-
 from compas_dem.material import Stone
 from compas_dem.models import BlockModel
 

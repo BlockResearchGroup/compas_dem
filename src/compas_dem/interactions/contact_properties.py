@@ -1,7 +1,6 @@
 from typing import Optional
 
 from compas.data import Data
-
 from compas_dem.interactions.contact_model import ContactModel
 from compas_dem.interactions.joint_model import JointModel
 

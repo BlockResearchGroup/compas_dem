@@ -2,9 +2,9 @@ from typing import Optional
 from typing import Union
 
 import pythreejs as three
-from compas.colors import Color
 from compas_notebook.scene import ThreeSceneObject
 
+from compas.colors import Color
 from compas_dem.models import BlockModel
 
 from .buffers import meshes_to_edgesbuffer

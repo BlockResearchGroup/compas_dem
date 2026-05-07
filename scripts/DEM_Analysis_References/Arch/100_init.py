@@ -1,7 +1,6 @@
 import os
 
 import compas
-
 from compas_dem.material import Stone
 from compas_dem.models import BlockModel
 from compas_dem.templates import ArchTemplate
