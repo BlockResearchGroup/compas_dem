@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+
 ### Changed
 
 * Fixed tangential force direction in post-processing for vizualization.
+* Reorganized the `scripts/` examples folder for clarity.
+* Adapted the examples to the new API.
+
 
 ### Removed
 
