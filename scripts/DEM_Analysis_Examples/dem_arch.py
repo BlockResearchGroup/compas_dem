@@ -9,7 +9,7 @@ from compas_model.materials import Concrete
 # Template
 # =============================================================================
 
-template = ArchTemplate(rise=3, span=10, thickness=0.5, depth=0.5, n=50)
+template = ArchTemplate(rise=3, span=10, thickness=0.25, depth=0.5, n=50)
 
 # =============================================================================
 # Model
@@ -35,6 +35,7 @@ for node in model.graph.nodes_where(degree=1):
 # ============================================================================
 
 conc: Concrete = Concrete.from_strength_class("C30")
+conc.density = 2000
 model.add_material(conc)
 model.assign_material(conc, elements=list(model.elements()))
 
@@ -46,7 +47,7 @@ problem = Problem(model)
 problem.add_contact_model("MohrCoulomb", mu=0.5, c=0.0)
 problem.add_supports_from_model()
 
-lmgc90: Solver = Solver.LMGC90(dt=0.01, n_steps=100)
+lmgc90: Solver = Solver.LMGC90(dt=0.001, n_steps=1000)
 problem.solve(lmgc90)
 
 # =============================================================================

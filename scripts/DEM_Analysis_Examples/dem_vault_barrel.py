@@ -1,64 +1,54 @@
-import pathlib
+"""Compute the equilibrium of an arch structure using the LMGC90 solver.
 
-from compas.datastructures import Mesh
-from compas.files import OBJ
+To run this script, install `compas_dem` and its dependencies using the preconfigured
+"dem-dev" environment in the `compas_dem` repo.
+
+    $ conda env create -f environment.yml
+    $ conda activate dem-dev
+
+"""
+
+from compas_dem.material import Stone
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.problem import Solver
+from compas_dem.templates import BarrelVaultTemplate
 from compas_dem.viewer import DEMViewer
 
 # =============================================================================
-# Data
+# Template
 # =============================================================================
 
-FILE = pathlib.Path(__file__).parent.parent / "data" / "crossvault.obj"
-
-obj = OBJ(FILE)
-obj.read()
-
-meshes = []
-for name in obj.objects:  # type: ignore
-    vertices, faces = obj.objects[name]  # type: ignore
-    mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
-    mesh.scale(0.025, 0.025, 0.025)
-    mesh.name = name
-    meshes.append(mesh)
+template = BarrelVaultTemplate(length=3, span=7, rise=0.1, vou_length=13)
 
 # =============================================================================
 # Model and interactions
 # =============================================================================
 
-model = BlockModel.from_boxes(meshes)
+model = BlockModel.from_barrelvault(template)
 
-# model.compute_contacts(tolerance=0.001)
+model.compute_contacts(tolerance=0.001)
+
+limestone = Stone.from_predefined_material("LimeStone")
+model.add_material(limestone)
+limestone.density = 2400
+model.assign_material(limestone, elements=list(model.elements()))
 
 # =============================================================================
 # Supports
 # =============================================================================
-
-for element in model.elements():
-    if model.graph.degree(element.graphnode) == 1:
-        element.is_support = True
+for node in model.graph.nodes_where(degree=1):
+    model.graph.node_element(node).is_support = True
 
 # =============================================================================
 # Problem
-# ============================================================================
+# =============================================================================
 
 problem = Problem(model)
-
-# problem.inspect_model()
+problem.add_contact_model("MohrCoulomb", phi=40, c=0)
 problem.add_supports_from_model()
-problem.add_contact_model("MohrCoulomb", phi=70, c=0)
-
-
-# rbe = Solver.RBE()
-
-lmgc90 = Solver.LMGC90(duration=1.0, n_steps=100, urf_threshold=0.001)
+lmgc90 = Solver.LMGC90(duration=1.0, n_steps=1000)
 solution = problem.solve(lmgc90)
-
-# solution = problem.solve("RBE")
-# solution = problem.solve("LMGC90", duration=1.0, n_steps=100, urf_threshold=0.001)
-# problem.solve()
 
 # =============================================================================
 # Viz
@@ -66,5 +56,6 @@ solution = problem.solve(lmgc90)
 
 viewer = DEMViewer(model)
 
-viewer.add_solution(scale=1e-6)
+viewer.setup()
+viewer.add_solution(scale=1)
 viewer.show()

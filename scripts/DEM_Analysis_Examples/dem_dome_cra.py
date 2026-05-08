@@ -13,11 +13,13 @@ To generate the input file, run the `dem_dome.py` script first.
 import pathlib
 
 import compas
+from compas_dem.elements import Block
+from compas_dem.material import Stone
+from compas_dem.models import BlockModel
 
 # from compas_dem.analysis.cra import cra_penalty_solve
-from compas_dem.analysis.cra import rbe_solve
-from compas_dem.elements import Block
-from compas_dem.models import BlockModel
+from compas_dem.problem import Problem
+from compas_dem.problem import Solver
 from compas_dem.viewer import DEMViewer
 
 # =============================================================================
@@ -35,16 +37,28 @@ for block in bottom:
     block.is_support = True
 
 # =============================================================================
-# Equilibrium
+# Material
 # =============================================================================
 
-# cra_penalty_solve(model)
-rbe_solve(model)
+stone: Stone = Stone.from_predefined_material("LimeStone")
+stone.density = 2000
+model.add_material(stone)
+model.assign_material(stone, elements=list(model.elements()))
+
+# =============================================================================
+# Problem setup and solve
+# =============================================================================
+
+problem = Problem(model)
+problem.add_contact_model("MohrCoulomb", mu=0.5, c=0.0)
+problem.add_supports_from_model()
+rbe_solver = Solver.RBE()
+solution = problem.solve(rbe_solver)
 
 # =============================================================================
 # Viz
 # =============================================================================
 
 viewer = DEMViewer(model)
-viewer.setup()
+viewer.add_solution()
 viewer.show()

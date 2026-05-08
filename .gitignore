@@ -138,6 +138,7 @@ webviewer/**
 
 # DEM analysis outputs
 OUTBOX/
+scripts/*.json
 scripts/DEM_Analysis_References/2_Blocks/*.json
 scripts/DEM_Analysis_References/3_Blocks/*.json
 scripts/DEM_Analysis_References/Arch/*.json

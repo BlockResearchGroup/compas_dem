@@ -1,4 +1,4 @@
-"""Compute the equilibrium of an arch structure using the CRA method.
+"""Compute the equilibrium of an arch structure using the LMGC90 solver.
 
 To run this script, install `compas_dem` and its dependencies using the preconfigured
 "dem-dev" environment in the `compas_dem` repo.
@@ -8,61 +8,59 @@ To run this script, install `compas_dem` and its dependencies using the preconfi
 
 """
 
-import math
-import random
-
-from compas.geometry import Box
-from compas_dem.analysis.cra import cra_penalty_solve
+from compas_dem.material import Stone
 from compas_dem.models import BlockModel
+from compas_dem.problem import Problem
+from compas_dem.problem import Solver
+from compas_dem.templates import BarrelVaultTemplate
 from compas_dem.viewer import DEMViewer
 
 # =============================================================================
-# Block Geometry
+# Template
 # =============================================================================
 
-box = Box.from_corner_corner_height([0, 0, 0], [1, 1, 0], 1)
-
-blocks: list[Box] = []
-for i in range(10):
-    block: Box = box.copy()
-    block.translate(
-        [
-            random.choice([-0.1, +0.1]) * random.random(),
-            random.choice([-0.1, +0.1]) * random.random(),
-            i * box.zsize,
-        ]
-    )
-    block.rotate(math.radians(random.choice([-5, +5])), box.frame.zaxis, box.frame.point)
-    blocks.append(block)
+template = BarrelVaultTemplate(length=3, span=7, rise=0.1, vou_length=13)
 
 # =============================================================================
 # Model and interactions
 # =============================================================================
 
-model = BlockModel.from_boxes(blocks)
+model = BlockModel.from_barrelvault(template)
 
-model.compute_contacts()
+model.compute_contacts(tolerance=0.001)
+
+limestone = Stone.from_predefined_material("LimeStone")
+model.add_material(limestone)
+limestone.density = 2400
+model.assign_material(limestone, elements=list(model.elements()))
 
 # =============================================================================
 # Supports
 # =============================================================================
-
-bottom = sorted(model.elements(), key=lambda e: e.point.z)[0]
-bottom.is_support = True
+for node in model.graph.nodes_where(degree=1):
+    model.graph.node_element(node).is_support = True
 
 # =============================================================================
-# Equilibrium
+# Problem
 # =============================================================================
 
-cra_penalty_solve(model)
+problem = Problem(model)
+problem.add_contact_model("MohrCoulomb", phi=40, c=0)
+problem.add_supports_from_model()
 
-for contact in model.contacts():
-    print(contact.forces)
+# =============================================================================
+# Solver
+# =============================================================================
+
+rbe = Solver.RBE(verbose=True)
+solution = problem.solve(rbe)
 
 # =============================================================================
 # Viz
 # =============================================================================
 
 viewer = DEMViewer(model)
+
 viewer.setup()
+viewer.add_solution(scale=1)
 viewer.show()
