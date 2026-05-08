@@ -34,5 +34,5 @@ for edge in graph.edges():
 # # =============================================================================
 
 viewer = DEMViewer(problem.model)
-viewer.add_solution(scale=10e-12)
+viewer.add_solution(scale=0.5)
 viewer.show()
