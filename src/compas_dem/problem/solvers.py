@@ -1,3 +1,5 @@
+from typing import Optional
+
 from compas.data import Data
 
 
@@ -25,12 +27,12 @@ class Solver(Data):
     @classmethod
     def LMGC90(
         cls,
-        duration: float = None,
-        n_steps: int = None,
-        dt: float = None,
+        duration: Optional[float] = None,
+        n_steps: Optional[int] = None,
+        dt: Optional[float] = None,
         theta: float = 0.5,
-        urf_threshold: float = None,
-        track_block: int = None,
+        urf_threshold: Optional[float] = None,
+        track_block: Optional[int] = None,
         contact_law: str = "IQS_CLB",
     ):
         """

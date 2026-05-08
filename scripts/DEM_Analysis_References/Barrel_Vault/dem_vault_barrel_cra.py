@@ -35,9 +35,8 @@ for node in model.graph.nodes_where(degree=1):
 # =============================================================================
 problem = Problem(model)
 problem.add_contact_model("MohrCoulomb", phi=40, c=0)
-problem.add_supports_from_model()
-lmgc90 = Solver.LMGC90(duration=1.0, n_steps=100)
-solution = problem.solve(lmgc90)
+cra = Solver.CRA(verbose=True)
+solution = problem.solve(cra)
 
 # =============================================================================
 # Viz
