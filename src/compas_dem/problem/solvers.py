@@ -37,6 +37,7 @@ class Solver(Data):
     ):
         """
         LMGC90 solver configuration.
+
         Parameters
         ----------
         duration : float, Optional
@@ -77,6 +78,7 @@ class Solver(Data):
     ):
         """
         CRA solver configuration.
+
         Parameters
         ----------
         d_bnd : float
@@ -106,6 +108,7 @@ class Solver(Data):
         timer: bool = False,
     ):
         """RBE solver configuration.
+
         Parameters
         ----------
         verbose : bool
