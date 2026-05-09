@@ -1,15 +1,15 @@
+from compas_dem.material import Stone
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.problem import Solver
 from compas_dem.templates import ArchTemplate
 from compas_dem.viewer import DEMViewer
-from compas_model.materials import Concrete
 
 # =============================================================================
 # Template
 # =============================================================================
 
-template = ArchTemplate(rise=3, span=10, thickness=0.25, depth=0.5, n=50)
+template = ArchTemplate(rise=4.393, span=21.213, thickness=0.5, depth=3.0, n=100)
 
 # =============================================================================
 # Model
@@ -34,21 +34,23 @@ for node in model.graph.nodes_where(degree=1):
 # Material
 # ============================================================================
 
-conc: Concrete = Concrete.from_strength_class("C30")
-conc.density = 2000
-model.add_material(conc)
-model.assign_material(conc, elements=list(model.elements()))
+generic: Stone = Stone(density=2000)
+model.add_material(generic)
+model.assign_material(generic, elements=list(model.elements()))
 
 # =============================================================================
 # Problem
 # =============================================================================
 
 problem = Problem(model)
-problem.add_contact_model("MohrCoulomb", mu=0.5, c=0.0)
+problem.add_contact_model("MohrCoulomb", phi=25, c=0.0)
 problem.add_supports_from_model()
+problem.add_point_load(block_index=67, force=[0, 0, -170000])
+lmgc90_1: Solver = Solver.LMGC90(dt=0.00056, duration=10.0, urf_threshold=1e-3, theta=0.7)
+lmgc90_2: Solver = Solver.LMGC90(dt=0.001, duration=1.0, urf_threshold=1e-3, theta=0.7)
 
-lmgc90: Solver = Solver.LMGC90(dt=0.001, n_steps=1000)
-problem.solve(lmgc90)
+# Solve using either lmgc90_1 or lmgc90_2; same solver, with different parameters.
+problem.solve(lmgc90_2)
 
 # =============================================================================
 # Viz
@@ -56,5 +58,5 @@ problem.solve(lmgc90)
 
 viewer = DEMViewer(model)
 
-viewer.add_solution()
+viewer.add_solution(scale=0.5)
 viewer.show()

@@ -128,7 +128,6 @@ def lmgc90_solve(
     # ------------------------------------------------------------------
     # Density: first non-support block with material, or fallback
     # ------------------------------------------------------------------
-    density = 2000.0
     for block in model.blocks():
         if block.material and block.material.density:
             density = block.material.density
@@ -140,8 +139,8 @@ def lmgc90_solve(
     if problem.contact_properties.contact_model:
         mu = problem.contact_properties.contact_model.mu
     else:
-        Warning("No contact properties with a contact model found in the problem; defaulting to mu=0.6.")
-        mu = 0.6
+        raise Warning("No contact properties with a contact model found in the problem; defaulting to mu=0.6.")
+
     # ------------------------------------------------------------------
     # Build solver
     # ------------------------------------------------------------------

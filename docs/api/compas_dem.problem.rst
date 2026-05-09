@@ -1,8 +1,8 @@
 ********************************************************************************
-interactions
+problem
 ********************************************************************************
 
-.. currentmodule:: compas_dem.interactions
+.. currentmodule:: compas_dem.problem
 
 
 Classes
@@ -12,7 +12,6 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    FrictionContact
-    ContactProperties
-    ContactModel
-    JointModel
+    BoundaryConditions
+    Problem
+    Solver

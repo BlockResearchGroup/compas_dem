@@ -1,8 +1,8 @@
 ********************************************************************************
-interactions
+viewer
 ********************************************************************************
 
-.. currentmodule:: compas_dem.interactions
+.. currentmodule:: compas_dem.viewer
 
 
 Classes
@@ -12,7 +12,4 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    FrictionContact
-    ContactProperties
-    ContactModel
-    JointModel
+    DEMViewer

@@ -137,9 +137,11 @@ scripts/__testing
 webviewer/**
 
 # DEM analysis outputs
+/*.json
 OUTBOX/
+scripts/Emil_Arch/
 scripts/*.json
-scripts/DEM_Analysis_References/2_Blocks/*.json
-scripts/DEM_Analysis_References/3_Blocks/*.json
-scripts/DEM_Analysis_References/Arch/*.json
-scripts/DEM_Analysis_References/Barrel_Vault/*.json
+scripts/DEM_Analysis_Workflow/2_Blocks/*.json
+scripts/DEM_Analysis_Workflow/3_Blocks/*.json
+scripts/DEM_Analysis_Workflow/Arch/*.json
+scripts/DEM_Analysis_Workflow/Barrel_Vault/*.json

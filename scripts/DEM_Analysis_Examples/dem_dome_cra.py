@@ -16,8 +16,6 @@ import compas
 from compas_dem.elements import Block
 from compas_dem.material import Stone
 from compas_dem.models import BlockModel
-
-# from compas_dem.analysis.cra import cra_penalty_solve
 from compas_dem.problem import Problem
 from compas_dem.problem import Solver
 from compas_dem.viewer import DEMViewer
@@ -26,7 +24,7 @@ from compas_dem.viewer import DEMViewer
 # Import
 # =============================================================================
 
-model: BlockModel = compas.json_load(pathlib.Path(__file__).parent / "dome.json")  # type: ignore
+model: BlockModel = compas.json_load(pathlib.Path(__file__).parent.parent.parent / "data" / "dome.json")  # type: ignore
 
 # =============================================================================
 # Supports
@@ -41,7 +39,7 @@ for block in bottom:
 # =============================================================================
 
 stone: Stone = Stone.from_predefined_material("LimeStone")
-stone.density = 2000
+stone.density = 2000  # Overwrite default density for limestone
 model.add_material(stone)
 model.assign_material(stone, elements=list(model.elements()))
 

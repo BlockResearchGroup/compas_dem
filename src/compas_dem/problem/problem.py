@@ -71,30 +71,44 @@ class Problem(Data):
     # Pre-visualization utilities
     # ===========================================================================
     def inspect_model(self, show_indices: bool = False, show_loads: bool = True) -> None:
+        """
+        Visualize the block model with block indices and point load vectors to assist with defining boundary conditions.
+
+        .. danger::
+        This method is for inspection only. **Comment out or remove
+        before solving** — leaving it in will block the solver.
+
+        Returns
+        -------
+        None
+        """
         from compas_viewer.scene import Tag
         from compas_viewer.viewer import Viewer
         # Add point load and disp viz if not none.
 
         viewer = Viewer()
         if show_loads:
-            for loads in self.boundary_conditions.point_loads:
-                block = self._blocks[loads["block_index"]]
-                scale = block.modelgeometry.edge_length([0, 1]) / 2
-                force = Vector(*loads["force"])
-                line = cg.Line(block.point, block.point - force.unitized() * scale)
+            if not self.boundary_conditions.point_loads:
+                print("No point loads defined in the problem boundary conditions.")
+            else:
+                for loads in self.boundary_conditions.point_loads:
+                    block = self._blocks[loads["block_index"]]
+                    scale = block.modelgeometry.edge_length([0, 1]) / 2
+                    force = Vector(*loads["force"])
+                    line = cg.Line(block.point, block.point - force.unitized() * scale)
 
-                tag = Tag(
-                    f"Point Load: [{force.x:.1f}, {force.y:.1f}, {force.z:.1f}]",
-                    block.point,
-                )
-                viewer.scene.add(tag, name=f"Block {block.graphnode} Tag", textcolor=Color.red())
+                    tag = Tag(
+                        f"Point Load: [{force.x:.1f}, {force.y:.1f}, {force.z:.1f}]",
+                        block.point,
+                    )
+                    viewer.scene.add(tag, name=f"Block {block.graphnode} Tag", textcolor=Color.red())
 
-                viewer.scene.add(
-                    line,
-                    name=f"Point Load on Block {block.graphnode}",
-                    linewidth=2.5,
-                    linecolor=Color.red(),
-                )
+                    viewer.scene.add(
+                        line,
+                        name=f"Point Load on Block {block.graphnode}",
+                        linewidth=2.5,
+                        linecolor=Color.red(),
+                    )
 
         for element in self.model.elements():
             block_ = viewer.scene.add_group(name=f"Block {element.graphnode}")
@@ -104,10 +118,10 @@ class Problem(Data):
             block_.add(element.modelgeometry, opacity=0.2, name=f"Block {element.graphnode}")
         viewer.show()
 
-        raise ChildProcessError("Model inspection complete. Please refer to the viewer and console for block indices when adding boundary conditions.")
+        raise ChildProcessError("Model inspection complete. Please comment out or remove the call to inspect_model() proceed.")
 
     def add_gravity(self, g: float = 9.81) -> None:
-        """Apply self-weight to all blocks using material density.
+        """Changes applied gravity in the problem boundary conditions.
 
         Parameters
         ----------
@@ -125,6 +139,12 @@ class Problem(Data):
         ----------
         ax, ay, az : float
             Acceleration components in [m/s²].
+
+        .. note::
+            This method takes acceleration components, not forces.
+
+        .. tip::
+            Use this to apply uniform extra force on all blocks.
         """
         self._boundary_conditions.add_global_body_force(ax, ay, az)
 
@@ -153,6 +173,11 @@ class Problem(Data):
             Cannot be combined with `moment`.
         loading_type : str, optional
             ``"ramp"`` (default) or ``"instantaneous"``.
+
+        .. note::
+            The loading_type parameter is resloved within the solver.
+            - ``"ramp"`` applies the load gradually over the simulation time.
+            - ``"instantaneous"`` applies the full load from the first timestep.
         """
         self._boundary_conditions.add_point_load(block_index, force, moment, point, loading_type)
 
@@ -249,8 +274,6 @@ class Problem(Data):
         bc : :class:`BoundaryConditions`
             A boundary condition set to absorb.
         """
-        if bc.gravity:
-            self.add_gravity(bc.g)
         for acc in bc.body_forces:
             self.add_global_body_force(*acc)
         for entry in bc.point_loads:
@@ -281,11 +304,6 @@ class Problem(Data):
             }
             for idx in self._blocks
         }
-
-        if bc.gravity:
-            g_vec = Vector(0, 0, -bc.g)
-            for idx, block in self._blocks.items():
-                loads[idx]["force"] += g_vec * block.mass
 
         for acc in bc.body_forces:
             a_vec = Vector(*acc)
@@ -357,7 +375,7 @@ class Problem(Data):
         ----------
         model : str
             Contact model type. Supported:
-            - ``"MohrCoulomb"`` - takes phi (deg) or mu, cohesion c
+            - ``"MohrCoulomb"`` - takes phi (deg) or mu, cohesion c, and tension cut-off (optional).
         **kwargs
             Parameters forwarded to the contact model constructor.
 

@@ -11,4 +11,6 @@ compas_dem
     compas_dem.elements
     compas_dem.interactions
     compas_dem.models
+    compas_dem.problem
     compas_dem.templates
+    compas_dem.viewer

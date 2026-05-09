@@ -16,12 +16,11 @@ problem: Problem = compas.json_load(
 # Add point load to problem
 # =============================================================================
 
-problem.add_point_load(block_index=14, force=[0, 0, -500000.0])
+problem.add_point_load(block_index=14, force=[0, 0, -50000.0])
 
 # =============================================================================
 # Save results
 # =============================================================================
-problem.inspect_model()
 
 HERE = os.path.dirname(__file__)
 compas.json_dump(problem, os.path.join(HERE, "DEM_problem_updated.json"))
@@ -29,6 +28,8 @@ compas.json_dump(problem, os.path.join(HERE, "DEM_problem_updated.json"))
 # =============================================================================
 # Visualize problem
 # =============================================================================
+
+problem.inspect_model()
 
 # viewer = DEMViewer(problem.model)
 # viewer.add_solution(scale=10e-12)

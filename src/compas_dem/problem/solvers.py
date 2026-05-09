@@ -39,17 +39,17 @@ class Solver(Data):
         LMGC90 solver configuration.
         Parameters
         ----------
-        duration : float
+        duration : float, Optional
             Total duration of the simulation in seconds.
-        n_steps : int
+        n_steps : int, Optional
             Number of time steps to simulate.
-        dt : float
+        dt : float, Optional
             Time step size. If None, it will be computed automatically based on the model properties.
         theta : float
             Time integration parameter (0.5 for mid-point rule, 1.0 for backward Euler).
-        urf_threshold : float
+        urf_threshold : float, Optional
             Unbalanced force threshold for convergence. If None, it will be set to a default value based on the model.
-        track_block : int
+        track_block : int, Optional
             Optional block index to track and print its displacement/rotation during the simulation.
         contact_law : str
             Contact law to use in LMGC90. Default is "IQS_CLB" (a common choice for DEM simulations).
@@ -97,7 +97,7 @@ class Solver(Data):
             "verbose": verbose,
             "timer": timer,
         }
-        return self
+        return None
 
     @classmethod
     def RBE(
