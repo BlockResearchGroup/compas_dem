@@ -1,10 +1,14 @@
 from typing import Optional
 
 import numpy as np
-from compas_assembly.datastructures import Assembly
-from compas_assembly.datastructures import Block
-from compas_cra.equilibrium import cra_penalty_solve as _cra_penalty_solve
-from compas_cra.equilibrium import rbe_solve as _rbe_solve
+
+try:
+    from compas_assembly.datastructures import Assembly
+    from compas_assembly.datastructures import Block
+    from compas_cra.equilibrium import cra_penalty_solve
+    from compas_cra.equilibrium import rbe_solve
+except ImportError:
+    raise ImportError("compas_cra is not installed. Install it to use the CRA / RBE solvers.")
 
 import compas.geometry as cg
 from compas_dem.interactions import FrictionContact
@@ -173,9 +177,9 @@ def cra_solve(
     assembly = _blockmodel_to_assembly(model)
 
     if method == "rbe":
-        _rbe_solve(assembly, mu=mu, density=1.0, verbose=verbose, timer=timer)
+        rbe_solve(assembly, mu=mu, density=1.0, verbose=verbose, timer=timer)
     elif method == "cra":
-        _cra_penalty_solve(
+        cra_penalty_solve(
             assembly,
             mu=mu,
             density=1.0,

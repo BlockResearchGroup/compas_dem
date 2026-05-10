@@ -43,7 +43,7 @@ A model is created from a collection of solid Mesh or BRep objects. Most vault a
     :end-before: # Model
 
 
-.. figure:: ../_images/dem_datastructure_overview_data.png
+.. figure:: /_images/dem_datastructure_overview_data.png
    :align: center
 
    Arch template.
@@ -113,7 +113,7 @@ Elements are fixed by assigning the boolean atribute of the support.
     :start-after: # Supports
     :end-before: # Transformation
 
-.. figure:: ../_images/dem_datastructure_overview_supports.png
+.. figure:: /_images/dem_datastructure_overview_supports.png
    :align: center
 
    Supports.
@@ -130,7 +130,7 @@ When we assign the transformation matrix to an element, we can change its orient
     :end-before: # Centroids
 
 
-.. figure:: ../_images/dem_datastructure_overview_transformation.png
+.. figure:: /_images/dem_datastructure_overview_transformation.png
    :align: center
 
    Transformed block.
@@ -146,7 +146,7 @@ We can get the centroids of the blocks:
     :start-after: # Centroids
     :end-before: # Vertices
 
-.. figure:: ../_images/dem_datastructure_overview_centroids.png
+.. figure:: /_images/dem_datastructure_overview_centroids.png
    :align: center
 
    Centroids.
@@ -162,7 +162,7 @@ We can extract vertices and faces, where vertices are stored as a list of 3 floa
     :start-after: # Vertices
     :end-before: # Contacts
 
-.. figure:: ../_images/dem_datastructure_overview_vertices.png
+.. figure:: /_images/dem_datastructure_overview_vertices.png
    :align: center
 
    Vertices.
@@ -178,14 +178,14 @@ We can compute contacts between blocks using the :meth:`compas_dem.models.BlockM
     :start-after: # Contacts
     :end-before: # Interaction
 
-.. figure:: ../_images/dem_datastructure_overview_contacts.png
+.. figure:: /_images/dem_datastructure_overview_contacts.png
    :align: center
 
    Contacts.
 
 When contacts are detected, the interaction graph displays the connectivity of the elements by lines drawn from the centroids of blocks.
 
-.. figure:: ../_images/dem_datastructure_overview_graph.png
+.. figure:: /_images/dem_datastructure_overview_graph.png
    :align: center
 
    Graph edges.
@@ -201,7 +201,7 @@ While contacts are specific interactions between blocks, interactions are more g
     :start-after: # Interaction
     :end-before: # Visualization
 
-.. figure:: ../_images/dem_datastructure_overview_interaction.png
+.. figure:: /_images/dem_datastructure_overview_interaction.png
    :align: center
 
    Interaction.

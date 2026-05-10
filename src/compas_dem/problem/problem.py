@@ -75,8 +75,9 @@ class Problem(Data):
         Visualize the block model with block indices and point load vectors to assist with defining boundary conditions.
 
         .. danger::
-        This method is for inspection only. **Comment out or remove
-        before solving** — leaving it in will block the solver.
+
+           This method is for inspection only. **Comment out or remove
+           before solving** — leaving it in will block the solver.
 
         Returns
         -------

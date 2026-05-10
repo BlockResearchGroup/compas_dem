@@ -8,8 +8,7 @@ A practical guide to add results from DEM analysis to the data structure for vis
 Learn how to load analysis results and visualize force vectors on contact interfaces.
 
 
-.. figure:: ../_images/dem_datastructure_results.png
-   :align: center
+.. figure:: /_images/dem_datastructure_results.png
 
    DEM model with analysis results showing force vectors on contact interfaces.
 

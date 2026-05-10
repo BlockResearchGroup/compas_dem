@@ -3,8 +3,8 @@ Tutorial
 ********************************************************************************
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :titlesonly:
-   :glob:
 
-   tutorial/*
+   tutorial/dem_datastructure
+   tutorial/three_blocks
