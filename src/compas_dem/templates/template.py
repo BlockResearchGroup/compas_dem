@@ -1,5 +1,8 @@
 class Template:
     def __init__(self):
+        """
+        .. warning:: Methods of this class are not implemented yet. It is a placeholder for future development.
+        """
         pass
 
     def blocks(self):
@@ -9,7 +12,8 @@ class Template:
         raise NotImplementedError
 
     def to_blocks_and_interfaces(self):
-        """Convert the geometry to a list of block meshes,
+        """
+        Convert the geometry to a list of block meshes,
         and a list of block index pairs representing connections or interfaces.
 
         Returns
@@ -17,5 +21,8 @@ class Template:
         tuple
             0. List of meshes representing the block geometries.
             1. List of block index pairs representing connections or interfaces.
+
+        .. warning:: This method is not implemented yet. It is a placeholder for future development.
+
         """
         raise NotImplementedError

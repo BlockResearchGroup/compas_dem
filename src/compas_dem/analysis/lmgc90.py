@@ -128,7 +128,6 @@ def lmgc90_solve(
     # ------------------------------------------------------------------
     # Density: first non-support block with material, or fallback
     # ------------------------------------------------------------------
-    density = 2000.0
     for block in model.blocks():
         if block.material and block.material.density:
             density = block.material.density
@@ -140,8 +139,8 @@ def lmgc90_solve(
     if problem.contact_properties.contact_model:
         mu = problem.contact_properties.contact_model.mu
     else:
-        Warning("No contact properties with a contact model found in the problem; defaulting to mu=0.6.")
-        mu = 0.6
+        raise Warning("No contact properties with a contact model found in the problem; defaulting to mu=0.6.")
+
     # ------------------------------------------------------------------
     # Build solver
     # ------------------------------------------------------------------
@@ -436,8 +435,10 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
             graph.edge_attribute(edge, "face_contact", True)
             fc = FrictionContact(points=[cg.Point(*p) for p in contact_pts])
             lmgc_tangent = cg.Vector(*result.interaction_tangent1[points[0]])
-            lmgc_tangent2 = cg.Vector(*result.interaction_tangent2[points[0]])
+            lmgc_normal = cg.Vector(*result.interaction_normals[points[0]])
+            lmgc_tangent2 = lmgc_normal.cross(lmgc_tangent).unitized()
             fc._frame = cg.Frame(contact_frames.point, lmgc_tangent, lmgc_tangent2)
+
             for p in points:
                 # Local forces
                 Ft, Fn, Fs = result.interaction_rloc[p]
@@ -446,8 +447,8 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
                     {
                         "c_np": max(Fn, 0),
                         "c_nn": max(-Fn, 0),
-                        "c_u": Ft,
-                        "c_v": Fs,
+                        "c_u": -Ft,
+                        "c_v": -Fs,
                     }
                 )
             graph.edge_attribute(edge, "contact_data", fc)
@@ -473,8 +474,8 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
                     {
                         "c_np": max(Fn, 0),
                         "c_nn": max(-Fn, 0),
-                        "c_u": Ft,
-                        "c_v": Fs,
+                        "c_u": -Ft,
+                        "c_v": -Fs,
                     }
                 )
             graph.edge_attribute(edge, "edge_contact", True)

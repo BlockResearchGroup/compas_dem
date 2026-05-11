@@ -36,6 +36,14 @@ class MohrCoulomb(ContactModel):
     ----------
     name : str, optional
         The name of the contact law.
+    phi : float, optional
+        Friction angle in degrees. Provide either `phi` or `mu`, not both.
+    mu : float, optional
+        Friction coefficient (tan(phi)). Provide either `phi` or `mu`, not both.
+    c : float, optional
+        Cohesion.
+    t_c : float, optional
+        Tensile cutoff capacity
     """
 
     def __init__(
@@ -44,17 +52,9 @@ class MohrCoulomb(ContactModel):
         mu: Optional[float] = None,
         c: Optional[float] = None,
         t_c: Optional[float] = None,
-        k_n: Optional[float] = None,
-        k_t: Optional[float] = None,
         name: Optional[str] = None,
     ):
         super().__init__(name=name)
-
-        # Find another way to do this
-        # if phi is not None and mu is not None:
-        #     raise ValueError("Do not provide both `phi` (deg) and `mu`.")
-        # if (phi is None) == (mu is None):
-        #     raise ValueError("Provide one of `phi` (deg) or `mu`.")
 
         if phi is not None:
             self._phi = float(phi)
@@ -67,8 +67,6 @@ class MohrCoulomb(ContactModel):
 
         self.c = c
         self.t_c = t_c
-        self.k_n = k_n
-        self.k_t = k_t
 
     @property
     def __data__(self) -> dict:
@@ -78,8 +76,6 @@ class MohrCoulomb(ContactModel):
                 "phi": self._phi,
                 "c": self.c,
                 "t_c": self.t_c,
-                "k_n": self.k_n,
-                "k_t": self.k_t,
                 "mu": self._mu,
             }
         )
@@ -91,8 +87,6 @@ class MohrCoulomb(ContactModel):
             phi=data["phi"],
             c=data["c"],
             t_c=data["t_c"],
-            k_n=data["k_n"],
-            k_t=data["k_t"],
             name=data.get("name"),
         )
 

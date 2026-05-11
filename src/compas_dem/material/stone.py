@@ -67,7 +67,7 @@ class Stone(Material):
 
     def __init__(
         self,
-        fc: float,
+        fc: Optional[float] = None,
         ft: Optional[float] = None,
         Ecm: Optional[float] = None,
         density: float = 2400,

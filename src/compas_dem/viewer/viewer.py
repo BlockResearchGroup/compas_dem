@@ -105,6 +105,25 @@ config.ui.menubar.items.append(
 
 
 class DEMViewer(Viewer):
+    """Viewer for COMPAS DEM models.
+
+    Parameters
+    ----------
+    model : :class:`compas_dem.models.BlockModel`
+        The DEM model to visualize.
+    config : :class:`compas_viewer.config.Config`, optional
+        The viewer configuration. If not provided, a default configuration is used.
+
+    Methods
+    -------
+    setup()
+        Sets up the viewer by creating groups and adding geometry for blocks, supports, contacts, and interactions.
+    add_solution(scale=1.0)
+        Adds the solution to the viewer, including updated block positions, resultant forces at contacts, and support reactions.
+        The `scale` parameter can be adjusted to make force vectors visible based on their magnitude relative to the block geometry.
+
+    """
+
     blockcolor: Color = Color.grey().lightened(85)
     supportcolor: Color = Color.red().lightened(50)
     interfacecolor: Color = Color.cyan().lightened(50)
@@ -140,19 +159,19 @@ class DEMViewer(Viewer):
     #     self.scene.add(forcediagram, show_faces=False, show_lines=True)
 
     def setup(self):
-        self.setup_groups()
+        self._setup_groups()
 
         # add stuff
-        self.add_supports()
-        self.add_blocks()
-        self.add_contacts()
-        self.add_graph()
+        self._add_supports()
+        self._add_blocks()
+        self._add_contacts()
+        self._add_graph()
 
     # =============================================================================
     # Groups
     # =============================================================================
 
-    def setup_groups(self):
+    def _setup_groups(self):
         self.groups["model"] = self.scene.add_group(name="Model")
         self.groups["supports"] = self.scene.add_group(name="Supports", parent=self.groups["model"])
         self.groups["blocks"] = self.scene.add_group(name="Blocks", parent=self.groups["model"])
@@ -163,7 +182,7 @@ class DEMViewer(Viewer):
     # Blocks and Contacts
     # =============================================================================
 
-    def add_supports(self):
+    def _add_supports(self):
         parent: Group = self.groups["supports"]
 
         for block in self.model.supports():
@@ -175,7 +194,7 @@ class DEMViewer(Viewer):
                 name=f"Block {block.graphnode}",  # type: ignore
             )
 
-    def add_blocks(self):
+    def _add_blocks(self):
         parent: Group = self.groups["blocks"]
 
         for block in self.model.blocks():
@@ -187,7 +206,7 @@ class DEMViewer(Viewer):
                 name=f"Block {block.graphnode}",  # type: ignore
             )
 
-    def add_contacts(self):
+    def _add_contacts(self):
         parent: Group = self.groups["contacts"]
 
         for contact in self.model.contacts():
@@ -199,7 +218,7 @@ class DEMViewer(Viewer):
     # Graph
     # =============================================================================
 
-    def add_graph(self):
+    def _add_graph(self):
         parent: Group = self.groups["interactions"]
 
         node_point = {node: self.model.graph.node_element(node).point for node in self.model.graph.nodes()}  # type: ignore
@@ -320,6 +339,7 @@ class DEMViewer(Viewer):
                     if ec.resultantline() is None:
                         continue
 
+                    resultant = ec.resultantline()
                     from_support = cg.Vector.from_start_end(support_point, resultant.midpoint)
 
                     if resultant.vector.dot(from_support) < 0:

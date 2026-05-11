@@ -12,8 +12,6 @@ class BoundaryConditions(Data):
 
     Parameters
     ----------
-    gravity : bool, optional
-        Apply self-weight to all blocks using material density. Default False.
     g : float, optional
         Gravitational acceleration in [m/s²]. Default 9.81.
     name : str, optional
@@ -21,13 +19,13 @@ class BoundaryConditions(Data):
 
     Examples
     --------
-    >>> bc = BoundaryConditions(gravity=True)
+    >>> bc = BoundaryConditions(g=9.81)
     >>> bc.add_point_load(block_index=10, force=[0, 0, -5000])
     >>> bc.add_support(block_index=0)
     >>> bc.add_support(block_index=99)
     """
 
-    def __init__(self, gravity: bool = False, g: float = 9.81, name: Optional[str] = None, **kwargs) -> None:
+    def __init__(self, g: float = 9.81, name: Optional[str] = None, **kwargs) -> None:
         self._body_forces: list[list[float]] = []
         self._point_loads: list[dict] = []
         self._surface_loads: list[dict] = []
@@ -35,14 +33,12 @@ class BoundaryConditions(Data):
 
         super().__init__(name=name)
 
-        self.gravity = gravity
         self.g = g
 
     @property
     def __data__(self) -> dict:
         return {
             "name": self.name,
-            "gravity": self.gravity,
             "g": self.g,
             "body_forces": self._body_forces,
             "point_loads": self._point_loads,
@@ -53,7 +49,6 @@ class BoundaryConditions(Data):
     @classmethod
     def __from_data__(cls, data: dict) -> "BoundaryConditions":
         obj = cls(
-            gravity=data["gravity"],
             g=data["g"],
             name=data.get("name"),
         )
@@ -74,7 +69,6 @@ class BoundaryConditions(Data):
         g : float, optional
             Gravitational acceleration in [m/s²]. Default 9.81.
         """
-        self.gravity = True
         self.g = g
 
     def add_global_body_force(self, ax: float, ay: float, az: float) -> None:

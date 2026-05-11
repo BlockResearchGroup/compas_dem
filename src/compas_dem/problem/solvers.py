@@ -1,3 +1,5 @@
+from typing import Optional
+
 from compas.data import Data
 
 
@@ -25,29 +27,30 @@ class Solver(Data):
     @classmethod
     def LMGC90(
         cls,
-        duration: float = None,
-        n_steps: int = None,
-        dt: float = None,
+        duration: Optional[float] = None,
+        n_steps: Optional[int] = None,
+        dt: Optional[float] = None,
         theta: float = 0.5,
-        urf_threshold: float = None,
-        track_block: int = None,
+        urf_threshold: Optional[float] = None,
+        track_block: Optional[int] = None,
         contact_law: str = "IQS_CLB",
     ):
         """
         LMGC90 solver configuration.
+
         Parameters
         ----------
-        duration : float
+        duration : float, Optional
             Total duration of the simulation in seconds.
-        n_steps : int
+        n_steps : int, Optional
             Number of time steps to simulate.
-        dt : float
+        dt : float, Optional
             Time step size. If None, it will be computed automatically based on the model properties.
         theta : float
             Time integration parameter (0.5 for mid-point rule, 1.0 for backward Euler).
-        urf_threshold : float
+        urf_threshold : float, Optional
             Unbalanced force threshold for convergence. If None, it will be set to a default value based on the model.
-        track_block : int
+        track_block : int, Optional
             Optional block index to track and print its displacement/rotation during the simulation.
         contact_law : str
             Contact law to use in LMGC90. Default is "IQS_CLB" (a common choice for DEM simulations).
@@ -75,6 +78,7 @@ class Solver(Data):
     ):
         """
         CRA solver configuration.
+
         Parameters
         ----------
         d_bnd : float
@@ -104,6 +108,7 @@ class Solver(Data):
         timer: bool = False,
     ):
         """RBE solver configuration.
+
         Parameters
         ----------
         verbose : bool
