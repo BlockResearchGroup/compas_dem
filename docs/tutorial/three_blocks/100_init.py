@@ -1,8 +1,10 @@
 import os
 
+from compas_viewer.viewer import Viewer
+
 import compas
 import compas.geometry as cg
-from build.lib.compas_dem.viewer.viewer import DEMViewer
+from compas.colors import Color
 from compas_dem.material import Stone
 from compas_dem.models import BlockModel
 
@@ -49,9 +51,6 @@ model.assign_material(limestone, elements=list(model.elements()))
 # =============================================================================
 # Json Dump
 # =============================================================================
-from compas_dem.viewer import DEMViewer
-from compas_viewer.viewer import Viewer
-from compas.colors import Color
 
 viewer = Viewer(grid=False)
 blocks = list(model.elements())
