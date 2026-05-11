@@ -428,7 +428,6 @@ class Problem(Data):
             If the solver name is not recognised.
         """
         self.check_model_validity()
-
         if solver.name == "LMGC90":
             from compas_dem.analysis.lmgc90 import lmgc90_solve
 

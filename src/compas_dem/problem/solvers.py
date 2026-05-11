@@ -99,7 +99,7 @@ class Solver(Data):
             "verbose": verbose,
             "timer": timer,
         }
-        return None
+        return self
 
     @classmethod
     def RBE(
