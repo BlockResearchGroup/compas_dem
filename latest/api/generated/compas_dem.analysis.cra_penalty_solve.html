@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 
 
@@ -7,7 +6,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="../../_static/compas.ico" type="image/x-icon">
     <title>cra_penalty_solve &#8212; COMPAS Discrete Element Models</title>
   
@@ -29,29 +28,31 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/compas.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/compas.css?v=617b33e2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=4c969af8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=bb99e320"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/tabs.js?v=3ee01567"></script>
     <script>let toggleHintShow = 'Click to show';</script>
     <script>let toggleHintHide = 'Click to hide';</script>
     <script>let toggleOpenOnPrint = 'true';</script>
-    <script src="../../_static/togglebutton.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/togglebutton.js?v=b8b12719"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/compas_dem.analysis.cra_penalty_solve';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/blockresearchgroup/compas_dem/gh-pages/versions.json';
@@ -60,7 +61,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="rbe_solve" href="compas_dem.analysis.rbe_solve.html" />
-    <link rel="prev" title="analysis" href="../compas_dem.analysis.html" />
+    <link rel="prev" title="lmgc90_solve" href="compas_dem.analysis.lmgc90_solve.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -465,19 +466,73 @@ document.write(`
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_stack.html">DEM of a Stack of Blocks</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorial.html">Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../tutorial/dem_datastructure.html">DEM Datastructure</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/dem_datastructure/dem_datastructure_overview.html">DEM Data Structure: Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/dem_datastructure/dem_datastructure_raw_data_extraction.html">DEM Data Structure: Raw Data Extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/dem_datastructure/dem_datastructure_results.html">DEM Data Structure: Results</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.html">compas_dem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3 current active"><a class="reference internal" href="../compas_dem.analysis.html">analysis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.elements.html">elements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.interactions.html">interactions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.models.html">models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.notebook.html">notebook</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_dem.templates.html">templates</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../tutorial/three_blocks.html">Three Blocks</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/three_blocks/01_model.html">Geometry and Block Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/three_blocks/02_problem.html">Problem Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/three_blocks/03_analysis.html">Analysis and Visualisation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_arch.html">DEM of an Arch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_armadillo.html">DEM of an Armadillo Vault</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_dome.html">DEM of a Dome</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_stack.html">DEM of a Stack of Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_vault_barrel.html">DEM of a Barrel Vault</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_vault_cross.html">DEM of a Cross Vault</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/dem_wall.html">DEM of a Wall</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.elements.html">compas_dem.elements</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.elements.Block.html">Block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.elements.BlockFeature.html">BlockFeature</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.interactions.html">compas_dem.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.interactions.FrictionContact.html">FrictionContact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.interactions.EdgeContact.html">EdgeContact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.interactions.VertexContact.html">VertexContact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.interactions.ContactModel.html">ContactModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.interactions.MohrCoulomb.html">MohrCoulomb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.interactions.ContactProperties.html">ContactProperties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.interactions.JointModel.html">JointModel</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.models.html">compas_dem.models</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.models.BlockModel.html">BlockModel</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.material.Stone.html">Stone</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.templates.html">compas_dem.templates</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.templates.Template.html">Template</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.templates.ArchTemplate.html">ArchTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.templates.BarrelVaultTemplate.html">BarrelVaultTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.templates.DomeTemplate.html">DomeTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.templates.WallTemplate.html">WallTemplate</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.problem.html">compas_dem.problem</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Problem.html">Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Solver.html">Solver</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.analysis.html">compas_dem.analysis</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.lmgc90_solve.html">lmgc90_solve</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
 </ul>
@@ -518,8 +573,6 @@ document.write(`
 
 
 
-
-
 <nav aria-label="Breadcrumbs">
   <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
     
@@ -532,10 +585,7 @@ document.write(`
     <li class="breadcrumb-item"><a href="../../api.html" class="nav-link">API Reference</a></li>
     
     
-    <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../compas_dem.analysis.html" class="nav-link">analysis</a></li>
+    <li class="breadcrumb-item"><a href="../compas_dem.analysis.html" class="nav-link">compas_dem.analysis</a></li>
     
     <li class="breadcrumb-item active" aria-current="page">cra_penalty_solve</li>
   </ul>
@@ -558,9 +608,55 @@ document.write(`
 <h1>cra_penalty_solve</h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="compas_dem.analysis.cra_penalty_solve">
-<span class="sig-prename descclassname"><span class="pre">compas_dem.analysis.</span></span><span class="sig-name descname"><span class="pre">cra_penalty_solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_bnd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
+<span class="sig-prename descclassname"><span class="pre">compas_dem.analysis.</span></span><span class="sig-name descname"><span class="pre">cra_penalty_solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assembly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_bnd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>CRA solver with penalty formulation using Pyomo + IPOPT.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>assembly</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Assembly</span></code></span></dt><dd><p>The rigid block assembly.</p>
+</dd>
+<dt><strong>mu</strong><span class="classifier">float, optional</span></dt><dd><p>Friction coefficient value.</p>
+</dd>
+<dt><strong>density</strong><span class="classifier">float, optional</span></dt><dd><p>Density of the block material.</p>
+</dd>
+<dt><strong>d_bnd</strong><span class="classifier">float, optional</span></dt><dd><p>The bound of virtual displacement d.</p>
+</dd>
+<dt><strong>eps</strong><span class="classifier">float, optional</span></dt><dd><p>Epsilon, contact overlapping parameter.</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">bool, optional</span></dt><dd><p>Print information during the execution of the algorithm.</p>
+</dd>
+<dt><strong>timer</strong><span class="classifier">bool, optional</span></dt><dd><p>Time the solving time.</p>
+</dd>
 </dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Assembly</span></code></dt><dd><p>The assembly is updated in place, also return Assembly for compas.rpc and compas.cloud</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function solves the following optimisation problem,
+<a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0010448522000161?via%3Dihub#fd14">Eq.(14)</a> :</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+    \begin{split}
+        \min_{{\bf{\tilde{f}}},\, \delta{\bf{q}},\, \pmb\alpha} \quad &amp; \left\| {\bf{f}}_n^{+} \right\|_2^2 +
+        \gamma \left\| {\bf{f}}_n^{-} \right\|_2^2 + \left\| \pmb\alpha \right\|_2^2 \\
+        \textrm{s.t.} \quad &amp; {{\bf{A}}_{eq}}\:{\bf{B}}\:{\bf{\tilde{f}}} = -{\bf{p}} \\
+        &amp; {\bf{A}}_{fr}\:{\bf{B}}\:{\bf{\tilde{f}}} \le {\bf{0}} \\
+        &amp; {\bf{A}}_{eq}^\intercal\:{\delta\bf{q}} = \delta{\bf{d}} \\
+        &amp; {f_{jkn}^{i+}}\:({\delta d_{jkn}^i} + \varepsilon) = 0 \\
+        &amp; {f_{jkn}^{i+}} \: {f_{jkn}^{i-}} = 0 \\
+        &amp; {\bf{f}}_{jkt}^{i} = -{\alpha_{jk}^i} \: \delta{\bf{d}}_{jkt}^{i} \\
+        &amp; \left\lvert\, \delta {\bf{d}}_{jk\cdot}^{i} \,\right\lvert \le \eta \\
+        &amp; \gamma \, , \varepsilon \, , \eta  \ge 0 \\
+        &amp; f_{jkn}^{i+}\, ,f_{jkn}^{i-} \, , {\alpha_{jk}^i} \, , ({\delta d_{jkn}^i} + \varepsilon) \ge 0 \;, \quad \forall i,j,k \;,
+    \end{split}
+\end{align}\end{split}\]</div>
+<p>For more information please check our research paper:
+<a class="reference external" href="https://doi.org/10.1016/j.cad.2022.103216">Coupled Rigid-Block Analysis: Stability-Aware Design of Complex Discrete-Element Assemblies</a></p>
 </dd></dl>
 
 </section>
@@ -622,7 +718,7 @@ document.write(`
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

@@ -459,12 +459,21 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="index.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tutorial.html">Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/dem_datastructure_overview.html">DEM Data Structure: Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/dem_datastructure_raw_data_extraction.html">DEM Data Structure: Raw Data Extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/dem_datastructure_results.html">DEM Data Structure: Results</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="tutorial/dem_datastructure.html">DEM Datastructure</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/dem_datastructure/dem_datastructure_overview.html">DEM Data Structure: Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/dem_datastructure/dem_datastructure_raw_data_extraction.html">DEM Data Structure: Raw Data Extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/dem_datastructure/dem_datastructure_results.html">DEM Data Structure: Results</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="tutorial/three_blocks.html">Three Blocks</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/three_blocks/01_model.html">Geometry and Block Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/three_blocks/02_problem.html">Problem Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/three_blocks/03_analysis.html">Analysis and Visualisation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/dem_arch.html">DEM of an Arch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/dem_armadillo.html">DEM of an Armadillo Vault</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/dem_dome.html">DEM of a Dome</a></li>
@@ -474,12 +483,48 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="examples/dem_wall.html">DEM of a Wall</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.html">compas_dem</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.elements.html">elements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.interactions.html">interactions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.models.html">models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.templates.html">templates</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.elements.html">compas_dem.elements</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.elements.Block.html">Block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.elements.BlockFeature.html">BlockFeature</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.interactions.html">compas_dem.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.FrictionContact.html">FrictionContact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.EdgeContact.html">EdgeContact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.VertexContact.html">VertexContact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.ContactModel.html">ContactModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.MohrCoulomb.html">MohrCoulomb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.ContactProperties.html">ContactProperties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.JointModel.html">JointModel</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.models.html">compas_dem.models</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.models.BlockModel.html">BlockModel</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.material.Stone.html">Stone</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.templates.html">compas_dem.templates</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.templates.Template.html">Template</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.templates.ArchTemplate.html">ArchTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.templates.BarrelVaultTemplate.html">BarrelVaultTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.templates.DomeTemplate.html">DomeTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.templates.WallTemplate.html">WallTemplate</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.problem.html">compas_dem.problem</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.problem.Problem.html">Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.problem.Solver.html">Solver</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.analysis.html">compas_dem.analysis</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.analysis.lmgc90_solve.html">lmgc90_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.analysis.cra_penalty_solve.html">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
 </ul>
@@ -531,28 +576,55 @@ document.write(`
  | <a href="#F"><strong>F</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.problem.Problem.add_bc.html#compas_dem.problem.Problem.add_bc">add_bc() (compas_dem.problem.Problem method)</a>
+</li>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_block_from_mesh.html#compas_dem.models.BlockModel.add_block_from_mesh">add_block_from_mesh() (compas_dem.models.BlockModel method)</a>
 </li>
+      <li><a href="api/generated/compas_dem.problem.Problem.add_contact_model.html#compas_dem.problem.Problem.add_contact_model">add_contact_model() (compas_dem.problem.Problem method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.problem.BoundaryConditions.add_displacement.html#compas_dem.problem.BoundaryConditions.add_displacement">add_displacement() (compas_dem.problem.BoundaryConditions method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.problem.Problem.add_displacement.html#compas_dem.problem.Problem.add_displacement">(compas_dem.problem.Problem method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_element.html#compas_dem.models.BlockModel.add_element">add_element() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_elements.html#compas_dem.models.BlockModel.add_elements">add_elements() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.elements.Block.add_feature.html#compas_dem.elements.Block.add_feature">add_feature() (compas_dem.elements.Block method)</a>
 </li>
+      <li><a href="api/generated/compas_dem.problem.BoundaryConditions.add_global_body_force.html#compas_dem.problem.BoundaryConditions.add_global_body_force">add_global_body_force() (compas_dem.problem.BoundaryConditions method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.problem.Problem.add_global_body_force.html#compas_dem.problem.Problem.add_global_body_force">(compas_dem.problem.Problem method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.problem.BoundaryConditions.add_gravity.html#compas_dem.problem.BoundaryConditions.add_gravity">add_gravity() (compas_dem.problem.BoundaryConditions method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.problem.Problem.add_gravity.html#compas_dem.problem.Problem.add_gravity">(compas_dem.problem.Problem method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_group.html#compas_dem.models.BlockModel.add_group">add_group() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_interaction.html#compas_dem.models.BlockModel.add_interaction">add_interaction() (compas_dem.models.BlockModel method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.problem.Problem.add_joint_model.html#compas_dem.problem.Problem.add_joint_model">add_joint_model() (compas_dem.problem.Problem method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_material.html#compas_dem.models.BlockModel.add_material">add_material() (compas_dem.models.BlockModel method)</a>
 </li>
@@ -562,8 +634,36 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_or_get_material.html#compas_dem.models.BlockModel.add_or_get_material">add_or_get_material() (compas_dem.models.BlockModel method)</a>
 </li>
+      <li><a href="api/generated/compas_dem.problem.BoundaryConditions.add_point_load.html#compas_dem.problem.BoundaryConditions.add_point_load">add_point_load() (compas_dem.problem.BoundaryConditions method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.problem.Problem.add_point_load.html#compas_dem.problem.Problem.add_point_load">(compas_dem.problem.Problem method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.problem.BoundaryConditions.add_rotation.html#compas_dem.problem.BoundaryConditions.add_rotation">add_rotation() (compas_dem.problem.BoundaryConditions method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.problem.Problem.add_rotation.html#compas_dem.problem.Problem.add_rotation">(compas_dem.problem.Problem method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_dem.problem.BoundaryConditions.add_support.html#compas_dem.problem.BoundaryConditions.add_support">add_support() (compas_dem.problem.BoundaryConditions method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.problem.Problem.add_support.html#compas_dem.problem.Problem.add_support">(compas_dem.problem.Problem method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/compas_dem.models.BlockModel.add_support_from_mesh.html#compas_dem.models.BlockModel.add_support_from_mesh">add_support_from_mesh() (compas_dem.models.BlockModel method)</a>
 </li>
+      <li><a href="api/generated/compas_dem.problem.Problem.add_supports.html#compas_dem.problem.Problem.add_supports">add_supports() (compas_dem.problem.Problem method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.problem.Problem.add_supports_from_model.html#compas_dem.problem.Problem.add_supports_from_model">add_supports_from_model() (compas_dem.problem.Problem method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.problem.BoundaryConditions.add_surface_load.html#compas_dem.problem.BoundaryConditions.add_surface_load">add_surface_load() (compas_dem.problem.BoundaryConditions method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.problem.Problem.add_surface_load.html#compas_dem.problem.Problem.add_surface_load">(compas_dem.problem.Problem method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/compas_dem.elements.BlockFeature.apply.html#compas_dem.elements.BlockFeature.apply">apply() (compas_dem.elements.BlockFeature method)</a>
 </li>
       <li><a href="api/generated/compas_dem.elements.Block.apply_features.html#compas_dem.elements.Block.apply_features">apply_features() (compas_dem.elements.Block method)</a>
@@ -586,8 +686,6 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.html#compas_dem.models.BlockModel">BlockModel (class in compas_dem.models)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_dem.models.BlockModel.blocks.html#compas_dem.models.BlockModel.blocks">blocks() (compas_dem.models.BlockModel method)</a>
 
       <ul>
@@ -597,13 +695,23 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_dem.templates.DomeTemplate.blocks.html#compas_dem.templates.DomeTemplate.blocks">(compas_dem.templates.DomeTemplate method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.templates.Template.blocks.html#compas_dem.templates.Template.blocks">(compas_dem.templates.Template method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.templates.WallTemplate.blocks.html#compas_dem.templates.WallTemplate.blocks">(compas_dem.templates.WallTemplate method)</a>
+</li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.problem.BoundaryConditions.html#compas_dem.problem.BoundaryConditions">BoundaryConditions (class in compas_dem.problem)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.problem.Problem.check_model_validity.html#compas_dem.problem.Problem.check_model_validity">check_model_validity() (compas_dem.problem.Problem method)</a>
+</li>
       <li><a href="api/generated/compas_dem.elements.Block.compute_aabb.html#compas_dem.elements.Block.compute_aabb">compute_aabb() (compas_dem.elements.Block method)</a>
 
       <ul>
@@ -628,8 +736,6 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_dem.elements.Block.compute_modeltransformation.html#compas_dem.elements.Block.compute_modeltransformation">compute_modeltransformation() (compas_dem.elements.Block method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_dem.elements.Block.compute_obb.html#compas_dem.elements.Block.compute_obb">compute_obb() (compas_dem.elements.Block method)</a>
 
       <ul>
@@ -642,6 +748,12 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_dem.elements.Block.compute_volumetric_mesh.html#compas_dem.elements.Block.compute_volumetric_mesh">compute_volumetric_mesh() (compas_dem.elements.Block method)</a>
 </li>
+      <li><a href="api/generated/compas_dem.interactions.ContactModel.html#compas_dem.interactions.ContactModel">ContactModel (class in compas_dem.interactions)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.interactions.ContactProperties.html#compas_dem.interactions.ContactProperties">ContactProperties (class in compas_dem.interactions)</a>
+</li>
       <li><a href="api/generated/compas_dem.models.BlockModel.contacts.html#compas_dem.models.BlockModel.contacts">contacts() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.elements.Block.copy.html#compas_dem.elements.Block.copy">copy() (compas_dem.elements.Block method)</a>
@@ -649,11 +761,35 @@ document.write(`
       <ul>
         <li><a href="api/generated/compas_dem.elements.BlockFeature.copy.html#compas_dem.elements.BlockFeature.copy">(compas_dem.elements.BlockFeature method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.ContactModel.copy.html#compas_dem.interactions.ContactModel.copy">(compas_dem.interactions.ContactModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.ContactProperties.copy.html#compas_dem.interactions.ContactProperties.copy">(compas_dem.interactions.ContactProperties method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.EdgeContact.copy.html#compas_dem.interactions.EdgeContact.copy">(compas_dem.interactions.EdgeContact method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.copy.html#compas_dem.interactions.FrictionContact.copy">(compas_dem.interactions.FrictionContact method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.JointModel.copy.html#compas_dem.interactions.JointModel.copy">(compas_dem.interactions.JointModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.MohrCoulomb.copy.html#compas_dem.interactions.MohrCoulomb.copy">(compas_dem.interactions.MohrCoulomb method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.VertexContact.copy.html#compas_dem.interactions.VertexContact.copy">(compas_dem.interactions.VertexContact method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.material.Stone.copy.html#compas_dem.material.Stone.copy">(compas_dem.material.Stone method)</a>
 </li>
         <li><a href="api/generated/compas_dem.models.BlockModel.copy.html#compas_dem.models.BlockModel.copy">(compas_dem.models.BlockModel method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.problem.BoundaryConditions.copy.html#compas_dem.problem.BoundaryConditions.copy">(compas_dem.problem.BoundaryConditions method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Problem.copy.html#compas_dem.problem.Problem.copy">(compas_dem.problem.Problem method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Solver.copy.html#compas_dem.problem.Solver.copy">(compas_dem.problem.Solver method)</a>
+</li>
       </ul></li>
+      <li><a href="api/generated/compas_dem.problem.Solver.CRA.html#compas_dem.problem.Solver.CRA">CRA() (compas_dem.problem.Solver class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.analysis.cra_penalty_solve.html#compas_dem.analysis.cra_penalty_solve">cra_penalty_solve() (in module compas_dem.analysis)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -668,10 +804,12 @@ document.write(`
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.models.BlockModel.element_nnbrs.html#compas_dem.models.BlockModel.element_nnbrs">element_nnbrs() (compas_dem.models.BlockModel method)</a>
+      <li><a href="api/generated/compas_dem.interactions.EdgeContact.html#compas_dem.interactions.EdgeContact">EdgeContact (class in compas_dem.interactions)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.models.BlockModel.element_nnbrs.html#compas_dem.models.BlockModel.element_nnbrs">element_nnbrs() (compas_dem.models.BlockModel method)</a>
+</li>
       <li><a href="api/generated/compas_dem.models.BlockModel.elements.html#compas_dem.models.BlockModel.elements">elements() (compas_dem.models.BlockModel method)</a>
 </li>
   </ul></td>
@@ -698,6 +836,8 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.from_crossvault.html#compas_dem.models.BlockModel.from_crossvault">from_crossvault() (compas_dem.models.BlockModel class method)</a>
 </li>
+      <li><a href="api/generated/compas_dem.interactions.EdgeContact.from_face_and_transformations.html#compas_dem.interactions.EdgeContact.from_face_and_transformations">from_face_and_transformations() (compas_dem.interactions.EdgeContact class method)</a>
+</li>
       <li><a href="api/generated/compas_dem.models.BlockModel.from_fanvault.html#compas_dem.models.BlockModel.from_fanvault">from_fanvault() (compas_dem.models.BlockModel class method)</a>
 </li>
       <li><a href="api/generated/compas_dem.elements.Block.from_json.html#compas_dem.elements.Block.from_json">from_json() (compas_dem.elements.Block class method)</a>
@@ -705,9 +845,29 @@ document.write(`
       <ul>
         <li><a href="api/generated/compas_dem.elements.BlockFeature.from_json.html#compas_dem.elements.BlockFeature.from_json">(compas_dem.elements.BlockFeature class method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.ContactModel.from_json.html#compas_dem.interactions.ContactModel.from_json">(compas_dem.interactions.ContactModel class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.ContactProperties.from_json.html#compas_dem.interactions.ContactProperties.from_json">(compas_dem.interactions.ContactProperties class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.EdgeContact.from_json.html#compas_dem.interactions.EdgeContact.from_json">(compas_dem.interactions.EdgeContact class method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.from_json.html#compas_dem.interactions.FrictionContact.from_json">(compas_dem.interactions.FrictionContact class method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.JointModel.from_json.html#compas_dem.interactions.JointModel.from_json">(compas_dem.interactions.JointModel class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.MohrCoulomb.from_json.html#compas_dem.interactions.MohrCoulomb.from_json">(compas_dem.interactions.MohrCoulomb class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.VertexContact.from_json.html#compas_dem.interactions.VertexContact.from_json">(compas_dem.interactions.VertexContact class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.material.Stone.from_json.html#compas_dem.material.Stone.from_json">(compas_dem.material.Stone class method)</a>
+</li>
         <li><a href="api/generated/compas_dem.models.BlockModel.from_json.html#compas_dem.models.BlockModel.from_json">(compas_dem.models.BlockModel class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.BoundaryConditions.from_json.html#compas_dem.problem.BoundaryConditions.from_json">(compas_dem.problem.BoundaryConditions class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Problem.from_json.html#compas_dem.problem.Problem.from_json">(compas_dem.problem.Problem class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Solver.from_json.html#compas_dem.problem.Solver.from_json">(compas_dem.problem.Solver class method)</a>
 </li>
       </ul></li>
       <li><a href="api/generated/compas_dem.elements.Block.from_jsonstring.html#compas_dem.elements.Block.from_jsonstring">from_jsonstring() (compas_dem.elements.Block class method)</a>
@@ -715,9 +875,29 @@ document.write(`
       <ul>
         <li><a href="api/generated/compas_dem.elements.BlockFeature.from_jsonstring.html#compas_dem.elements.BlockFeature.from_jsonstring">(compas_dem.elements.BlockFeature class method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.ContactModel.from_jsonstring.html#compas_dem.interactions.ContactModel.from_jsonstring">(compas_dem.interactions.ContactModel class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.ContactProperties.from_jsonstring.html#compas_dem.interactions.ContactProperties.from_jsonstring">(compas_dem.interactions.ContactProperties class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.EdgeContact.from_jsonstring.html#compas_dem.interactions.EdgeContact.from_jsonstring">(compas_dem.interactions.EdgeContact class method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.from_jsonstring.html#compas_dem.interactions.FrictionContact.from_jsonstring">(compas_dem.interactions.FrictionContact class method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.JointModel.from_jsonstring.html#compas_dem.interactions.JointModel.from_jsonstring">(compas_dem.interactions.JointModel class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.MohrCoulomb.from_jsonstring.html#compas_dem.interactions.MohrCoulomb.from_jsonstring">(compas_dem.interactions.MohrCoulomb class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.VertexContact.from_jsonstring.html#compas_dem.interactions.VertexContact.from_jsonstring">(compas_dem.interactions.VertexContact class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.material.Stone.from_jsonstring.html#compas_dem.material.Stone.from_jsonstring">(compas_dem.material.Stone class method)</a>
+</li>
         <li><a href="api/generated/compas_dem.models.BlockModel.from_jsonstring.html#compas_dem.models.BlockModel.from_jsonstring">(compas_dem.models.BlockModel class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.BoundaryConditions.from_jsonstring.html#compas_dem.problem.BoundaryConditions.from_jsonstring">(compas_dem.problem.BoundaryConditions class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Problem.from_jsonstring.html#compas_dem.problem.Problem.from_jsonstring">(compas_dem.problem.Problem class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Solver.from_jsonstring.html#compas_dem.problem.Solver.from_jsonstring">(compas_dem.problem.Solver class method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -735,6 +915,8 @@ document.write(`
       <li><a href="api/generated/compas_dem.models.BlockModel.from_polyhedrons.html#compas_dem.models.BlockModel.from_polyhedrons">from_polyhedrons() (compas_dem.models.BlockModel class method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.from_polysurfaces.html#compas_dem.models.BlockModel.from_polysurfaces">from_polysurfaces() (compas_dem.models.BlockModel class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.material.Stone.from_predefined_material.html#compas_dem.material.Stone.from_predefined_material">from_predefined_material() (compas_dem.material.Stone class method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.from_rhinomeshes.html#compas_dem.models.BlockModel.from_rhinomeshes">from_rhinomeshes() (compas_dem.models.BlockModel class method)</a>
 </li>
@@ -768,6 +950,8 @@ document.write(`
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.problem.Problem.inspect_model.html#compas_dem.problem.Problem.inspect_model">inspect_model() (compas_dem.problem.Problem method)</a>
+</li>
       <li><a href="api/generated/compas_dem.templates.ArchTemplate.interfaces.html#compas_dem.templates.ArchTemplate.interfaces">interfaces() (compas_dem.templates.ArchTemplate method)</a>
 
       <ul>
@@ -775,7 +959,31 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_dem.templates.DomeTemplate.interfaces.html#compas_dem.templates.DomeTemplate.interfaces">(compas_dem.templates.DomeTemplate method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.templates.Template.interfaces.html#compas_dem.templates.Template.interfaces">(compas_dem.templates.Template method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.templates.WallTemplate.interfaces.html#compas_dem.templates.WallTemplate.interfaces">(compas_dem.templates.WallTemplate method)</a>
+</li>
       </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.interactions.JointModel.html#compas_dem.interactions.JointModel">JointModel (class in compas_dem.interactions)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.problem.Solver.LMGC90.html#compas_dem.problem.Solver.LMGC90">LMGC90() (compas_dem.problem.Solver class method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.analysis.lmgc90_solve.html#compas_dem.analysis.lmgc90_solve">lmgc90_solve() (in module compas_dem.analysis)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -783,6 +991,10 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_dem.models.BlockModel.materials.html#compas_dem.models.BlockModel.materials">materials() (compas_dem.models.BlockModel method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.interactions.MohrCoulomb.html#compas_dem.interactions.MohrCoulomb">MohrCoulomb (class in compas_dem.interactions)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -793,21 +1005,33 @@ document.write(`
       <li><a href="api/generated/compas_dem.models.BlockModel.point_nnbrs.html#compas_dem.models.BlockModel.point_nnbrs">point_nnbrs() (compas_dem.models.BlockModel method)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.problem.Problem.html#compas_dem.problem.Problem">Problem (class in compas_dem.problem)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.problem.Solver.RBE.html#compas_dem.problem.Solver.RBE">RBE() (compas_dem.problem.Solver class method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.analysis.rbe_solve.html#compas_dem.analysis.rbe_solve">rbe_solve() (in module compas_dem.analysis)</a>
+</li>
       <li><a href="api/generated/compas_dem.models.BlockModel.remove_element.html#compas_dem.models.BlockModel.remove_element">remove_element() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.remove_elements_of_type.html#compas_dem.models.BlockModel.remove_elements_of_type">remove_elements_of_type() (compas_dem.models.BlockModel method)</a>
 </li>
-      <li><a href="api/generated/compas_dem.models.BlockModel.remove_interaction.html#compas_dem.models.BlockModel.remove_interaction">remove_interaction() (compas_dem.models.BlockModel method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_dem.interactions.FrictionContact.resultantline.html#compas_dem.interactions.FrictionContact.resultantline">resultantline() (compas_dem.interactions.FrictionContact method)</a>
+      <li><a href="api/generated/compas_dem.models.BlockModel.remove_interaction.html#compas_dem.models.BlockModel.remove_interaction">remove_interaction() (compas_dem.models.BlockModel method)</a>
 </li>
+      <li><a href="api/generated/compas_dem.interactions.EdgeContact.resultantline.html#compas_dem.interactions.EdgeContact.resultantline">resultantline() (compas_dem.interactions.EdgeContact method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_dem.interactions.FrictionContact.resultantline.html#compas_dem.interactions.FrictionContact.resultantline">(compas_dem.interactions.FrictionContact method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/compas_dem.models.BlockModel.rotate.html#compas_dem.models.BlockModel.rotate">rotate() (compas_dem.models.BlockModel method)</a>
 </li>
       <li><a href="api/generated/compas_dem.models.BlockModel.rotated.html#compas_dem.models.BlockModel.rotated">rotated() (compas_dem.models.BlockModel method)</a>
@@ -827,13 +1051,39 @@ document.write(`
       <ul>
         <li><a href="api/generated/compas_dem.elements.BlockFeature.sha256.html#compas_dem.elements.BlockFeature.sha256">(compas_dem.elements.BlockFeature method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.ContactModel.sha256.html#compas_dem.interactions.ContactModel.sha256">(compas_dem.interactions.ContactModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.ContactProperties.sha256.html#compas_dem.interactions.ContactProperties.sha256">(compas_dem.interactions.ContactProperties method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.EdgeContact.sha256.html#compas_dem.interactions.EdgeContact.sha256">(compas_dem.interactions.EdgeContact method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.sha256.html#compas_dem.interactions.FrictionContact.sha256">(compas_dem.interactions.FrictionContact method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.JointModel.sha256.html#compas_dem.interactions.JointModel.sha256">(compas_dem.interactions.JointModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.MohrCoulomb.sha256.html#compas_dem.interactions.MohrCoulomb.sha256">(compas_dem.interactions.MohrCoulomb method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.VertexContact.sha256.html#compas_dem.interactions.VertexContact.sha256">(compas_dem.interactions.VertexContact method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.material.Stone.sha256.html#compas_dem.material.Stone.sha256">(compas_dem.material.Stone method)</a>
+</li>
         <li><a href="api/generated/compas_dem.models.BlockModel.sha256.html#compas_dem.models.BlockModel.sha256">(compas_dem.models.BlockModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.BoundaryConditions.sha256.html#compas_dem.problem.BoundaryConditions.sha256">(compas_dem.problem.BoundaryConditions method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Problem.sha256.html#compas_dem.problem.Problem.sha256">(compas_dem.problem.Problem method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Solver.sha256.html#compas_dem.problem.Solver.sha256">(compas_dem.problem.Solver method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.problem.Problem.solve.html#compas_dem.problem.Problem.solve">solve() (compas_dem.problem.Problem method)</a>
+</li>
+      <li><a href="api/generated/compas_dem.problem.Solver.html#compas_dem.problem.Solver">Solver (class in compas_dem.problem)</a>
+</li>
+      <li><a href="api/generated/compas_dem.material.Stone.html#compas_dem.material.Stone">Stone (class in compas_dem.material)</a>
+</li>
       <li><a href="api/generated/compas_dem.models.BlockModel.supports.html#compas_dem.models.BlockModel.supports">supports() (compas_dem.models.BlockModel method)</a>
 </li>
   </ul></td>
@@ -842,6 +1092,8 @@ document.write(`
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.templates.Template.html#compas_dem.templates.Template">Template (class in compas_dem.templates)</a>
+</li>
       <li><a href="api/generated/compas_dem.templates.ArchTemplate.to_blocks_and_interfaces.html#compas_dem.templates.ArchTemplate.to_blocks_and_interfaces">to_blocks_and_interfaces() (compas_dem.templates.ArchTemplate method)</a>
 
       <ul>
@@ -849,15 +1101,39 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_dem.templates.DomeTemplate.to_blocks_and_interfaces.html#compas_dem.templates.DomeTemplate.to_blocks_and_interfaces">(compas_dem.templates.DomeTemplate method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.templates.Template.to_blocks_and_interfaces.html#compas_dem.templates.Template.to_blocks_and_interfaces">(compas_dem.templates.Template method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.templates.WallTemplate.to_blocks_and_interfaces.html#compas_dem.templates.WallTemplate.to_blocks_and_interfaces">(compas_dem.templates.WallTemplate method)</a>
+</li>
       </ul></li>
       <li><a href="api/generated/compas_dem.elements.Block.to_json.html#compas_dem.elements.Block.to_json">to_json() (compas_dem.elements.Block method)</a>
 
       <ul>
         <li><a href="api/generated/compas_dem.elements.BlockFeature.to_json.html#compas_dem.elements.BlockFeature.to_json">(compas_dem.elements.BlockFeature method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.ContactModel.to_json.html#compas_dem.interactions.ContactModel.to_json">(compas_dem.interactions.ContactModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.ContactProperties.to_json.html#compas_dem.interactions.ContactProperties.to_json">(compas_dem.interactions.ContactProperties method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.EdgeContact.to_json.html#compas_dem.interactions.EdgeContact.to_json">(compas_dem.interactions.EdgeContact method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.to_json.html#compas_dem.interactions.FrictionContact.to_json">(compas_dem.interactions.FrictionContact method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.JointModel.to_json.html#compas_dem.interactions.JointModel.to_json">(compas_dem.interactions.JointModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.MohrCoulomb.to_json.html#compas_dem.interactions.MohrCoulomb.to_json">(compas_dem.interactions.MohrCoulomb method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.VertexContact.to_json.html#compas_dem.interactions.VertexContact.to_json">(compas_dem.interactions.VertexContact method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.material.Stone.to_json.html#compas_dem.material.Stone.to_json">(compas_dem.material.Stone method)</a>
+</li>
         <li><a href="api/generated/compas_dem.models.BlockModel.to_json.html#compas_dem.models.BlockModel.to_json">(compas_dem.models.BlockModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.BoundaryConditions.to_json.html#compas_dem.problem.BoundaryConditions.to_json">(compas_dem.problem.BoundaryConditions method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Problem.to_json.html#compas_dem.problem.Problem.to_json">(compas_dem.problem.Problem method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Solver.to_json.html#compas_dem.problem.Solver.to_json">(compas_dem.problem.Solver method)</a>
 </li>
       </ul></li>
       <li><a href="api/generated/compas_dem.elements.Block.to_jsonstring.html#compas_dem.elements.Block.to_jsonstring">to_jsonstring() (compas_dem.elements.Block method)</a>
@@ -865,9 +1141,29 @@ document.write(`
       <ul>
         <li><a href="api/generated/compas_dem.elements.BlockFeature.to_jsonstring.html#compas_dem.elements.BlockFeature.to_jsonstring">(compas_dem.elements.BlockFeature method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.ContactModel.to_jsonstring.html#compas_dem.interactions.ContactModel.to_jsonstring">(compas_dem.interactions.ContactModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.ContactProperties.to_jsonstring.html#compas_dem.interactions.ContactProperties.to_jsonstring">(compas_dem.interactions.ContactProperties method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.EdgeContact.to_jsonstring.html#compas_dem.interactions.EdgeContact.to_jsonstring">(compas_dem.interactions.EdgeContact method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.to_jsonstring.html#compas_dem.interactions.FrictionContact.to_jsonstring">(compas_dem.interactions.FrictionContact method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.JointModel.to_jsonstring.html#compas_dem.interactions.JointModel.to_jsonstring">(compas_dem.interactions.JointModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.MohrCoulomb.to_jsonstring.html#compas_dem.interactions.MohrCoulomb.to_jsonstring">(compas_dem.interactions.MohrCoulomb method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.VertexContact.to_jsonstring.html#compas_dem.interactions.VertexContact.to_jsonstring">(compas_dem.interactions.VertexContact method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.material.Stone.to_jsonstring.html#compas_dem.material.Stone.to_jsonstring">(compas_dem.material.Stone method)</a>
+</li>
         <li><a href="api/generated/compas_dem.models.BlockModel.to_jsonstring.html#compas_dem.models.BlockModel.to_jsonstring">(compas_dem.models.BlockModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.BoundaryConditions.to_jsonstring.html#compas_dem.problem.BoundaryConditions.to_jsonstring">(compas_dem.problem.BoundaryConditions method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Problem.to_jsonstring.html#compas_dem.problem.Problem.to_jsonstring">(compas_dem.problem.Problem method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Solver.to_jsonstring.html#compas_dem.problem.Solver.to_jsonstring">(compas_dem.problem.Solver method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -877,9 +1173,29 @@ document.write(`
       <ul>
         <li><a href="api/generated/compas_dem.elements.BlockFeature.ToString.html#compas_dem.elements.BlockFeature.ToString">(compas_dem.elements.BlockFeature method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.ContactModel.ToString.html#compas_dem.interactions.ContactModel.ToString">(compas_dem.interactions.ContactModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.ContactProperties.ToString.html#compas_dem.interactions.ContactProperties.ToString">(compas_dem.interactions.ContactProperties method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.EdgeContact.ToString.html#compas_dem.interactions.EdgeContact.ToString">(compas_dem.interactions.EdgeContact method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.ToString.html#compas_dem.interactions.FrictionContact.ToString">(compas_dem.interactions.FrictionContact method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.JointModel.ToString.html#compas_dem.interactions.JointModel.ToString">(compas_dem.interactions.JointModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.MohrCoulomb.ToString.html#compas_dem.interactions.MohrCoulomb.ToString">(compas_dem.interactions.MohrCoulomb method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.VertexContact.ToString.html#compas_dem.interactions.VertexContact.ToString">(compas_dem.interactions.VertexContact method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.material.Stone.ToString.html#compas_dem.material.Stone.ToString">(compas_dem.material.Stone method)</a>
+</li>
         <li><a href="api/generated/compas_dem.models.BlockModel.ToString.html#compas_dem.models.BlockModel.ToString">(compas_dem.models.BlockModel method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.BoundaryConditions.ToString.html#compas_dem.problem.BoundaryConditions.ToString">(compas_dem.problem.BoundaryConditions method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Problem.ToString.html#compas_dem.problem.Problem.ToString">(compas_dem.problem.Problem method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Solver.ToString.html#compas_dem.problem.Solver.ToString">(compas_dem.problem.Solver method)</a>
 </li>
       </ul></li>
       <li><a href="api/generated/compas_dem.elements.Block.transform.html#compas_dem.elements.Block.transform">transform() (compas_dem.elements.Block method)</a>
@@ -913,11 +1229,43 @@ document.write(`
       <ul>
         <li><a href="api/generated/compas_dem.elements.BlockFeature.validate_data.html#compas_dem.elements.BlockFeature.validate_data">(compas_dem.elements.BlockFeature class method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.interactions.ContactModel.validate_data.html#compas_dem.interactions.ContactModel.validate_data">(compas_dem.interactions.ContactModel class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.ContactProperties.validate_data.html#compas_dem.interactions.ContactProperties.validate_data">(compas_dem.interactions.ContactProperties class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.EdgeContact.validate_data.html#compas_dem.interactions.EdgeContact.validate_data">(compas_dem.interactions.EdgeContact class method)</a>
+</li>
         <li><a href="api/generated/compas_dem.interactions.FrictionContact.validate_data.html#compas_dem.interactions.FrictionContact.validate_data">(compas_dem.interactions.FrictionContact class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.JointModel.validate_data.html#compas_dem.interactions.JointModel.validate_data">(compas_dem.interactions.JointModel class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.MohrCoulomb.validate_data.html#compas_dem.interactions.MohrCoulomb.validate_data">(compas_dem.interactions.MohrCoulomb class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.interactions.VertexContact.validate_data.html#compas_dem.interactions.VertexContact.validate_data">(compas_dem.interactions.VertexContact class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.material.Stone.validate_data.html#compas_dem.material.Stone.validate_data">(compas_dem.material.Stone class method)</a>
 </li>
         <li><a href="api/generated/compas_dem.models.BlockModel.validate_data.html#compas_dem.models.BlockModel.validate_data">(compas_dem.models.BlockModel class method)</a>
 </li>
+        <li><a href="api/generated/compas_dem.problem.BoundaryConditions.validate_data.html#compas_dem.problem.BoundaryConditions.validate_data">(compas_dem.problem.BoundaryConditions class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Problem.validate_data.html#compas_dem.problem.Problem.validate_data">(compas_dem.problem.Problem class method)</a>
+</li>
+        <li><a href="api/generated/compas_dem.problem.Solver.validate_data.html#compas_dem.problem.Solver.validate_data">(compas_dem.problem.Solver class method)</a>
+</li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.interactions.VertexContact.html#compas_dem.interactions.VertexContact">VertexContact (class in compas_dem.interactions)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_dem.templates.WallTemplate.html#compas_dem.templates.WallTemplate">WallTemplate (class in compas_dem.templates)</a>
+</li>
   </ul></td>
 </tr></table>
 

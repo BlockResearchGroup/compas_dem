@@ -52,6 +52,7 @@
     <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/blockresearchgroup/compas_dem/gh-pages/versions.json';
@@ -59,7 +60,7 @@
         </script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="compas_dem" href="api/compas_dem.html" />
+    <link rel="next" title="compas_dem.elements" href="api/compas_dem.elements.html" />
     <link rel="prev" title="DEM of a Wall" href="examples/dem_wall.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -302,6 +303,10 @@ document.write(`
   
 
   
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
 </div>
 
     </nav>
@@ -462,12 +467,21 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="index.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tutorial.html">Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/dem_datastructure_overview.html">DEM Data Structure: Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/dem_datastructure_raw_data_extraction.html">DEM Data Structure: Raw Data Extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/dem_datastructure_results.html">DEM Data Structure: Results</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="tutorial/dem_datastructure.html">DEM Datastructure</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/dem_datastructure/dem_datastructure_overview.html">DEM Data Structure: Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/dem_datastructure/dem_datastructure_raw_data_extraction.html">DEM Data Structure: Raw Data Extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/dem_datastructure/dem_datastructure_results.html">DEM Data Structure: Results</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="tutorial/three_blocks.html">Three Blocks</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/three_blocks/01_model.html">Geometry and Block Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/three_blocks/02_problem.html">Problem Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/three_blocks/03_analysis.html">Analysis and Visualisation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/dem_arch.html">DEM of an Arch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/dem_armadillo.html">DEM of an Armadillo Vault</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/dem_dome.html">DEM of a Dome</a></li>
@@ -477,12 +491,48 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="examples/dem_wall.html">DEM of a Wall</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.html">compas_dem</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.elements.html">elements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.interactions.html">interactions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.models.html">models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/compas_dem.templates.html">templates</a></li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.elements.html">compas_dem.elements</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.elements.Block.html">Block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.elements.BlockFeature.html">BlockFeature</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.interactions.html">compas_dem.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.FrictionContact.html">FrictionContact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.EdgeContact.html">EdgeContact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.VertexContact.html">VertexContact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.ContactModel.html">ContactModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.MohrCoulomb.html">MohrCoulomb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.ContactProperties.html">ContactProperties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.interactions.JointModel.html">JointModel</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.models.html">compas_dem.models</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.models.BlockModel.html">BlockModel</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.material.Stone.html">Stone</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.templates.html">compas_dem.templates</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.templates.Template.html">Template</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.templates.ArchTemplate.html">ArchTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.templates.BarrelVaultTemplate.html">BarrelVaultTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.templates.DomeTemplate.html">DomeTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.templates.WallTemplate.html">WallTemplate</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.problem.html">compas_dem.problem</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.problem.Problem.html">Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.problem.Solver.html">Solver</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_dem.analysis.html">compas_dem.analysis</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.analysis.lmgc90_solve.html">lmgc90_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.analysis.cra_penalty_solve.html">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
 </ul>
@@ -550,11 +600,48 @@ document.write(`
                   
   <section id="api-reference">
 <h1>API Reference</h1>
+<p class="lead">The <code class="docutils literal notranslate"><span class="pre">compas_dem</span></code> package is organised into focused sub-packages, each
+covering one stage of a discrete element workflow — from defining block
+geometry, through assembling block models and contacts, to setting up
+problems, running solvers, and inspecting results.</p>
+<section id="packages">
+<h2>Packages</h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api/compas_dem.html">compas_dem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/compas_dem.elements.html">compas_dem.elements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/compas_dem.elements.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/compas_dem.interactions.html">compas_dem.interactions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/compas_dem.interactions.html#contact-classes">Contact Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/compas_dem.interactions.html#contact-models">Contact Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/compas_dem.interactions.html#properties-and-joints">Properties and Joints</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/compas_dem.models.html">compas_dem.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/compas_dem.models.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/compas_dem.material.html">compas_dem.material</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/compas_dem.material.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/compas_dem.templates.html">compas_dem.templates</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/compas_dem.templates.html#base">Base</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/compas_dem.templates.html#templates">Templates</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/compas_dem.problem.html">compas_dem.problem</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/compas_dem.problem.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/compas_dem.analysis.html">compas_dem.analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/compas_dem.analysis.html#functions">Functions</a></li>
+</ul>
+</li>
 </ul>
 </div>
+</section>
 </section>
 
 
@@ -569,6 +656,20 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#packages">Packages</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
