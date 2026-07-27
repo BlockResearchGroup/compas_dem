@@ -172,7 +172,14 @@ class BlockModel(Model):
         :class:`BlockModel`
 
         """
-        raise NotImplementedError
+        import rhinoscriptsyntax as rs
+        from compas_rhino.conversions.breps import brep_to_compas_mesh
+
+        model = cls()
+        for guid in guids:
+            mesh = brep_to_compas_mesh(rs.coercebrep(guid))
+            model.add_block_from_mesh(mesh)
+        return model
 
     @classmethod
     def from_rhinomeshes(cls, guids) -> "BlockModel":
@@ -188,6 +195,17 @@ class BlockModel(Model):
         :class:`BlockModel`
 
         """
+        # import rhinoscriptsyntax as rs
+        # from compas_rhino.conversions.breps import brep_to_compas_mesh
+
+        # model = cls()
+        # for guid in guids:
+        #     mesh = mesh_to_compas(rs.coercemesh(guid))
+        #     # mesh.unify_cycles()
+        #     # if mesh.volume() < 0:
+        #     #     mesh.flip_cycles()
+        #     model.add_element(Block.from_mesh(mesh))
+        # return model
         raise NotImplementedError
 
     # =============================================================================
@@ -208,6 +226,7 @@ class BlockModel(Model):
         :class:`BlockModel`
 
         """
+
         return cls.from_boxes(template.blocks())
 
     @classmethod

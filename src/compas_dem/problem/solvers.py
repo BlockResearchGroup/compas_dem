@@ -21,8 +21,19 @@ class Solver(Data):
     def __repr__(self):
         return f"Solver(name={self.name}, parameters={self.parameters})"
 
+    @property
     def __data__(self):
         return {"name": self.name, "parameters": self.parameters}
+
+    @classmethod
+    def __from_data__(cls, data: dict) -> "Solver":
+        # Solver.__init__ takes no arguments and the factory classmethods
+        # (LMGC90/CRA/...) set name+parameters, so reconstruct by hand rather
+        # than the default cls(**data).
+        obj = cls()
+        obj.name = data["name"]
+        obj.parameters = data["parameters"]
+        return obj
 
     @classmethod
     def LMGC90(
