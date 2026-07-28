@@ -107,31 +107,6 @@ def prd_solve(
     return results
 
 
-# def _post_processing_prd_graph(prd: PR3DModel, model: BlockModel) -> None:
-#     """Write PR3DModel results directly onto the BlockModel graph (in-place). Kept for reference."""
-#     graph = model.graph
-#     for block in model.elements():
-#         T = graph.node_attribute(block.graphnode, "transform")
-#         if T is not None:
-#             graph.node_attribute(block.graphnode, "transformation", T)
-#     for edge in graph.edges():
-#         contacts = graph.edge_attribute(edge, "contacts")
-#         if not contacts:
-#             continue
-#         fc: FrictionContact = contacts[0]
-#         total_fn = float(sum(f["c_np"] for f in fc.forces))
-#         n_pts = len(fc.points)
-#         resultant = fc.resultantforce
-#         force_vec = list(resultant) if resultant is not None else [0.0, 0.0, 0.0]
-#         graph.edge_attribute(edge, "contact_polygon", fc.polygon)
-#         graph.edge_attribute(edge, "contact_data", fc)
-#         graph.edge_attribute(edge, "force_magnitude", total_fn)
-#         graph.edge_attribute(edge, "force", force_vec)
-#         graph.edge_attribute(edge, "face_contact", n_pts >= 3)
-#         graph.edge_attribute(edge, "edge_contact", n_pts == 2)
-#         graph.edge_attribute(edge, "point_contact", n_pts == 1)
-
-
 def _post_processing_prd(prd: PR3DModel, problem: Problem, model: BlockModel) -> Results:
     """Build a standalone :class:`~compas_dem.problem.Results` from PRD solver output.
 
