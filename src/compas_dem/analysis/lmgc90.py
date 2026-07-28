@@ -73,7 +73,8 @@ def lmgc90_solve(
     track_block: int = None,
     verbose: int = 0,
 ) -> Solver:
-    """Translate a Problem into a configured LMGC90 Solver. Run the simulation and
+    """
+    Translate a Problem into a configured LMGC90 Solver. Run the simulation and
     post-process results back into the BlockModel in-place.
 
     Parameters
@@ -99,6 +100,7 @@ def lmgc90_solve(
     -------
     :class:`compas_lmgc90.solver.Solver`
     """
+
     given = sum(x is not None for x in [duration, n_steps, dt])
     if given == 3:
         raise ValueError("Provide exactly two of duration, n_steps, dt — the third is computed automatically.")
@@ -136,6 +138,9 @@ def lmgc90_solve(
     # ------------------------------------------------------------------
     # Resolve BCs
     # ------------------------------------------------------------------
+    if len(problem.loadcases) > 1:
+        raise NotImplementedError("LMGC90 solver currently supports only one loadcase per problem.")
+
     centroidal_displacements = resolve_centroidal_displacements(problem)
     centroidal_loads = resolve_centroidal_loads(problem, model)
 
@@ -149,8 +154,8 @@ def lmgc90_solve(
             if all(v == 0.0 for v in t) and all(v == 0.0 for v in r):
                 block.is_support = True
 
-    solver = Solver(model, density=density, dt=dt, theta=theta)
-
+    solver = Solver(density=density, dt=dt, theta=theta)
+    solver.geometry_from_model(model)
     # ------------------------------------------------------------------
     # Displacement BCs → apply_velocity
     # ------------------------------------------------------------------

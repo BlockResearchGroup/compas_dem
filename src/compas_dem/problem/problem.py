@@ -58,14 +58,7 @@ class Problem(Data):
         obj = cls.__new__(cls)
         Data.__init__(obj, name=data.get("name"))
         obj.model_id = data["model_id"]
-        if "loadcases" in data:
-            obj._loadcases = list(data["loadcases"])
-        elif data.get("boundary_conditions") is not None:
-            # Legacy problems stored a single BoundaryConditions container.
-            # Wrap it as the first load case so old JSON still loads.
-            obj._loadcases = [data["boundary_conditions"]]
-        else:
-            obj._loadcases = []
+        obj._loadcases = list(data.get("loadcases", []))
         obj._contact_properties = data["contact_properties"]
         obj._solver = data["solver"]
         return obj
@@ -77,8 +70,11 @@ class Problem(Data):
     def _default_loadcase(self) -> LoadCase:
         """Return the first load case, creating an empty default one if needed.
 
-        The convenience ``add_*`` methods target this case when no explicit
-        ``loadcase`` is given, preserving the single-load-case workflow.
+        Adding a load directly from the problem, without specifying a load case,
+        will write to the default load case.
+        This is for backward compatibility with code that predates load cases, and
+        convieniece for simple problems.
+
         """
         if not self._loadcases:
             self._loadcases.append(LoadCase(name="default"))
@@ -97,7 +93,9 @@ class Problem(Data):
         return loadcase
 
     def add_loadcase(self, loadcase: LoadCase) -> int:
-        """Register a load case on the problem, preserving object identity.
+        """Register a load case on the problem.
+
+        Load cases
 
         Parameters
         ----------
@@ -467,9 +465,9 @@ class Problem(Data):
         ValueError
             If the model is invalid.
         """
-        has_supports = any(
-            d.get("translation") == [0.0, 0.0, 0.0] and d.get("rotation") == [0.0, 0.0, 0.0] for lc in self._loadcases for d in lc.displacements
-        ) or any(element.is_support for element in model.elements())
+        has_supports = any(d.get("translation") == [0.0, 0.0, 0.0] and d.get("rotation") == [0.0, 0.0, 0.0] for lc in self._loadcases for d in lc.displacements) or any(
+            element.is_support for element in model.elements()
+        )
         if not has_supports:
             raise ValueError("The model has no supports defined. Please add supports before solving.")
         if not self.contact_properties.contact_model:

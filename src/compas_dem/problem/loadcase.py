@@ -246,9 +246,3 @@ class LoadCase(Data):
     @property
     def displacements(self) -> list[dict]:
         return self._displacements
-
-
-# Backwards-compatible alias. ``BoundaryConditions`` was the previous name for
-# this class; keeping the alias means old imports and previously serialized JSON
-# (dtype ``compas_dem.problem/BoundaryConditions``) still resolve to ``LoadCase``.
-BoundaryConditions = LoadCase
