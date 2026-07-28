@@ -29,13 +29,11 @@ try:
         pass
 
     try:
-        from compas_dem.analysis.dprd import dprd_solve  # noqa: F401
+        from compas_dem.analysis.bla import bla_solve  # noqa: F401
 
-        __all__.append("dprd_solve")
+        __all__.append("bla_solve")
     except ImportError:
         pass
 
 except ImportError:
-    print(
-        "One or more analysis modules could not be imported. Please ensure all dependencies are installed."
-    )
+    print("One or more analysis modules could not be imported. Please ensure all dependencies are installed.")

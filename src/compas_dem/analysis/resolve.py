@@ -38,7 +38,7 @@ def resolve_centroidal_loads(problem, model, loadcase=None) -> dict:
         ``{block_index: {"force": Vector, "moment": Vector, "loading_type": str}}``
     """
     blocks = {block.graphnode: block for block in model.elements()}
-    loadcases = [loadcase] if loadcase is not None else [problem.loadcases[0]]
+    loadcases = [loadcase] if loadcase is not None else problem.loadcases
 
     loads = {idx: {"force": Vector(0, 0, 0), "moment": Vector(0, 0, 0), "loading_type": "ramp"} for idx in blocks}
 
@@ -96,20 +96,36 @@ def resolve_centroidal_displacements(problem, loadcase=None) -> dict:
     dict[int, dict]
         ``{block_index: {"translation": list, "rotation": list}}``
         Components are ``None`` where unconstrained.
+
+    Notes
+    -----
+    Supports are mirrored into *every* load case, so merging the load cases in
+    order would let the zeros of a support clobber a movement prescribed on that
+    same block in an earlier load case -- a settlement on a support, which is the
+    usual way to prescribe one, would silently come back fixed. Fixities are
+    therefore applied first and prescribed movements on top of them.
     """
+    from compas_dem.problem.problem import _is_support
+
     displacements = {}
-    loadcases = [loadcase] if loadcase is not None else [problem.loadcases[0]]
-    for lc in loadcases:
-        for entry in lc.displacements:
-            idx = entry["block_index"]
-            if idx not in displacements:
-                displacements[idx] = {"translation": [None, None, None], "rotation": [None, None, None]}
-            if entry["translation"] is not None:
-                for j, v in enumerate(entry["translation"]):
+    loadcases = [loadcase] if loadcase is not None else problem.loadcases
+    entries = [entry for lc in loadcases for entry in lc.displacements]
+
+    def apply(entry):
+        idx = entry["block_index"]
+        if idx not in displacements:
+            displacements[idx] = {"translation": [None, None, None], "rotation": [None, None, None]}
+        for key in ("translation", "rotation"):
+            if entry[key] is not None:
+                for j, v in enumerate(entry[key]):
                     if v is not None:
-                        displacements[idx]["translation"][j] = v
-            if entry["rotation"] is not None:
-                for j, v in enumerate(entry["rotation"]):
-                    if v is not None:
-                        displacements[idx]["rotation"][j] = v
+                        displacements[idx][key][j] = v
+
+    for entry in entries:
+        if _is_support(entry):
+            apply(entry)
+    for entry in entries:
+        if not _is_support(entry):
+            apply(entry)
+
     return displacements

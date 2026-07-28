@@ -153,9 +153,9 @@ class Solver(Data):
         return self
 
     @classmethod
-    def DPRD(
+    def BLA(
         cls,
-        linear: bool = True,
+        n_steps: int = 1,
         associative: bool = True,
         non_associative_params: Optional[dict] = None,
         non_linear_params: Optional[dict] = None,
@@ -163,13 +163,13 @@ class Solver(Data):
         solver: str = "CLARABEL",
         verbose: bool = False,
     ):
-        """DPRD (Dual Piecewise Rigid Displacement) solver configuration.
+        """BLA (Block Limit Analysis) solver configuration.
 
         Parameters
         ----------
-        linear : bool
-            If ``True`` (default), run the one-shot linear LP.
-            If ``False``, run the incremental nonlinear solve.
+        n_steps : int
+            Number of steps for the incremental solve.
+            if ``1`` (default), run the one-shot linear LP.
         associative : bool
             If ``True`` (default), use associative friction model.
             If ``False``, use non-associative friction model with parameters in ``non_associative_params``.
@@ -188,9 +188,9 @@ class Solver(Data):
             Print solver output. Default ``False``.
         """
         self = cls()
-        self.name = "DPRD"
+        self.name = "BLA"
         self.parameters = {
-            "linear": linear,
+            "n_steps": n_steps,
             "associative": associative,
             "non_associative_params": non_associative_params,
             "non_linear_params": non_linear_params or {"nsteps": 80, "open_tol": 1e-3},

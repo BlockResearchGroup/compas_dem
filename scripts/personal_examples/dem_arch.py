@@ -1,10 +1,13 @@
+import pathlib
+
+import compas
+
 from compas_dem.material import Stone
 from compas_dem.models import BlockModel
+from compas_dem.problem import LoadCase
 from compas_dem.problem import Problem
 from compas_dem.problem import Solver
 from compas_dem.templates import ArchTemplate
-from compas_dem.utilities import find_load_multiplier
-from compas_dem.utilities import plot_safety_diagram
 from compas_dem.viewer import DEMViewer
 
 # =============================================================================
@@ -35,11 +38,7 @@ for node in model.graph.nodes_where(degree=1):
 # ============================================================================
 # Material
 # ============================================================================
-# viewer = DEMViewer(model)
-# viewer.setup()
-# viewer.config.renderer.show_grid = False
-# viewer.show()
-# raise
+
 generic: Stone = Stone(density=2000)
 model.add_material(generic)
 model.assign_material(generic, elements=list(model.elements()))
@@ -51,23 +50,36 @@ model.assign_material(generic, elements=list(model.elements()))
 problem = Problem(model)
 problem.add_contact_model("MohrCoulomb", phi=35, c=0.0)
 problem.add_supports_from_model(model)
+problem.add_joint_model(kn=1e9, kt=5e8)
 
-# problem.add_point_load(block_index=16, force=[0, 0, -100000])
-# lmgc90_1: Solver = Solver.LMGC90(dt=0.00056, duration=10.0, urf_threshold=1e-3, theta=0.7)
-# lmgc90_2: Solver = Solver.LMGC90(dt=0.001, duration=1.0, urf_threshold=1e-3, theta=0.7)
-prd: Solver = Solver.BLA()
-# Solve using either lmgc90_1 or lmgc90_2; same solver, with different parameters.
-problem.solver(prd)
+lc1 = LoadCase(name="Gravity")
+lc2 = LoadCase(name="Displacement")
+lc3 = LoadCase(name="Surface Load")
+lc4 = LoadCase(name="Point Load")
+
+problem.add_loadcase(lc1)
+problem.add_loadcase(lc2)
+problem.add_loadcase(lc3)
+problem.add_loadcase(lc4)
+
+problem.add_displacement(block_index=0, displacement=[0.5, 0, 0], loadcase=lc2)
+
+for b_idx in range(25, 36):
+    problem.add_surface_load(block_index=b_idx, load=(0, 0, -10000), face_index=4, loadcase=lc3)
+
+problem.add_point_load(block_index=80, force=[0, 0, -100000], loadcase=lc4)
+
+PATH = pathlib.Path(__file__).parent / "dem_arch.json"
+compas.json_dump(data=problem, fp=PATH)
+# problem.inspect_model(model)
+# solver: Solver = Solver.LMGC90(dt=0.001, duration=1)
+solver: Solver = Solver.BLA(n_steps=1, associative=False)
+problem.solver(solver)
 result = model.solve(problem)
-result_prd = result.copy()
-# =============================================================================
-# Viz
-# =============================================================================
+compas.json_dump(data=result, fp=pathlib.Path(__file__).parent / "dem_arch_result.json")
 
-lam, result_max = find_load_multiplier(problem, model, prd, live_loads=[[20, [0, 0, -1]]], lam_start=150000.0, tol=1e-3, max_iter=30, verbose=True)
-plot_safety_diagram(result_max, show=True)
+# Viewer
 viewer = DEMViewer(model)
-
-viewer.add_solution(result_prd, name="PRD", scale=0.5)
-viewer.add_solution(result_max, name="max_load", scale=0.5)
+# viewer.setup()
+viewer.add_solution(result, scale=0.5)
 viewer.show()

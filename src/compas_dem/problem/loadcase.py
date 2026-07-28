@@ -27,7 +27,7 @@ class LoadCase(Data):
     >>> lc.add_support(block_index=99)
     """
 
-    def __init__(self, g: float = 9.81, name: Optional[str] = None, **kwargs) -> None:
+    def __init__(self, name: Optional[str] = None, g: float = 9.81, **kwargs) -> None:
         self._body_forces: list[list[float]] = []
         self._point_loads: list[dict] = []
         self._surface_loads: list[dict] = []

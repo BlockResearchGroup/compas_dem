@@ -319,7 +319,7 @@ class DEMViewer(Viewer):
 
         if self._dem_force_scale_per_newton is None:
             # "resultant_global" is the canonical key; older results (CRA, or files
-            # saved before PRD/DPRD wrote it) only have "force"
+            # saved before PRD/BLA wrote it) only have "force"
             forces = [np.array(results.resultant_global(edge) or results.edge_attribute(edge, "force") or [0, 0, 0]) for edge in results.edges()]
             max_force = max(np.linalg.norm(f) for f in forces) if forces else 0.0
             self._dem_force_scale_per_newton = scale * max(block_ln) / max_force if max_force > 0 else 1.0

@@ -447,13 +447,15 @@ class BlockModel(Model):
     # Solve
     # ============================================================================
 
-    def solve(self, problem):
+    def solve(self, problem, loadcases=[]):
         """Solve the problem using the named solver.
 
         Parameters
         ----------
         problem : Problem
             The problem instance to solve.
+        loadcases : list[LoadCase], optional
+            The load cases to solve. If none are provided, all load cases in the problem will be solved concurrently.
 
         Returns
         -------
@@ -486,9 +488,9 @@ class BlockModel(Model):
             from compas_dem.analysis.prd import prd_solve
 
             return prd_solve(problem, self, **params)
-        elif solver.name == "DPRD":
-            from compas_dem.analysis.dprd import dprd_solve
+        elif solver.name == "BLA":
+            from compas_dem.analysis.bla import bla_solve
 
-            return dprd_solve(problem, self, **params)
+            return bla_solve(problem, self, **params)
         else:
-            raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE', 'PRD', 'DPRD'.")
+            raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE', 'PRD', 'BLA'.")
