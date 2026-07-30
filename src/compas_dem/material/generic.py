@@ -66,4 +66,4 @@ class GenericMaterial(Material):
         key = predefined_material.upper()
         if key not in cls.predefined_material:
             raise ValueError(f"Predefined material not supported: {key}")
-        return cls(**cls.predefined_material[key])
+        return cls(name=key, **cls.predefined_material[key])

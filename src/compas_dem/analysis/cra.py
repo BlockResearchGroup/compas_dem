@@ -41,7 +41,7 @@ DEFAULT_IPOPT_OPTIONS: dict = {
     "acceptable_tol": 1e-4,
     "acceptable_constr_viol_tol": 1e-2,
     "acceptable_compl_inf_tol": 1e-2,
-    "max_iter": 5000,
+    "max_iter": 10000,
 }
 
 
