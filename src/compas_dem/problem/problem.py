@@ -8,7 +8,7 @@ from compas_dem.interactions import ContactProperties
 from compas_dem.interactions import JointModel
 from compas_dem.interactions import MohrCoulomb
 from compas_dem.models import BlockModel
-from compas_dem.problem.loadcase import LoadCase
+from compas_dem.problem.boundary_condition import BoundaryCondition
 from compas_dem.problem.solvers import Solver
 
 ZERO = [0.0, 0.0, 0.0]
@@ -46,13 +46,13 @@ class Problem(Data):
     def __init__(self, model: BlockModel, name: Optional[str] = None, **kwargs) -> None:
         super().__init__(name=name)
         self.model_id = str(model.guid)
-        self._loadcases: list[LoadCase] = []
+        self._boundary_conditions: list[BoundaryCondition] = []
         self._supports: list[int] = []
         self._contact_properties = ContactProperties()
         self._solver = None
-        # The implicitly created "default" load case, while it is still untouched
-        # apart from supports. Dropped as soon as a real load case is registered.
-        self._auto_default: Optional[LoadCase] = None
+        # The implicitly created "default" boundary condition, while it is still untouched
+        # apart from supports. Dropped as soon as a real boundary condition is registered.
+        self._auto_default: Optional[BoundaryCondition] = None
 
     @property
     def __data__(self) -> dict:
@@ -60,7 +60,7 @@ class Problem(Data):
             "name": self.name,
             "model_id": self.model_id,
             "supports": self._supports,
-            "loadcases": self._loadcases,
+            "boundary_conditions": self._boundary_conditions,
             "contact_properties": self._contact_properties,
             "solver": self._solver,
         }
@@ -70,86 +70,86 @@ class Problem(Data):
         obj = cls.__new__(cls)
         Data.__init__(obj, name=data.get("name"))
         obj.model_id = data["model_id"]
-        obj._loadcases = list(data.get("loadcases", []))
+        obj._boundary_conditions = list(data.get("boundary_conditions", []))
         obj._supports = list(data.get("supports", []))
         obj._contact_properties = data["contact_properties"]
         obj._solver = data["solver"]
-        # A deserialized problem has explicit load cases; nothing to auto-drop.
+        # A deserialized problem has explicit boundary conditions; nothing to auto-drop.
         obj._auto_default = None
         return obj
 
     # ============================================================================
-    # Load cases
+    # Boundary conditions
     # ============================================================================
 
-    def _default_loadcase(self) -> LoadCase:
-        """Return the first load case, creating an empty default one if needed.
+    def _default_boundary_condition(self) -> BoundaryCondition:
+        """Return the first boundary condition, creating an empty default one if needed.
 
-        Adding a load directly from the problem, without specifying a load case,
-        will write to the default load case.
-        This is for backward compatibility with code that predates load cases, and
+        Adding a load directly from the problem, without specifying a boundary condition,
+        will write to the default boundary condition.
+        This is for backward compatibility with code that predates boundary conditions, and
         convieniece for simple problems.
 
         """
-        if not self._loadcases:
-            loadcase = LoadCase(name="default")
+        if not self._boundary_conditions:
+            boundary_condition = BoundaryCondition(name="default")
             for block_index in self._supports:
-                loadcase.add_support(block_index)
-            self._loadcases.append(loadcase)
-            self._auto_default = loadcase
-        return self._loadcases[0]
+                boundary_condition.add_support(block_index)
+            self._boundary_conditions.append(boundary_condition)
+            self._auto_default = boundary_condition
+        return self._boundary_conditions[0]
 
-    def _resolve_target(self, loadcase: Optional[LoadCase]) -> LoadCase:
-        """Return the load case a convenience ``add_*`` call should write to.
+    def _resolve_target(self, boundary_condition: Optional[BoundaryCondition]) -> BoundaryCondition:
+        """Return the boundary condition a convenience ``add_*`` call should write to.
 
-        ``None`` targets the default (first) load case. A :class:`LoadCase` must
-        already be registered on this problem via :meth:`add_loadcase`.
+        ``None`` targets the default (first) boundary condition. A :class:`BoundaryCondition` must
+        already be registered on this problem via :meth:`add_boundary_condition`.
         """
-        if loadcase is None:
-            return self._default_loadcase()
-        if not any(lc is loadcase for lc in self._loadcases):
-            raise ValueError("The given load case is not registered on this problem. Call problem.add_loadcase(loadcase) first.")
-        return loadcase
+        if boundary_condition is None:
+            return self._default_boundary_condition()
+        if not any(bc is boundary_condition for bc in self._boundary_conditions):
+            raise ValueError("The given boundary condition is not registered on this problem. Call problem.add_boundary_condition(boundary_condition) first.")
+        return boundary_condition
 
-    def add_loadcase(self, loadcase: LoadCase) -> int:
-        """Register a load case on the problem.
+    def add_boundary_condition(self, boundary_condition: BoundaryCondition) -> int:
+        """Register a boundary condition on the problem.
 
-        The problem's supports are copied into the load case, so add them with
-        :meth:`add_support` before registering any load case.
+        The problem's supports are copied into the boundary condition, so add them with
+        :meth:`add_support` before registering any boundary condition.
 
         Parameters
         ----------
-        loadcase : :class:`LoadCase`
-            The load case to append. It is stored by reference, so its ``guid``
+        boundary_condition : :class:`BoundaryCondition`
+            The boundary condition to append. It is stored by reference, so its ``guid``
             is preserved and later edits to the object are reflected here.
 
         Returns
         -------
         int
-            The index of the newly added load case.
+            The index of the newly added boundary condition.
         """
         for block_index in self._supports:
-            loadcase.add_support(block_index)
+            boundary_condition.add_support(block_index)
 
         if self._auto_default is not None:
-            self._loadcases[0] = loadcase
+            self._boundary_conditions[0] = boundary_condition
             self._auto_default = None
             index = 0
         else:
-            self._loadcases.append(loadcase)
-            index = len(self._loadcases) - 1
+            self._boundary_conditions.append(boundary_condition)
+            index = len(self._boundary_conditions) - 1
 
         return index
 
     @property
-    def loadcases(self) -> list[LoadCase]:
-        """The ordered list of load cases attached to this problem."""
-        return self._loadcases
+    def boundary_conditions(self) -> list[BoundaryCondition]:
+        """The ordered list of boundary conditions attached to this problem."""
+        return self._boundary_conditions
 
     @property
-    def loadcase(self) -> list[LoadCase]:
-        """Alias for :attr:`loadcases`; supports ``problem.loadcase[i]`` indexing."""
-        return self._loadcases
+    def boundary_condition(self) -> list[BoundaryCondition]:
+        """Alias for :attr:`boundary_conditions`; supports ``problem.boundary_condition[i]`` indexing."""
+        return self._boundary_conditions
 
     # ============================================================================
     # Pre-visualization utilities
@@ -170,7 +170,7 @@ class Problem(Data):
         Each kind of load gets its own group in the scene tree — "Point Loads",
         "Surface Loads", "Body Forces", "Supports" and "Prescribed Displacements" —
         so they can be toggled independently. A group is only created if the
-        corresponding entries exist in at least one of the problem's load cases.
+        corresponding entries exist in at least one of the problem's boundary conditions.
 
         .. danger::
 
@@ -212,11 +212,11 @@ class Problem(Data):
             viewer.config.renderer.show_grid = False
 
         blocks = {block.graphnode: block for block in model.elements()}
-        multiple_loadcases = len(self._loadcases) > 1
+        multiple_boundary_conditions = len(self._boundary_conditions) > 1
 
-        def suffix(loadcase: LoadCase) -> str:
-            """Disambiguate entries by load case, but only when there is more than one."""
-            return f"  [{loadcase.name or '<unnamed>'}]" if multiple_loadcases else ""
+        def suffix(boundary_condition: BoundaryCondition) -> str:
+            """Disambiguate entries by boundary condition, but only when there is more than one."""
+            return f"  [{boundary_condition.name or '<unnamed>'}]" if multiple_boundary_conditions else ""
 
         def block_scale(block) -> float:
             return block.modelgeometry.edge_length([0, 1]) / 2
@@ -227,14 +227,14 @@ class Problem(Data):
                 return None
             return cg.Line(point, [p - v for p, v in zip(point, vector.unitized() * scale)])
 
-        def entries(attr: str) -> list[tuple[LoadCase, object]]:
-            """Flatten one kind of entry across all load cases, keeping its origin."""
-            return [(lc, entry) for lc in self._loadcases for entry in getattr(lc, attr)]
+        def entries(attr: str) -> list[tuple[BoundaryCondition, object]]:
+            """Flatten one kind of entry across all boundary conditions, keeping its origin."""
+            return [(bc, entry) for bc in self._boundary_conditions for entry in getattr(bc, attr)]
 
-        def resolve_block(loadcase: LoadCase, index: int, kind: str):
+        def resolve_block(boundary_condition: BoundaryCondition, index: int, kind: str):
             """Look up a block, warning instead of raising so inspection still runs."""
             if index not in blocks:
-                print(f"{kind} references block_index={index}, which does not exist in the model.{suffix(loadcase)}")
+                print(f"{kind} references block_index={index}, which does not exist in the model.{suffix(boundary_condition)}")
                 return None
             return blocks[index]
 
@@ -244,11 +244,11 @@ class Problem(Data):
             body_forces = entries("body_forces")
 
             if not point_loads:
-                print("No point loads defined in the problem load cases.")
+                print("No point loads defined in the problem boundary conditions.")
             else:
                 loads_view = viewer.scene.add_group(name="Point Loads")
-                for lc, loads in point_loads:
-                    block = resolve_block(lc, loads["block_index"], "Point load")
+                for bc, loads in point_loads:
+                    block = resolve_block(bc, loads["block_index"], "Point load")
                     if block is None:
                         continue
                     force = Vector(*loads["force"])
@@ -258,34 +258,34 @@ class Problem(Data):
                         continue
                     loads_view.add(
                         line,
-                        name=f"Point Load: [{force.x:.1f}, {force.y:.1f}, {force.z:.1f}] \n Moment: {loads['moment'] if loads['moment'] else [0, 0, 0]}{suffix(lc)}",
+                        name=f"Point Load: [{force.x:.1f}, {force.y:.1f}, {force.z:.1f}] \n Moment: {loads['moment'] if loads['moment'] else [0, 0, 0]}{suffix(bc)}",
                         linewidth=2.5,
                         linecolor=Color.red(),
                     )
 
             if not surface_loads:
-                print("No surface loads defined in the problem load cases.")
+                print("No surface loads defined in the problem boundary conditions.")
             else:
                 surface_view = viewer.scene.add_group(name="Surface Loads")
-                for lc, loads in surface_loads:
-                    block = resolve_block(lc, loads["block_index"], "Surface load")
+                for bc, loads in surface_loads:
+                    block = resolve_block(bc, loads["block_index"], "Surface load")
                     if block is None:
                         continue
                     mesh = block.modelgeometry
                     face = loads["face_index"]
                     if face not in list(mesh.faces()):
-                        print(f"Surface load on block {loads['block_index']} references face_index={face}, which does not exist.{suffix(lc)}")
+                        print(f"Surface load on block {loads['block_index']} references face_index={face}, which does not exist.{suffix(bc)}")
                         continue
                     load = Vector(*loads["load"])
                     # The solver multiplies the traction by the face area to get the resultant.
                     resultant = load * mesh.face_area(face)
                     label = (
                         f"Surface Load: [{load.x:.1f}, {load.y:.1f}, {load.z:.1f}] on block {loads['block_index']}, face {face} \n"
-                        f" Resultant: [{resultant.x:.1f}, {resultant.y:.1f}, {resultant.z:.1f}]{suffix(lc)}"
+                        f" Resultant: [{resultant.x:.1f}, {resultant.y:.1f}, {resultant.z:.1f}]{suffix(bc)}"
                     )
                     surface_view.add(
                         mesh.face_polygon(face),
-                        name=f"Loaded Face: block {loads['block_index']}, face {face}{suffix(lc)}",
+                        name=f"Loaded Face: block {loads['block_index']}, face {face}{suffix(bc)}",
                         color=Color.cyan(),
                         opacity=0.5,
                     )
@@ -298,23 +298,23 @@ class Problem(Data):
                 body_view = viewer.scene.add_group(name="Body Forces")
                 origin = cg.centroid_points([list(block.point) for block in blocks.values()])
                 scale = max(block_scale(block) for block in blocks.values()) if blocks else 1.0
-                for lc, acceleration in body_forces:
+                for bc, acceleration in body_forces:
                     vector = Vector(*acceleration)
                     line = arrow(origin, vector, scale)
                     if line is None:
                         continue
                     body_view.add(
                         line,
-                        name=f"Body Force: [{vector.x:.2f}, {vector.y:.2f}, {vector.z:.2f}] m/s²{suffix(lc)}",
+                        name=f"Body Force: [{vector.x:.2f}, {vector.y:.2f}, {vector.z:.2f}] m/s²{suffix(bc)}",
                         linewidth=2.5,
                         linecolor=Color.orange(),
                     )
 
         if show_supports:
             # Supports live on the problem, so they are drawn once rather than
-            # once per load case. Everything left in the load cases is a
+            # once per boundary condition. Everything left in the boundary conditions is a
             # prescribed movement.
-            prescribed: list[tuple[LoadCase, dict]] = [(lc, entry) for lc, entry in entries("displacements") if not _is_support(entry)]
+            prescribed: list[tuple[BoundaryCondition, dict]] = [(bc, entry) for bc, entry in entries("displacements") if not _is_support(entry)]
 
             if not self._supports:
                 print("No supports defined in the problem.")
@@ -333,8 +333,8 @@ class Problem(Data):
 
             if prescribed:
                 prescribed_view = viewer.scene.add_group(name="Prescribed Displacements")
-                for lc, entry in prescribed:
-                    block = resolve_block(lc, entry["block_index"], "Prescribed displacement")
+                for bc, entry in prescribed:
+                    block = resolve_block(bc, entry["block_index"], "Prescribed displacement")
                     if block is None:
                         continue
                     translation = entry["translation"]
@@ -351,7 +351,7 @@ class Problem(Data):
                         continue
                     prescribed_view.add(
                         line,
-                        name=f"Prescribed {kind}: {translation or rotation} {units} on block {entry['block_index']}{suffix(lc)}",
+                        name=f"Prescribed {kind}: {translation or rotation} {units} on block {entry['block_index']}{suffix(bc)}",
                         linewidth=2.5,
                         linecolor=Color.violet(),
                     )
@@ -384,20 +384,20 @@ class Problem(Data):
     # Boundary conditions
     # ============================================================================
 
-    def add_gravity(self, g: float = 9.81, loadcase: Optional[LoadCase] = None) -> None:
-        """Changes applied gravity in a load case.
+    def add_gravity(self, g: float = 9.81, boundary_condition: Optional[BoundaryCondition] = None) -> None:
+        """Changes applied gravity in a boundary condition.
 
         Parameters
         ----------
         g : float, optional
             Gravitational acceleration in [m/s²]. Default 9.81.
-        loadcase : :class:`LoadCase`, optional
-            The load case to write to. Must already be registered via
-            :meth:`add_loadcase`. Defaults to the first (default) load case.
+        boundary_condition : :class:`BoundaryCondition`, optional
+            The boundary condition to write to. Must already be registered via
+            :meth:`add_boundary_condition`. Defaults to the first (default) boundary condition.
         """
-        self._resolve_target(loadcase).add_gravity(g)
+        self._resolve_target(boundary_condition).add_gravity(g)
 
-    def add_global_body_force(self, ax: float, ay: float, az: float, loadcase: Optional[LoadCase] = None) -> None:
+    def add_global_body_force(self, ax: float, ay: float, az: float, boundary_condition: Optional[BoundaryCondition] = None) -> None:
         """Add a global body acceleration applied to all blocks.
 
         The resultant force on each block is F = [ax, ay, az] * density * volume.
@@ -406,13 +406,13 @@ class Problem(Data):
         ----------
         ax, ay, az : float
             Acceleration components in [m/s²].
-        loadcase : :class:`LoadCase`, optional
-            The load case to write to. Defaults to the first (default) load case.
+        boundary_condition : :class:`BoundaryCondition`, optional
+            The boundary condition to write to. Defaults to the first (default) boundary condition.
 
         .. note::
             This method takes acceleration components, not forces.
         """
-        self._resolve_target(loadcase).add_global_body_force(ax, ay, az)
+        self._resolve_target(boundary_condition).add_global_body_force(ax, ay, az)
 
     def add_point_load(
         self,
@@ -421,7 +421,7 @@ class Problem(Data):
         moment: Optional[list[float]] = None,
         point: Optional[list[float]] = None,
         loading_type: str = "ramp",
-        loadcase: Optional[LoadCase] = None,
+        boundary_condition: Optional[BoundaryCondition] = None,
     ) -> None:
         """Add a concentrated force to a specific block.
 
@@ -441,10 +441,10 @@ class Problem(Data):
             Cannot be combined with `moment`.
         loading_type : str, optional
             ``"ramp"`` (default) or ``"instantaneous"``.
-        loadcase : :class:`LoadCase`, optional
-            The load case to write to. Defaults to the first (default) load case.
+        boundary_condition : :class:`BoundaryCondition`, optional
+            The boundary condition to write to. Defaults to the first (default) boundary condition.
         """
-        self._resolve_target(loadcase).add_point_load(block_index, force, moment, point, loading_type)
+        self._resolve_target(boundary_condition).add_point_load(block_index, force, moment, point, loading_type)
 
     def add_surface_load(
         self,
@@ -452,7 +452,7 @@ class Problem(Data):
         face_index: int,
         load: list[float],
         loading_type: str = "ramp",
-        loadcase: Optional[LoadCase] = None,
+        boundary_condition: Optional[BoundaryCondition] = None,
     ) -> None:
         """Add a distributed pressure load over a block face.
 
@@ -469,17 +469,17 @@ class Problem(Data):
             Load vector [fx, fy, fz].
         loading_type : str, optional
             ``"ramp"`` (default) or ``"instantaneous"``.
-        loadcase : :class:`LoadCase`, optional
-            The load case to write to. Defaults to the first (default) load case.
+        boundary_condition : :class:`BoundaryCondition`, optional
+            The boundary condition to write to. Defaults to the first (default) boundary condition.
         """
-        self._resolve_target(loadcase).add_surface_load(block_index, face_index, load, loading_type)
+        self._resolve_target(boundary_condition).add_surface_load(block_index, face_index, load, loading_type)
 
     def add_displacement(
         self,
         block_index: int,
         displacement: Optional[list[float]] = None,
         rotation: Optional[list[float]] = None,
-        loadcase: Optional[LoadCase] = None,
+        boundary_condition: Optional[BoundaryCondition] = None,
     ) -> None:
         """Prescribe a displacement and/or rotation on a block.
 
@@ -491,16 +491,16 @@ class Problem(Data):
             Translational displacement [dx, dy, dz] in [m].
         rotation : list[float], optional
             Rotation vector [rx, ry, rz] in [rad].
-        loadcase : :class:`LoadCase`, optional
-            The load case to write to. Defaults to the first (default) load case.
+        boundary_condition : :class:`BoundaryCondition`, optional
+            The boundary condition to write to. Defaults to the first (default) boundary condition.
         """
-        target = self._resolve_target(loadcase)
+        target = self._resolve_target(boundary_condition)
         if displacement is not None:
             target.add_displacement(block_index, *displacement)
         if rotation is not None:
             target.add_rotation(block_index, rotation)
 
-    def add_rotation(self, block_index: int, rotation: list[float], loadcase: Optional[LoadCase] = None) -> None:
+    def add_rotation(self, block_index: int, rotation: list[float], boundary_condition: Optional[BoundaryCondition] = None) -> None:
         """Prescribe a rotation on a block about its centroid.
 
         Parameters
@@ -509,17 +509,17 @@ class Problem(Data):
             Node index of the target block.
         rotation : list[float]
             Rotation vector [rx, ry, rz] in [rad].
-        loadcase : :class:`LoadCase`, optional
-            The load case to write to. Defaults to the first (default) load case.
+        boundary_condition : :class:`BoundaryCondition`, optional
+            The boundary condition to write to. Defaults to the first (default) boundary condition.
         """
-        self._resolve_target(loadcase).add_rotation(block_index, rotation)
+        self._resolve_target(boundary_condition).add_rotation(block_index, rotation)
 
     def add_support(self, block_index: int) -> None:
         """Fix a block — zero translation and zero rotation.
 
         Supports belong to the model rather than to any one loading, so they are
-        kept on the problem and copied into each load case as it is registered.
-        Add them before any call to :meth:`add_loadcase`.
+        kept on the problem and copied into each boundary condition as it is registered.
+        Add them before any call to :meth:`add_boundary_condition`.
 
         Parameters
         ----------
@@ -541,7 +541,7 @@ class Problem(Data):
 
     @property
     def supports(self) -> list[int]:
-        """The node indices of the fixed blocks, copied into every load case."""
+        """The node indices of the fixed blocks, copied into every boundary condition."""
         return self._supports
 
     def add_supports_from_model(self, model: BlockModel) -> None:
@@ -554,38 +554,6 @@ class Problem(Data):
         for block in model.elements():
             if getattr(block, "is_support", False):
                 self.add_support(block.graphnode)
-
-    def add_bc(self, bc: LoadCase) -> None:
-        """Merge a pre-built load case's contents into the default load case.
-
-        Retained for backward compatibility. To keep a load case as its own
-        entry instead of flattening it in, use :meth:`add_loadcase`.
-
-        Parameters
-        ----------
-        bc : :class:`LoadCase`
-            A load case whose contents to absorb.
-        """
-        target = self._default_loadcase()
-        for acc in bc.body_forces:
-            target.add_global_body_force(*acc)
-        for entry in bc.point_loads:
-            target.add_point_load(**entry)
-        for entry in bc.surface_loads:
-            target.add_surface_load(entry["block_index"], entry["face_index"], entry["load"], entry["loading_type"])
-        for entry in bc.displacements:
-            target._displacements.append(entry)
-
-    @property
-    def boundary_conditions(self) -> LoadCase:
-        """The default (first) load case.
-
-        .. deprecated::
-            Retained only as a compatibility read for code that predates load
-            cases. Prefer :attr:`loadcases`. Returns (creating if needed) the
-            first load case; it is never a separate scalar container.
-        """
-        return self._default_loadcase()
 
     # =============================================================================
     # Contact properties

@@ -138,8 +138,8 @@ def lmgc90_solve(
     # ------------------------------------------------------------------
     # Resolve BCs
     # ------------------------------------------------------------------
-    if len(problem.loadcases) > 1:
-        raise NotImplementedError("LMGC90 solver currently supports only one loadcase per problem.")
+    if len(problem.boundary_conditions) > 1:
+        raise NotImplementedError("LMGC90 solver currently supports only one boundary_condition per problem.")
 
     centroidal_displacements = resolve_centroidal_displacements(problem)
     centroidal_loads = resolve_centroidal_loads(problem, model)

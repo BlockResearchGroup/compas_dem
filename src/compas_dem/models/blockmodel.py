@@ -447,15 +447,15 @@ class BlockModel(Model):
     # Solve
     # ============================================================================
 
-    def solve(self, problem, loadcases=[]):
+    def solve(self, problem, boundary_conditions=[]):
         """Solve the problem using the named solver.
 
         Parameters
         ----------
         problem : Problem
             The problem instance to solve.
-        loadcases : list[LoadCase], optional
-            The load cases to solve. If none are provided, all load cases in the problem will be solved concurrently.
+        boundary_conditions : list[BoundaryCondition], optional
+            The boundary conditions to solve. If none are provided, all boundary conditions in the problem will be solved concurrently.
 
         Returns
         -------
@@ -466,6 +466,10 @@ class BlockModel(Model):
         ValueError
             If the solver name is not recognised.
         """
+        if boundary_conditions:
+            problem.boundary_conditions = boundary_conditions
+        else:
+            boundary_conditions = problem.boundary_conditions
 
         if problem._solver is None:
             raise ValueError("No solver configured. Call problem.solver(Solver.LMGC90(...)) before solving.")
@@ -481,9 +485,9 @@ class BlockModel(Model):
 
             return cra_solve(problem, self, **params)
         elif solver.name == "RBE":
-            from compas_dem.analysis.cra import cra_solve
+            from compas_dem.analysis.cra import rbe_solve
 
-            return cra_solve(problem, self, **params)
+            return rbe_solve(problem, self, **params)
         elif solver.name == "PRD":
             from compas_dem.analysis.prd import prd_solve
 

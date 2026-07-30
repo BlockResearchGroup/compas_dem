@@ -1,5 +1,5 @@
 from compas_dem.models import BlockModel
-from compas_dem.problem import LoadCase
+from compas_dem.problem import BoundaryCondition
 from compas_dem.problem import Problem
 from compas_dem.problem import Solver
 from compas_dem.templates import ArchTemplate
@@ -33,34 +33,10 @@ problem.add_contact_model("MohrCoulomb", phi=35, c=0.0)
 problem.add_supports_from_model(model)
 problem.add_joint_model(kn=1e9, kt=5e8)
 
-lc1 = LoadCase(name="Gravity")
-lc2 = LoadCase(name="Displacement")
-# lc3 = LoadCase(name="Surface Load")
-# lc4 = LoadCase(name="Point Load")
+bc1 = BoundaryCondition(name="Gravity")
+bc2 = BoundaryCondition(name="Displacement")
 
-problem.add_loadcase(lc1)
-problem.add_loadcase(lc2)
-# problem.add_loadcase(lc3)
-# problem.add_loadcase(lc4)
+problem.add_boundary_condition(bc1)
+problem.add_boundary_condition(bc2)
 
-problem.add_displacement(block_index=0, displacement=[0.2, 0, 0], loadcase=lc2)
-
-# for b_idx in range(25, 36):
-#     problem.add_surface_load(block_index=b_idx, load=(0, 0, -10000), face_index=4, loadcase=lc3)
-
-# problem.add_point_load(block_index=80, force=[0, 0, -100000], loadcase=lc4)
-
-# PATH = pathlib.Path(__file__).parent / "dem_arch.json"
-# compas.json_dump(data=problem, fp=PATH)
-# problem.inspect_model(model)
-
-# solver: Solver = Solver.LMGC90(dt=0.001, duration=1)
-solver: Solver = Solver.BLA(linear=False)
-problem.solver(solver)
-result = model.solve(problem)
-
-# Viewer
-viewer = DEMViewer(model)
-# viewer.setup()
-viewer.add_solution(result, scale=0.5)
-viewer.show()
+problem.add_displacement(block_index=0, displacement=[0.5, 0, 0], boundary_condition=bc2)

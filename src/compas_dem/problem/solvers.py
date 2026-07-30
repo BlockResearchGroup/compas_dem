@@ -44,7 +44,6 @@ class Solver(Data):
         theta: float = 0.5,
         urf_threshold: Optional[float] = None,
         track_block: Optional[int] = None,
-        contact_law: str = "IQS_CLB",
         verbose: int = 0,
     ):
         """
@@ -76,7 +75,6 @@ class Solver(Data):
             "theta": theta,
             "urf_threshold": urf_threshold,
             "track_block": track_block,
-            "contact_law": contact_law,
             "verbose": verbose,
         }
         return self
@@ -86,6 +84,7 @@ class Solver(Data):
         cls,
         d_bnd: float = 0.001,
         eps: float = 0.0001,
+        penalty: bool = False,
         verbose: bool = False,
         timer: bool = False,
     ):
@@ -98,6 +97,8 @@ class Solver(Data):
             Penalty boundary parameter. Default ``0.001``.
         eps : float
             Penalty convergence tolerance. Default ``0.0001``.
+        penalty : bool
+            Use the penalty formulation instead of the plain CRA solve.
         verbose : bool
             Print solver output.
         timer : bool
@@ -106,9 +107,9 @@ class Solver(Data):
         self = cls()
         self.name = "CRA"
         self.parameters = {
-            "method": "cra",
             "d_bnd": d_bnd,
             "eps": eps,
+            "penalty": penalty,
             "verbose": verbose,
             "timer": timer,
         }
@@ -118,7 +119,6 @@ class Solver(Data):
     def PRD(
         cls,
         linear: bool = True,
-        mu: Optional[float] = None,
         solver: str = "CLARABEL",
         non_linear_params: Optional[dict] = None,
         verbose: bool = False,
@@ -145,7 +145,6 @@ class Solver(Data):
         self.name = "PRD"
         self.parameters = {
             "linear": linear,
-            "mu": mu,
             "solver": solver,
             "non_linear_params": non_linear_params or {"nsteps": 80, "open_tol": 1e-3},
             "verbose": verbose,
@@ -218,7 +217,6 @@ class Solver(Data):
         self = cls()
         self.name = "RBE"
         self.parameters = {
-            "method": "rbe",
             "verbose": verbose,
             "timer": timer,
         }

@@ -5,8 +5,12 @@ import numpy as np
 try:
     from compas_assembly.datastructures import Assembly
     from compas_assembly.datastructures import Block
-    from compas_cra.equilibrium import cra_penalty_solve
-    from compas_cra.equilibrium import rbe_solve
+
+    # Aliased: this module exposes its own ``cra_solve`` / ``rbe_solve`` taking a
+    # Problem and a BlockModel, while these take a compas_cra Assembly.
+    from compas_cra.equilibrium import cra_penalty_solve as _cra_penalty_backend
+    from compas_cra.equilibrium import cra_solve as _cra_backend
+    from compas_cra.equilibrium import rbe_solve as _rbe_backend
 except ImportError:
     raise ImportError("compas_cra is not installed. Install it to use the CRA / RBE solvers.")
 
@@ -130,18 +134,47 @@ def _post_processing_cra(assembly: Assembly, problem: Problem, model: BlockModel
     return results
 
 
-def cra_solve(
+def _resolve_mu(problem: Problem, mu: Optional[float]) -> float:
+    """Return the friction coefficient, falling back to the problem's contact model."""
+    if mu is not None:
+        return mu
+    if problem.contact_properties.contact_model:
+        return problem.contact_properties.contact_model.mu
+    return 0.6
+
+
+def _resolve_density(model: BlockModel, density: Optional[float]) -> float:
+    """Return the density used to rescale forces: the first block that declares one."""
+    if density is not None:
+        return density
+    for block in model.elements():
+        if block.material and block.material.density:
+            return block.material.density
+    return 1.0
+
+
+def _mark_supports(problem: Problem, model: BlockModel) -> None:
+    """Flag fully fixed blocks as supports, since the assembly is built from that flag."""
+    centroidal_displacements = resolve_centroidal_displacements(problem)
+
+    for block in model.elements():
+        disp = centroidal_displacements.get(block.graphnode)
+        if disp is not None:
+            t = disp["translation"] or [0.0, 0.0, 0.0]
+            r = disp["rotation"] or [0.0, 0.0, 0.0]
+            if all(v == 0.0 for v in t) and all(v == 0.0 for v in r):
+                block.is_support = True
+
+
+def rbe_solve(
     problem: Problem,
     model: BlockModel,
-    method: str = "penalty",
     mu: Optional[float] = None,
     density: Optional[float] = None,
-    d_bnd: float = 0.01,
-    eps: float = 0.001,
     verbose: bool = True,
     timer: bool = False,
-) -> None:
-    """Solve a Problem using CRA and write results back to the BlockModel in-place.
+) -> Results:
+    """Solve a Problem with RBE and return the results.
 
     Requires ``model.compute_contacts()`` to have been called first.
 
@@ -149,53 +182,84 @@ def cra_solve(
     ----------
     problem : :class:`~compas_dem.problem.Problem`
     model : :class:`~compas_dem.models.BlockModel`
-    method : str, optional
-        ``"penalty"`` (default) or ``"rbe"``.
     mu : float, optional
         Friction coefficient. Falls back to ``problem.contact_properties.contact_model.mu``.
     density : float, optional
-        Physical material density for force rescaling.
-    d_bnd : float, optional
-        Penalty boundary parameter. Default ``0.001``.
-    eps : float, optional
-        Penalty convergence tolerance. Default ``0.0001``.
+        Physical material density for force rescaling. Falls back to the first
+        block that declares one.
     verbose : bool, optional
         Print solver output.
     timer : bool, optional
         Print timing information.
+
+    Returns
+    -------
+    :class:`~compas_dem.problem.Results`
     """
-    centroidal_displacements = resolve_centroidal_displacements(problem)
+    _mark_supports(problem, model)
 
-    for block in model.elements():
-        idx = block.graphnode
-        disp = centroidal_displacements.get(idx)
-        if disp is not None:
-            t = disp["translation"] or [0.0, 0.0, 0.0]
-            r = disp["rotation"] or [0.0, 0.0, 0.0]
-            if all(v == 0.0 for v in t) and all(v == 0.0 for v in r):
-                block.is_support = True
-
-    if mu is None:
-        if problem.contact_properties.contact_model:
-            mu = problem.contact_properties.contact_model.mu
-        else:
-            mu = 0.6
-
-    density = 2000.0
-    for block in model.elements():
-        density = block.material.density
-        if density is not None:
-            break
+    mu = _resolve_mu(problem, mu)
+    density = _resolve_density(model, density)
 
     assembly = _blockmodel_to_assembly(model)
-
-    if method == "rbe":
-        rbe_solve(assembly, mu=mu, density=1.0, verbose=verbose, timer=timer)
-    elif method == "cra":
-        cra_penalty_solve(assembly, mu=mu, density=1.0, d_bnd=d_bnd, eps=eps, verbose=verbose, timer=timer)
-    else:
-        raise ValueError(f"Unknown CRA method '{method}'. Use 'rbe' or 'penalty'.")
+    _rbe_backend(assembly, mu=mu, density=1.0, verbose=verbose, timer=timer)
 
     results = _post_processing_cra(assembly, problem, model, density=density)
     results.metadata["mu"] = mu
+    return results
+
+
+def cra_solve(
+    problem: Problem,
+    model: BlockModel,
+    penalty: bool = False,
+    mu: Optional[float] = None,
+    density: Optional[float] = None,
+    d_bnd: float = 0.01,
+    eps: float = 0.001,
+    verbose: bool = True,
+    timer: bool = False,
+) -> Results:
+    """Solve a Problem with CRA and return the results.
+
+    Requires ``model.compute_contacts()`` to have been called first.
+
+    Parameters
+    ----------
+    problem : :class:`~compas_dem.problem.Problem`
+    model : :class:`~compas_dem.models.BlockModel`
+    penalty : bool, optional
+        If ``True``, use the penalty formulation. Default ``False``, the plain
+        CRA solve. For RBE, call :func:`rbe_solve` instead.
+    mu : float, optional
+        Friction coefficient. Falls back to ``problem.contact_properties.contact_model.mu``.
+    density : float, optional
+        Physical material density for force rescaling. Falls back to the first
+        block that declares one.
+    d_bnd : float, optional
+        Penalty boundary parameter. Default ``0.01``.
+    eps : float, optional
+        Penalty convergence tolerance. Default ``0.001``.
+    verbose : bool, optional
+        Print solver output.
+    timer : bool, optional
+        Print timing information.
+
+    Returns
+    -------
+    :class:`~compas_dem.problem.Results`
+    """
+    _mark_supports(problem, model)
+
+    mu = _resolve_mu(problem, mu)
+    density = _resolve_density(model, density)
+
+    assembly = _blockmodel_to_assembly(model)
+
+    backend = _cra_penalty_backend if penalty else _cra_backend
+    backend(assembly, mu=mu, density=1.0, d_bnd=d_bnd, eps=eps, verbose=verbose, timer=timer)
+
+    results = _post_processing_cra(assembly, problem, model, density=density)
+    results.metadata["mu"] = mu
+    results.metadata["penalty"] = penalty
     return results

@@ -16,7 +16,7 @@ def _element_mass(element) -> float:
     return element.material.density * volume
 
 
-def resolve_centroidal_loads(problem, model, loadcase=None) -> dict:
+def resolve_centroidal_loads(problem, model, boundary_condition=None) -> dict:
     """Resolve load-case loads to (force, moment) pairs at each block centroid.
 
     Handles body forces, point loads (with explicit point or moment), and
@@ -28,9 +28,9 @@ def resolve_centroidal_loads(problem, model, loadcase=None) -> dict:
     ----------
     problem : :class:`~compas_dem.problem.Problem`
     model : :class:`~compas_dem.models.BlockModel`
-    loadcase : :class:`~compas_dem.problem.LoadCase`, optional
-        Resolve only this load case. If ``None`` (default), all of the
-        problem's load cases are summed together.
+    boundary_condition : :class:`~compas_dem.problem.BoundaryCondition`, optional
+        Resolve only this boundary condition. If ``None`` (default), all of the
+        problem's boundary conditions are summed together.
 
     Returns
     -------
@@ -38,17 +38,17 @@ def resolve_centroidal_loads(problem, model, loadcase=None) -> dict:
         ``{block_index: {"force": Vector, "moment": Vector, "loading_type": str}}``
     """
     blocks = {block.graphnode: block for block in model.elements()}
-    loadcases = [loadcase] if loadcase is not None else problem.loadcases
+    boundary_conditions = [boundary_condition] if boundary_condition is not None else problem.boundary_conditions
 
     loads = {idx: {"force": Vector(0, 0, 0), "moment": Vector(0, 0, 0), "loading_type": "ramp"} for idx in blocks}
 
-    for lc in loadcases:
-        for acc in lc.body_forces:
+    for bc in boundary_conditions:
+        for acc in bc.body_forces:
             a_vec = Vector(*acc)
             for idx, block in blocks.items():
                 loads[idx]["force"] += a_vec * _element_mass(block)
 
-        for entry in lc.point_loads:
+        for entry in bc.point_loads:
             idx = entry["block_index"]
             if idx not in blocks:
                 raise ValueError(f"Point load references block_index={idx} which does not exist in the model.")
@@ -64,7 +64,7 @@ def resolve_centroidal_loads(problem, model, loadcase=None) -> dict:
             loads[idx]["moment"] += moment
             loads[idx]["loading_type"] = entry["loading_type"]
 
-        for entry in lc.surface_loads:
+        for entry in bc.surface_loads:
             idx = entry["block_index"]
             if idx not in blocks:
                 raise ValueError(f"Surface load references block_index={idx} which does not exist in the model.")
@@ -81,15 +81,15 @@ def resolve_centroidal_loads(problem, model, loadcase=None) -> dict:
     return loads
 
 
-def resolve_centroidal_displacements(problem, loadcase=None) -> dict:
+def resolve_centroidal_displacements(problem, boundary_condition=None) -> dict:
     """Resolve prescribed displacements and rotations per block index.
 
     Parameters
     ----------
     problem : :class:`~compas_dem.problem.Problem`
-    loadcase : :class:`~compas_dem.problem.LoadCase`, optional
-        Resolve only this load case. If ``None`` (default), all of the
-        problem's load cases are merged together.
+    boundary_condition : :class:`~compas_dem.problem.BoundaryCondition`, optional
+        Resolve only this boundary condition. If ``None`` (default), all of the
+        problem's boundary conditions are merged together.
 
     Returns
     -------
@@ -97,19 +97,12 @@ def resolve_centroidal_displacements(problem, loadcase=None) -> dict:
         ``{block_index: {"translation": list, "rotation": list}}``
         Components are ``None`` where unconstrained.
 
-    Notes
-    -----
-    Supports are mirrored into *every* load case, so merging the load cases in
-    order would let the zeros of a support clobber a movement prescribed on that
-    same block in an earlier load case -- a settlement on a support, which is the
-    usual way to prescribe one, would silently come back fixed. Fixities are
-    therefore applied first and prescribed movements on top of them.
     """
     from compas_dem.problem.problem import _is_support
 
     displacements = {}
-    loadcases = [loadcase] if loadcase is not None else problem.loadcases
-    entries = [entry for lc in loadcases for entry in lc.displacements]
+    boundary_conditions = [boundary_condition] if boundary_condition is not None else problem.boundary_conditions
+    entries = [entry for bc in boundary_conditions for entry in bc.displacements]
 
     def apply(entry):
         idx = entry["block_index"]

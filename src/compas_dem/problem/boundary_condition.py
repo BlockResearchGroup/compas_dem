@@ -3,28 +3,28 @@ from typing import Optional
 from compas.data import Data
 
 
-class LoadCase(Data):
+class BoundaryCondition(Data):
     """A named set of loads and displacement BCs applied together to a block model.
 
-    A load case groups loads that act simultaneously. Build one up via method
-    calls (either directly on the :class:`LoadCase`, or through
+    A boundary condition groups loads that act simultaneously. Build one up via method
+    calls (either directly on the :class:`BoundaryCondition`, or through
     :class:`~compas_dem.problem.Problem`), then register it on a problem with
-    :meth:`~compas_dem.problem.Problem.add_loadcase`. A problem may hold several
-    load cases; the order in which they are solved is decided at solve time.
+    :meth:`~compas_dem.problem.Problem.add_boundary_condition`. A problem may hold several
+    boundary conditions; the order in which they are solved is decided at solve time.
 
     Parameters
     ----------
     g : float, optional
         Gravitational acceleration in [m/s²]. Default 9.81.
     name : str, optional
-        Name for this load case.
+        Name for this boundary condition.
 
     Examples
     --------
-    >>> lc = LoadCase(name="Live")
-    >>> lc.add_point_load(block_index=10, force=[0, 0, -5000])
-    >>> lc.add_support(block_index=0)
-    >>> lc.add_support(block_index=99)
+    >>> bc = BoundaryCondition(name="Live")
+    >>> bc.add_point_load(block_index=10, force=[0, 0, -5000])
+    >>> bc.add_support(block_index=0)
+    >>> bc.add_support(block_index=99)
     """
 
     def __init__(self, name: Optional[str] = None, g: float = 9.81, **kwargs) -> None:
@@ -49,7 +49,7 @@ class LoadCase(Data):
         }
 
     @classmethod
-    def __from_data__(cls, data: dict) -> "LoadCase":
+    def __from_data__(cls, data: dict) -> "BoundaryCondition":
         obj = cls(
             g=data["g"],
             name=data.get("name"),
