@@ -82,8 +82,8 @@ class Solver(Data):
     @classmethod
     def CRA(
         cls,
-        d_bnd: float = 0.001,
-        eps: float = 0.0001,
+        d_bnd: float = 0.01,
+        eps: float = 0.001,
         penalty: bool = False,
         verbose: bool = False,
         timer: bool = False,
@@ -94,9 +94,13 @@ class Solver(Data):
         Parameters
         ----------
         d_bnd : float
-            Penalty boundary parameter. Default ``0.001``.
+            Bound on the virtual displacement. Default ``0.01``.
+
+            Deliberately looser than compas_cra's own ``0.001``: on a finely
+            discretised model that bound is too tight to satisfy the contact
+            constraints and the solve reports ``infeasible``.
         eps : float
-            Penalty convergence tolerance. Default ``0.0001``.
+            Contact overlapping parameter. Default ``0.001``.
         penalty : bool
             Use the penalty formulation instead of the plain CRA solve.
         verbose : bool
@@ -158,7 +162,6 @@ class Solver(Data):
         associative: bool = True,
         non_associative_params: Optional[dict] = None,
         non_linear_params: Optional[dict] = None,
-        mu: Optional[float] = None,
         solver: str = "CLARABEL",
         verbose: bool = False,
     ):
@@ -172,8 +175,6 @@ class Solver(Data):
         associative : bool
             If ``True`` (default), use associative friction model.
             If ``False``, use non-associative friction model with parameters in ``non_associative_params``.
-        mu : float, optional
-            Friction coefficient. Falls back to the contact model's ``mu`` if not given.
         solver : str
             CVXPY back-end solver. Default ``"CLARABEL"``.
             Other options: ``"MOSEK"``, ``"GUROBI"``, ``"HIGHS"``.
@@ -193,7 +194,6 @@ class Solver(Data):
             "associative": associative,
             "non_associative_params": non_associative_params,
             "non_linear_params": non_linear_params or {"nsteps": 80, "open_tol": 1e-3},
-            "mu": mu,
             "solver": solver,
             "verbose": verbose,
         }

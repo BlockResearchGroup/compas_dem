@@ -14,7 +14,7 @@ from compas_dem.viewer import DEMViewer
 # Template
 # =============================================================================
 
-template = ArchTemplate(rise=4.393, span=21.213, thickness=0.5, depth=3.0, n=100)
+template = ArchTemplate(rise=4.393, span=21.213, thickness=0.5, depth=3.0, n=15)
 
 # =============================================================================
 # Model
@@ -58,25 +58,25 @@ bc3 = BoundaryCondition(name="Surface Load")
 bc4 = BoundaryCondition(name="Point Load")
 
 problem.add_boundary_condition(bc1)
-problem.add_boundary_condition(bc2)
-problem.add_boundary_condition(bc3)
-problem.add_boundary_condition(bc4)
+# problem.add_boundary_condition(bc2)
+# problem.add_boundary_condition(bc3)
+# problem.add_boundary_condition(bc4)
 
-problem.add_displacement(block_index=0, displacement=[0.5, 0, 0], boundary_condition=bc2)
+# problem.add_displacement(block_index=0, displacement=[0.5, 0, 0], boundary_condition=bc2)
 
-for b_idx in range(25, 36):
-    problem.add_surface_load(block_index=b_idx, load=(0, 0, -10000), face_index=4, boundary_condition=bc3)
+# for b_idx in range(25, 36):
+#     problem.add_surface_load(block_index=b_idx, load=(0, 0, -10000), face_index=4, boundary_condition=bc3)
 
-problem.add_point_load(block_index=80, force=[0, 0, -100000], boundary_condition=bc4)
+# problem.add_point_load(block_index=80, force=[0, 0, -100000], boundary_condition=bc4)
 
 PATH = pathlib.Path(__file__).parent / "dem_arch.json"
 compas.json_dump(data=problem, fp=PATH)
 # problem.inspect_model(model)
 # solver: Solver = Solver.LMGC90(dt=0.001, duration=1)
 solver: Solver = Solver.BLA(n_steps=1, associative=False)
-cra: Solver = Solver.CRA(d_bnd=0.001, eps=0.0001)
+cra: Solver = Solver.CRA()
 lmgc90: Solver = Solver.LMGC90(dt=0.001, duration=1)
-problem.solver(solver)
+problem.solver(cra)
 result = model.solve(problem)
 compas.json_dump(data=result, fp=pathlib.Path(__file__).parent / "dem_arch_result.json")
 

@@ -9,7 +9,7 @@ class GenericMaterial(Material):
 
     predefined_material = {
         "GENERIC": {
-            "fc": None,
+            "fck": None,
             "ft": None,
             "Ecm": None,
             "density": 1000,
@@ -22,7 +22,7 @@ class GenericMaterial(Material):
         data = super().__data__
         data.update(
             {
-                "fc": self.fc,
+                "fck": self.fck,
                 "ft": self.ft,
                 "Ecm": self.Ecm,
                 "density": self.density,
@@ -33,7 +33,7 @@ class GenericMaterial(Material):
 
     def __init__(
         self,
-        fc: Optional[float] = None,
+        fck: Optional[float] = None,
         ft: Optional[float] = None,
         Ecm: Optional[float] = None,
         density: float = 1000,
@@ -41,8 +41,8 @@ class GenericMaterial(Material):
         name: Optional[str] = None,
     ):
         super().__init__(name=name)
-        self.fc = fc
-        self.ft = ft if ft else (0.1 * fc) if fc else None
+        self.fck = fck
+        self.ft = ft if ft else (0.1 * fck) if fck else None
         self.Ecm = Ecm
         self.density = density
         self.poisson = poisson

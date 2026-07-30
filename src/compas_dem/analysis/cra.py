@@ -1,3 +1,4 @@
+import contextlib
 from typing import Optional
 
 import numpy as np
@@ -21,6 +22,59 @@ from compas_dem.interactions.contact import local_resultant
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.problem.results import Results
+
+
+#: IPOPT tolerances used for the CRA solves.
+#:
+#: compas_cra hardcodes ``tol=1e-10``, ``constr_viol_tol=1e-12`` and
+#: ``compl_inf_tol=1e-12`` on the solver it builds internally. That precision is
+#: out of reach for the MUMPS linear solver that conda-forge IPOPT is built
+#: against, so the solve ends in ``Restoration Failed`` or exhausts IPOPT's
+#: iteration limit — reproducible with compas_cra's own arch example, and on a
+#: 2024 stack (compas_cra 0.4.0 / pyomo 6.4.2 / IPOPT 3.14.14) as well, so it is
+#: not a regression. These are IPOPT's own defaults, plus a raised iteration cap.
+#: An IPOPT built against HSL MA27 can handle the original values.
+DEFAULT_IPOPT_OPTIONS: dict = {
+    "tol": 1e-6,
+    "constr_viol_tol": 1e-4,
+    "compl_inf_tol": 1e-4,
+    "acceptable_tol": 1e-4,
+    "acceptable_constr_viol_tol": 1e-2,
+    "acceptable_compl_inf_tol": 1e-2,
+    "max_iter": 5000,
+}
+
+
+@contextlib.contextmanager
+def _ipopt_options(options: dict):
+    """Apply ``options`` to the IPOPT solver that compas_cra creates internally.
+
+    compas_cra sets its tolerances on a solver object it never exposes, so the
+    only way to override them is to hand it a factory whose solver re-applies
+    ours immediately before solving. The patch is on ``pyomo.environ`` and is
+    always undone, but it is process-wide while held, so it is not thread-safe.
+    """
+    import pyomo.environ as pyo
+
+    original = pyo.SolverFactory
+
+    def factory(*args, **kwargs):
+        solver = original(*args, **kwargs)
+        inner_solve = solver.solve
+
+        def solve(*a, **kw):
+            for key, value in options.items():
+                solver.options[key] = value
+            return inner_solve(*a, **kw)
+
+        solver.solve = solve
+        return solver
+
+    pyo.SolverFactory = factory
+    try:
+        yield
+    finally:
+        pyo.SolverFactory = original
 
 
 def _blockmodel_to_assembly(model: BlockModel) -> Assembly:
@@ -150,7 +204,8 @@ def _resolve_density(model: BlockModel, density: Optional[float]) -> float:
     for block in model.elements():
         if block.material and block.material.density:
             return block.material.density
-    return 1.0
+        else:
+            raise ValueError(f"Block {block.graphnode} has no material with a density assigned.")
 
 
 def _mark_supports(problem: Problem, model: BlockModel) -> None:
@@ -217,6 +272,7 @@ def cra_solve(
     density: Optional[float] = None,
     d_bnd: float = 0.01,
     eps: float = 0.001,
+    ipopt_options: Optional[dict] = None,
     verbose: bool = True,
     timer: bool = False,
 ) -> Results:
@@ -240,6 +296,10 @@ def cra_solve(
         Penalty boundary parameter. Default ``0.01``.
     eps : float, optional
         Penalty convergence tolerance. Default ``0.001``.
+    ipopt_options : dict, optional
+        IPOPT options overriding the tolerances compas_cra hardcodes. Merged
+        over :data:`DEFAULT_IPOPT_OPTIONS`; pass ``{}`` to keep those as they
+        are, or e.g. ``{"tol": 1e-10}`` to restore compas_cra's own value.
     verbose : bool, optional
         Print solver output.
     timer : bool, optional
@@ -249,6 +309,9 @@ def cra_solve(
     -------
     :class:`~compas_dem.problem.Results`
     """
+    options = dict(DEFAULT_IPOPT_OPTIONS)
+    options.update(ipopt_options or {})
+
     _mark_supports(problem, model)
 
     mu = _resolve_mu(problem, mu)
@@ -257,7 +320,8 @@ def cra_solve(
     assembly = _blockmodel_to_assembly(model)
 
     backend = _cra_penalty_backend if penalty else _cra_backend
-    backend(assembly, mu=mu, density=1.0, d_bnd=d_bnd, eps=eps, verbose=verbose, timer=timer)
+    with _ipopt_options(options):
+        backend(assembly, mu=mu, density=1.0, d_bnd=d_bnd, eps=eps, verbose=verbose, timer=timer)
 
     results = _post_processing_cra(assembly, problem, model, density=density)
     results.metadata["mu"] = mu
