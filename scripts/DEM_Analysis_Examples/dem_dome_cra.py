@@ -48,11 +48,10 @@ model.assign_material(stone, elements=list(model.elements()))
 # =============================================================================
 
 problem = Problem(model)
-problem.add_contact_model("MohrCoulomb", mu=0.5, c=0.0)
-problem.add_supports_from_model(model)
+problem.set_contact_model("MohrCoulomb", mu=0.5, c=0.0)
 rbe_solver = Solver.RBE()
-problem.solver(rbe_solver)
-solution = model.solve(problem)
+problem.set_solver(rbe_solver)
+solution = problem.solve()
 
 # =============================================================================
 # Viz

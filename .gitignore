@@ -142,6 +142,7 @@ OUTBOX/
 scripts/Emil_Arch/
 scripts/*.json
 scripts/Personal_Runs/
+scripts/personal_examples/
 scripts/DEM_Analysis_Workflow/2_Blocks/*.json
 scripts/DEM_Analysis_Workflow/3_Blocks/*.json
 scripts/DEM_Analysis_Workflow/Arch/*.json
@@ -149,3 +150,6 @@ scripts/DEM_Analysis_Workflow/Barrel_Vault/*.json
 
 # excluded package utilities
 src/compas_dem/utilities/
+
+# Rhino export — local only for now
+src/compas_dem/viewer/rhino_export.py

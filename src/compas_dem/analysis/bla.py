@@ -17,13 +17,13 @@ def bla_solve(
     problem: Problem,
     model: BlockModel,
     n_steps: int = 1,
+    open_tol: float = 1e-3,
     associative: bool = True,
     non_associative_params: dict = None,
-    non_linear_params: dict = None,
     mu: float = None,
     solver: str = "CLARABEL",
     verbose: bool = False,
-) -> BLAModel:
+) -> Results:
     """Translate a Problem into a BLAModel, run the analysis, and post-process
     results back into the BlockModel in-place.
 
@@ -32,16 +32,15 @@ def bla_solve(
     problem : :class:`~compas_dem.problem.Problem`
     model : :class:`~compas_dem.models.BlockModel`
     n_steps : int, optional
-        Number of steps for the incremental solve.
-        if ``1`` (default), run the one-shot linear LP.
+        Number of increments for the incremental solve.
+        If ``1`` (default), run the one-shot linear LP instead.
+    open_tol : float, optional
+        Contact opening tolerance, used when ``n_steps > 1``. Default ``1e-3``.
     associative : bool, optional
         If ``True`` (default), use associative Coulomb friction.
     non_associative_params : dict, optional
         Parameters for non-associative friction.
         Keys: ``mu``, ``betta``, ``xi``, ``gamma``, ``c_0k``, ``tol``, ``max_iter``.
-    non_linear_params : dict, optional
-        Parameters for the incremental nonlinear solve (``n_steps > 1``).
-        ``{nsteps: 80, open_tol: 1e-3}``
     mu : float, optional
         Friction coefficient. Falls back to the contact model's ``mu``.
     solver : str, optional
@@ -51,20 +50,23 @@ def bla_solve(
 
     Returns
     -------
-    :class:`compas_bla.core.BLAModel`
+    :class:`~compas_dem.problem.Results`
     """
+    if n_steps < 1:
+        raise ValueError(f"n_steps must be at least 1, got {n_steps}.")
+
     if mu is None:
         if problem.contact_properties.contact_model:
             mu = problem.contact_properties.contact_model.mu
         else:
-            raise ValueError("No friction coefficient defined. Add a contact model via problem.add_contact_model('MohrCoulomb', mu=...) before solving.")
+            raise ValueError("No friction coefficient defined. Add a contact model via problem.set_contact_model('MohrCoulomb', mu=...) before solving.")
 
     bla = BLAModel(model)
 
     # ------------------------------------------------------------------
     # Loads
     # ------------------------------------------------------------------
-    centroidal_loads = resolve_centroidal_loads(problem, model)
+    centroidal_loads = resolve_centroidal_loads(model, problem.boundary_conditions)
     loads = []
     for idx, entry in centroidal_loads.items():
         f = entry["force"]
@@ -87,7 +89,7 @@ def bla_solve(
     # ------------------------------------------------------------------
     # Displacement BCs
     # ------------------------------------------------------------------
-    centroidal_displacements = resolve_centroidal_displacements(problem)
+    centroidal_displacements = resolve_centroidal_displacements(problem.boundary_conditions)
     disps = []
     for idx, entry in centroidal_displacements.items():
         t = entry.get("translation") or [0.0, 0.0, 0.0]
@@ -108,18 +110,14 @@ def bla_solve(
     # ------------------------------------------------------------------
     # Solve
     # ------------------------------------------------------------------
-    nl = non_linear_params or {}
-    _nsteps = nl.get("nsteps", 80)
-    _open_tol = nl.get("open_tol", 1e-3)
-
     if n_steps == 1 and associative:
         cvx_result = bla.solve_static_associative(solver=solver, mu=mu, verbose=verbose)
     elif n_steps == 1 and not associative:
         cvx_result = bla.solve_static_non_associative(solver=solver, verbose=verbose)
-    elif n_steps > 1 and associative:
-        cvx_result = bla.solve_static_associative_non_linear(nsteps=_nsteps, mu=mu, open_tol=_open_tol, solver=solver, verbose=verbose)
+    elif associative:
+        cvx_result = bla.solve_static_associative_non_linear(nsteps=n_steps, mu=mu, open_tol=open_tol, solver=solver, verbose=verbose)
     else:
-        cvx_result = bla.solve_static_non_associative_non_linear(nsteps=_nsteps, open_tol=_open_tol, solver=solver, verbose=verbose)
+        cvx_result = bla.solve_static_non_associative_non_linear(nsteps=n_steps, open_tol=open_tol, solver=solver, verbose=verbose)
 
     bla.post_process_results()
 

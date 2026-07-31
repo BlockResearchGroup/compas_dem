@@ -36,7 +36,7 @@ class GenericMaterial(Material):
         fck: Optional[float] = None,
         ft: Optional[float] = None,
         Ecm: Optional[float] = None,
-        density: float = 1000,
+        density: float = 2000,
         poisson: float = 0.2,
         name: Optional[str] = None,
     ):

@@ -242,7 +242,7 @@ class DEMViewer(Viewer):
         Parameters
         ----------
         results : :class:`~compas_dem.problem.Results`
-            The results object returned by ``model.solve(problem)``.
+            The results object returned by ``problem.solve()``.
         name : str, optional
             Label for this solution's group in the scene tree. Default ``"Solution"``.
         scale : float, optional

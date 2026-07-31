@@ -15,47 +15,49 @@ except ImportError:
 def prd_solve(
     problem: Problem,
     model: BlockModel,
-    linear: bool = True,
+    n_steps: int = 1,
+    open_tol: float = 1e-3,
     mu: float = None,
     solver: str = "CLARABEL",
-    non_linear_params: dict = None,
     verbose: bool = False,
-) -> PR3DModel:
-    """Translate a Problem into a PR3DModel, run the analysis, and post-process
-    results back into the BlockModel in-place.
+) -> Results:
+    """Translate a Problem into a PR3DModel, run the analysis, and return the results.
 
     Parameters
     ----------
     problem : :class:`~compas_dem.problem.Problem`
     model : :class:`~compas_dem.models.BlockModel`
-    linear : bool, optional
-        If ``True`` (default), run the one-shot linear LP.
+    n_steps : int, optional
+        Number of increments for the incremental nonlinear solve.
+        If ``1`` (default), run the one-shot linear LP instead.
+    open_tol : float, optional
+        Contact opening tolerance, used when ``n_steps > 1``. Default ``1e-3``.
     mu : float, optional
         Friction coefficient. Falls back to the contact model's ``mu``.
     solver : str, optional
         CVXPY back-end solver. Default ``"CLARABEL"``.
-    non_linear_params : dict, optional
-        Parameters for the incremental nonlinear solve (``linear=False``).
-        ``{nsteps: 80, open_tol: 1e-3}``
     verbose : bool, optional
         Print solver output. Default ``False``.
 
     Returns
     -------
-    :class:`compas_pr3d.prd.PR3DModel`
+    :class:`~compas_dem.problem.Results`
     """
+    if n_steps < 1:
+        raise ValueError(f"n_steps must be at least 1, got {n_steps}.")
+
     if mu is None:
         if problem.contact_properties.contact_model:
             mu = problem.contact_properties.contact_model.mu
         else:
-            raise ValueError("No friction coefficient defined. Add a contact model via problem.add_contact_model('MohrCoulomb', mu=...) before solving.")
+            raise ValueError("No friction coefficient defined. Add a contact model via problem.set_contact_model('MohrCoulomb', mu=...) before solving.")
 
     prd = PR3DModel(model)
 
     # ------------------------------------------------------------------
     # Loads
     # ------------------------------------------------------------------
-    centroidal_loads = resolve_centroidal_loads(problem, model)
+    centroidal_loads = resolve_centroidal_loads(model, problem.boundary_conditions)
     loads = []
     for idx, entry in centroidal_loads.items():
         f = entry["force"]
@@ -69,10 +71,10 @@ def prd_solve(
         prd.set_force(loads)
 
     # ------------------------------------------------------------------
-    # Displacement BCs (nonlinear only)
+    # Displacement BCs (incremental solve only)
     # ------------------------------------------------------------------
-    if not linear:
-        centroidal_displacements = resolve_centroidal_displacements(problem)
+    if n_steps > 1:
+        centroidal_displacements = resolve_centroidal_displacements(problem.boundary_conditions)
         disps = []
         for idx, entry in centroidal_displacements.items():
             t = entry.get("translation") or [0.0, 0.0, 0.0]
@@ -86,13 +88,12 @@ def prd_solve(
     # ------------------------------------------------------------------
     # Solve
     # ------------------------------------------------------------------
-    if linear:
+    if n_steps == 1:
         cvx_result = prd.solve(dual=True, mu=mu, verbose=verbose, solver=solver)
     else:
-        nl = non_linear_params or {}
         cvx_result = prd.solve_nonlinear(
-            nsteps=nl.get("nsteps", 80),
-            open_tol=nl.get("open_tol", 1e-3),
+            nsteps=n_steps,
+            open_tol=open_tol,
             solver=solver,
             mu=mu,
             verbose=verbose,
@@ -103,7 +104,7 @@ def prd_solve(
     prd.name = "PRD"
     results = _post_processing_prd(prd, problem, model)
     results.metadata["mu"] = mu
-    results.metadata["solver_status"] = cvx_result.results.status
+    # results.metadata["solver_status"] = cvx_result.status
     return results
 
 

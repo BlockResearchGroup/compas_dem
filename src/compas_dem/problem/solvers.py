@@ -44,7 +44,7 @@ class Solver(Data):
         theta: float = 0.5,
         urf_threshold: Optional[float] = None,
         track_block: Optional[int] = None,
-        verbose: int = 0,
+        verbose: int = 1000,
     ):
         """
         LMGC90 solver configuration.
@@ -63,8 +63,6 @@ class Solver(Data):
             Unbalanced force threshold for convergence. If None, it will be set to a default value based on the model.
         track_block : int, Optional
             Optional block index to track and print its displacement/rotation during the simulation.
-        contact_law : str
-            Contact law to use in LMGC90. Default is "IQS_CLB" (a common choice for DEM simulations).
         """
         self = cls()
         self.name = "LMGC90"
@@ -122,35 +120,36 @@ class Solver(Data):
     @classmethod
     def PRD(
         cls,
-        linear: bool = True,
+        n_steps: int = 1,
+        open_tol: float = 1e-3,
+        mu: Optional[float] = None,
         solver: str = "CLARABEL",
-        non_linear_params: Optional[dict] = None,
         verbose: bool = False,
     ):
         """PRD (Piecewise Rigid Displacement) solver configuration.
 
         Parameters
         ----------
-        linear : bool
-            If ``True`` (default), run the one-shot linear LP.
-            If ``False``, run the incremental nonlinear solve.
+        n_steps : int
+            Number of increments for the incremental nonlinear solve.
+            If ``1`` (default), run the one-shot linear LP instead.
+        open_tol : float
+            Contact opening tolerance, used when ``n_steps > 1``. Default ``1e-3``.
         mu : float, optional
             Friction coefficient. Falls back to the contact model's ``mu`` if not given.
         solver : str
             CVXPY back-end solver. Default ``"CLARABEL"``.
             Other options: ``"MOSEK"``, ``"GUROBI"``, ``"HIGHS"``.
-        non_linear_params : dict, optional
-            Parameters for the incremental nonlinear solve (used when ``linear=False``).
-                {nsteps: 80, open_tol: 1e-3}
         verbose : bool
             Print solver output. Default ``False``.
         """
         self = cls()
         self.name = "PRD"
         self.parameters = {
-            "linear": linear,
+            "n_steps": n_steps,
+            "open_tol": open_tol,
+            "mu": mu,
             "solver": solver,
-            "non_linear_params": non_linear_params or {"nsteps": 80, "open_tol": 1e-3},
             "verbose": verbose,
         }
         return self
@@ -159,9 +158,10 @@ class Solver(Data):
     def BLA(
         cls,
         n_steps: int = 1,
+        open_tol: float = 1e-3,
         associative: bool = True,
         non_associative_params: Optional[dict] = None,
-        non_linear_params: Optional[dict] = None,
+        mu: Optional[float] = None,
         solver: str = "CLARABEL",
         verbose: bool = False,
     ):
@@ -170,20 +170,21 @@ class Solver(Data):
         Parameters
         ----------
         n_steps : int
-            Number of steps for the incremental solve.
-            if ``1`` (default), run the one-shot linear LP.
+            Number of increments for the incremental solve.
+            If ``1`` (default), run the one-shot linear LP instead.
+        open_tol : float
+            Contact opening tolerance, used when ``n_steps > 1``. Default ``1e-3``.
         associative : bool
             If ``True`` (default), use associative friction model.
             If ``False``, use non-associative friction model with parameters in ``non_associative_params``.
-        solver : str
-            CVXPY back-end solver. Default ``"CLARABEL"``.
-            Other options: ``"MOSEK"``, ``"GUROBI"``, ``"HIGHS"``.
-        non_linear_params : dict, optional
-            Parameters for the incremental nonlinear solve (used when ``linear=False``).
-                {nsteps: 80, open_tol: 1e-3}
         non_associative_params : dict, optional
             Parameters for non-associative friction model (used when ``associative=False``).
                 {mu: 0.6, betta: 0.6, xi: 0.0, gamma: 0.0, c_0k: 1e-5, tol: 1e-3, max_iter: 10}
+        mu : float, optional
+            Friction coefficient. Falls back to the contact model's ``mu`` if not given.
+        solver : str
+            CVXPY back-end solver. Default ``"CLARABEL"``.
+            Other options: ``"MOSEK"``, ``"GUROBI"``, ``"HIGHS"``.
         verbose : bool
             Print solver output. Default ``False``.
         """
@@ -191,9 +192,10 @@ class Solver(Data):
         self.name = "BLA"
         self.parameters = {
             "n_steps": n_steps,
+            "open_tol": open_tol,
             "associative": associative,
             "non_associative_params": non_associative_params,
-            "non_linear_params": non_linear_params or {"nsteps": 80, "open_tol": 1e-3},
+            "mu": mu,
             "solver": solver,
             "verbose": verbose,
         }

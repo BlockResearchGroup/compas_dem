@@ -41,8 +41,7 @@ for element in model.elements():
 # Material
 # =============================================================================
 
-generic_stone = Stone.from_predefined_material("Generic")
-generic_stone.density = 2000
+generic_stone = Stone(density=2000)
 model.add_material(generic_stone)
 model.assign_material(generic_stone, elements=list(model.elements()))
 
@@ -51,11 +50,10 @@ model.assign_material(generic_stone, elements=list(model.elements()))
 # =============================================================================
 
 problem = Problem(model)
-problem.add_contact_model("MohrCoulomb", mu=0.5, c=0.0)
-problem.add_supports_from_model(model)
+problem.set_contact_model("MohrCoulomb", mu=0.5, c=0.0)
 cra_solver = Solver.CRA()
-problem.solver(cra_solver)
-solution = model.solve(problem)
+problem.set_solver(cra_solver)
+solution = problem.solve()
 
 # =============================================================================
 # Viz

@@ -34,7 +34,7 @@ def compute_urf(solver: Solver, problem: Problem, model: BlockModel) -> float:
     lmgc_to_graphnode = {i: el.graphnode for i, el in enumerate(model.elements())}
 
     g_vec = np.array([0.0, 0.0, -9.81])
-    centroidal_loads = resolve_centroidal_loads(problem, model)
+    centroidal_loads = resolve_centroidal_loads(model, problem.boundary_conditions)
 
     applied_forces = {}
     for idx, block in blocks.items():
@@ -64,7 +64,6 @@ def compute_urf(solver: Solver, problem: Problem, model: BlockModel) -> float:
 def lmgc90_solve(
     problem: Problem,
     model: BlockModel,
-    contact_law: str = "IQS_CLB",
     duration: float = None,
     n_steps: int = None,
     dt: float = None,
@@ -83,8 +82,6 @@ def lmgc90_solve(
         The problem containing forces, BCs, and contact properties.
     model : :class:`~compas_dem.models.BlockModel`
         The block model to solve.
-    contact_law : str, optional
-        LMGC90 contact law identifier. Default ``"IQS_CLB"``.
     duration : float, optional
         Total simulation time [s].
     n_steps : int, optional
@@ -138,24 +135,33 @@ def lmgc90_solve(
     # ------------------------------------------------------------------
     # Resolve BCs
     # ------------------------------------------------------------------
-    if len(problem.boundary_conditions) > 1:
-        raise NotImplementedError("LMGC90 solver currently supports only one boundary_condition per problem.")
+    # All boundary conditions are unpacked together: the resolve functions sum the
+    # loads and merge the displacements across every registered boundary condition.
+    boundary_conditions = problem.boundary_conditions
 
-    centroidal_displacements = resolve_centroidal_displacements(problem)
-    centroidal_loads = resolve_centroidal_loads(problem, model)
+    centroidal_displacements = resolve_centroidal_displacements(boundary_conditions)
+    centroidal_loads = resolve_centroidal_loads(model, boundary_conditions)
 
-    # Mark fully-fixed blocks as supports on the model
+    # Blocks flagged as supports on the model get a fully fixed displacement entry,
+    # so they are pinned through the zero imposed velocities below. A displacement
+    # prescribed on a support block (e.g. a settlement) wins over the fixity, per component.
     for block in model.elements():
-        idx = block.graphnode
-        disp = centroidal_displacements.get(idx)
-        if disp is not None:
-            t = disp["translation"] or [0.0, 0.0, 0.0]
-            r = disp["rotation"] or [0.0, 0.0, 0.0]
-            if all(v == 0.0 for v in t) and all(v == 0.0 for v in r):
-                block.is_support = True
+        if not block.is_support:
+            continue
+        disp = centroidal_displacements.get(block.graphnode)
+        if disp is None:
+            centroidal_displacements[block.graphnode] = {"translation": [0.0, 0.0, 0.0], "rotation": [0.0, 0.0, 0.0]}
+        else:
+            disp["translation"] = [0.0 if v is None else v for v in (disp["translation"] or [None, None, None])]
+            disp["rotation"] = [0.0 if v is None else v for v in (disp["rotation"] or [None, None, None])]
 
     solver = Solver(density=density, dt=dt, theta=theta)
     solver.geometry_from_model(model)
+
+    # The solver identifies blocks by their position in insertion order (the order
+    # model.elements() yields them), while loads and BCs are keyed by graph node,
+    # which is not guaranteed to be that same index.
+    graphnode_to_lmgc = {block.graphnode: i for i, block in enumerate(model.elements())}
     # ------------------------------------------------------------------
     # Displacement BCs → apply_velocity
     # ------------------------------------------------------------------
@@ -186,33 +192,40 @@ def lmgc90_solve(
     # ------------------------------------------------------------------
     # Applied forces → per-axis time series
     # ------------------------------------------------------------------
+    # Sampled at [0, 0.98T, T]: a ramped value r grows 0 -> r and holds, while an
+    # instantaneous value i is applied at t=0 and released at the end. Both live on
+    # the same three samples, so a block carrying ramped and instantaneous loads at
+    # once needs a single series per component -- [i, r + i, r] -- rather than one
+    # loading type winning for the whole block.
     t_series = np.array([0.0, duration * 0.98, duration])
 
     for idx, entry in centroidal_loads.items():
-        f = entry["force"]
-        m = entry["moment"]
-        ramp = entry.get("loading_type", "ramp") == "ramp"
+        block_index = graphnode_to_lmgc[idx]
+        ramped = entry["by_loading_type"]["ramp"]
+        instantaneous = entry["by_loading_type"]["instantaneous"]
 
-        def _vals(v):
-            return [0, v, v] if ramp else [v, v, 0]
+        components = [
+            ("Fx", ramped["force"].x, instantaneous["force"].x),
+            ("Fy", ramped["force"].y, instantaneous["force"].y),
+            ("Fz", ramped["force"].z, instantaneous["force"].z),
+            ("Mx", ramped["moment"].x, instantaneous["moment"].x),
+            ("My", ramped["moment"].y, instantaneous["moment"].y),
+            ("Mz", ramped["moment"].z, instantaneous["moment"].z),
+        ]
 
-        if abs(f.x) > 1e-12:
-            solver.apply_force(block_index=idx, component="Fx", value=np.array([t_series, _vals(f.x)]))
-        if abs(f.y) > 1e-12:
-            solver.apply_force(block_index=idx, component="Fy", value=np.array([t_series, _vals(f.y)]))
-        if abs(f.z) > 1e-12:
-            solver.apply_force(block_index=idx, component="Fz", value=np.array([t_series, _vals(f.z)]))
-        if abs(m.x) > 1e-12:
-            solver.apply_force(block_index=idx, component="Mx", value=np.array([t_series, _vals(m.x)]))
-        if abs(m.y) > 1e-12:
-            solver.apply_force(block_index=idx, component="My", value=np.array([t_series, _vals(m.y)]))
-        if abs(m.z) > 1e-12:
-            solver.apply_force(block_index=idx, component="Mz", value=np.array([t_series, _vals(m.z)]))
+        for component, r, i in components:
+            if abs(r) < 1e-12 and abs(i) < 1e-12:
+                continue
+            solver.apply_force(
+                block_index=block_index,
+                component=component,
+                value=np.array([t_series, [i, r + i, r]]),
+            )
 
     # ------------------------------------------------------------------
     # Contact law
     # ------------------------------------------------------------------
-    solver.contact_law(contact_law, mu)
+    solver.contact_law("IQS_CLB", mu)
 
     solver.preprocess()
 
@@ -260,10 +273,10 @@ def lmgc90_solve(
                     print(f"Converged at step {step} (UFR = {urf:.2e} < {urf_threshold:.2e}). Stopping early.")
                     break
 
-        elif step % 10 == 0:
+        elif step % verbose == 0:
             print(f"Completed step {step}/{n_steps}...")
 
-        if step % 10 == 0:
+        if step % verbose == 0:
             result = solver.last_result
             force_time.append([result.interaction_force_magnitude[i] for i in range(len(result.interaction_bodies))])
 

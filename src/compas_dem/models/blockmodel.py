@@ -431,6 +431,64 @@ class BlockModel(Model):
             if not element.is_support:
                 yield element
 
+    def _block(self, block_index: int) -> Block:
+        """Return the block at a graph node index."""
+        try:
+            return self.graph.node_element(block_index)  # type: ignore
+        except KeyError:
+            raise ValueError(f"No block at index {block_index}; the model has {self.graph.number_of_nodes()} blocks.") from None
+
+    def add_support(self, block_index: int) -> None:
+        """Assign a block as a support.
+
+        Parameters
+        ----------
+        block_index : int
+            Graph node index of the block to flag as a support.
+
+        Raises
+        ------
+        ValueError
+            If the model has no block at the given index.
+        """
+        self._block(block_index).is_support = True
+
+    def add_supports(self, block_indices: list[int]) -> None:
+        """Assign multiple blocks as supports.
+
+        Parameters
+        ----------
+        block_indices : list[int]
+            Graph node indices of the blocks to flag as supports.
+
+        Raises
+        ------
+        ValueError
+            If the model has no block at one of the given indices.
+        """
+        for block_index in block_indices:
+            self.add_support(block_index)
+
+    def remove_support(self, block_index: int) -> None:
+        """Turn a support block back into a regular block.
+
+        Parameters
+        ----------
+        block_index : int
+            Graph node index of the block to unflag.
+
+        Raises
+        ------
+        ValueError
+            If the model has no block at the given index.
+        """
+        self._block(block_index).is_support = False
+
+    def clear_supports(self) -> None:
+        """Turn all support blocks back into regular blocks."""
+        for element in self.elements():
+            element.is_support = False
+
     # =============================================================================
     # Contacts
     # =============================================================================
@@ -441,60 +499,5 @@ class BlockModel(Model):
         minimum_area=0.01,
         contacttype: Type[Contact] = FrictionContact,
     ) -> None:
+        """Compute the contacts between blocks in the model."""
         return super().compute_contacts(tolerance, minimum_area, contacttype)
-
-    # ============================================================================
-    # Solve
-    # ============================================================================
-
-    def solve(self, problem, boundary_conditions=[]):
-        """Solve the problem using the named solver.
-
-        Parameters
-        ----------
-        problem : Problem
-            The problem instance to solve.
-        boundary_conditions : list[BoundaryCondition], optional
-            The boundary conditions to solve. If none are provided, all boundary conditions in the problem will be solved concurrently.
-
-        Returns
-        -------
-        Result class object.
-
-        Raises
-        ------
-        ValueError
-            If the solver name is not recognised.
-        """
-        if boundary_conditions:
-            problem.boundary_conditions = boundary_conditions
-        else:
-            boundary_conditions = problem.boundary_conditions
-
-        if problem._solver is None:
-            raise ValueError("No solver configured. Call problem.solver(Solver.LMGC90(...)) before solving.")
-        problem.check_model_validity(self)
-        solver = problem._solver
-        params = {k: v for k, v in solver.parameters.items() if v is not None}
-        if solver.name == "LMGC90":
-            from compas_dem.analysis.lmgc90 import lmgc90_solve
-
-            return lmgc90_solve(problem, self, **params)
-        elif solver.name == "CRA":
-            from compas_dem.analysis.cra import cra_solve
-
-            return cra_solve(problem, self, **params)
-        elif solver.name == "RBE":
-            from compas_dem.analysis.cra import rbe_solve
-
-            return rbe_solve(problem, self, **params)
-        elif solver.name == "PRD":
-            from compas_dem.analysis.prd import prd_solve
-
-            return prd_solve(problem, self, **params)
-        elif solver.name == "BLA":
-            from compas_dem.analysis.bla import bla_solve
-
-            return bla_solve(problem, self, **params)
-        else:
-            raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE', 'PRD', 'BLA'.")

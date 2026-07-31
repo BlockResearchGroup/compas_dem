@@ -45,16 +45,15 @@ for node in model.graph.nodes_where(degree=1):
 # =============================================================================
 
 problem = Problem(model)
-problem.add_contact_model("MohrCoulomb", phi=40, c=0)
-problem.add_supports_from_model(model)
+problem.set_contact_model("MohrCoulomb", phi=40, c=0)
 
 # =============================================================================
 # Solver
 # =============================================================================
 
 rbe = Solver.RBE(verbose=True)
-problem.solver(rbe)
-solution = model.solve(problem)
+problem.set_solver(rbe)
+solution = problem.solve()
 
 # =============================================================================
 # Viz

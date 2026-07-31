@@ -16,13 +16,11 @@ except ImportError:
     raise ImportError("compas_cra is not installed. Install it to use the CRA / RBE solvers.")
 
 import compas.geometry as cg
-from compas_dem.analysis.resolve import resolve_centroidal_displacements
 from compas_dem.interactions import FrictionContact
 from compas_dem.interactions.contact import local_resultant
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.problem.results import Results
-
 
 #: IPOPT tolerances used for the CRA solves.
 #:
@@ -192,9 +190,10 @@ def _resolve_mu(problem: Problem, mu: Optional[float]) -> float:
     """Return the friction coefficient, falling back to the problem's contact model."""
     if mu is not None:
         return mu
-    if problem.contact_properties.contact_model:
+    elif problem.contact_properties.contact_model:
         return problem.contact_properties.contact_model.mu
-    return 0.6
+    else:
+        raise ValueError("No friction coefficient provided and no contact model in the problem.")
 
 
 def _resolve_density(model: BlockModel, density: Optional[float]) -> float:
@@ -206,19 +205,6 @@ def _resolve_density(model: BlockModel, density: Optional[float]) -> float:
             return block.material.density
         else:
             raise ValueError(f"Block {block.graphnode} has no material with a density assigned.")
-
-
-def _mark_supports(problem: Problem, model: BlockModel) -> None:
-    """Flag fully fixed blocks as supports, since the assembly is built from that flag."""
-    centroidal_displacements = resolve_centroidal_displacements(problem)
-
-    for block in model.elements():
-        disp = centroidal_displacements.get(block.graphnode)
-        if disp is not None:
-            t = disp["translation"] or [0.0, 0.0, 0.0]
-            r = disp["rotation"] or [0.0, 0.0, 0.0]
-            if all(v == 0.0 for v in t) and all(v == 0.0 for v in r):
-                block.is_support = True
 
 
 def rbe_solve(
@@ -251,8 +237,6 @@ def rbe_solve(
     -------
     :class:`~compas_dem.problem.Results`
     """
-    _mark_supports(problem, model)
-
     mu = _resolve_mu(problem, mu)
     density = _resolve_density(model, density)
 
@@ -311,8 +295,6 @@ def cra_solve(
     """
     options = dict(DEFAULT_IPOPT_OPTIONS)
     options.update(ipopt_options or {})
-
-    _mark_supports(problem, model)
 
     mu = _resolve_mu(problem, mu)
     density = _resolve_density(model, density)

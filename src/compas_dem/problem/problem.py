@@ -1,4 +1,5 @@
 from typing import Optional
+from typing import Union
 
 import compas.geometry as cg
 from compas.colors import Color
@@ -11,25 +12,17 @@ from compas_dem.models import BlockModel
 from compas_dem.problem.boundary_condition import BoundaryCondition
 from compas_dem.problem.solvers import Solver
 
-ZERO = [0.0, 0.0, 0.0]
-
-
-def _is_support(entry: dict) -> bool:
-    """Whether a displacement entry is a full fixity rather than a prescribed movement."""
-    return entry["translation"] == ZERO and entry["rotation"] == ZERO
-
 
 class Problem(Data):
     """Defines a structural problem over a block model.
 
-    The problem is a lightweight data container — it stores boundary conditions
-    and contact properties identified by ``model_id``, but holds no reference
-    to the model itself. Pass the model explicitly when calling :meth:`solve`.
+    The problem holds boundary conditions (loads and prescribed displacements) and
+    contact properties.
 
     Parameters
     ----------
     model : :class:`compas_dem.models.BlockModel`
-        The discrete element model. Used only to extract ``model.guid``; not stored.
+        The discrete element model. Kept as a transient (non-serialized) reference.
     name : str, optional
         Name of the problem.
 
@@ -39,27 +32,23 @@ class Problem(Data):
     >>> model = BlockModel()
     >>> problem = Problem(model)
     >>> problem.add_gravity()
-    >>> problem.add_support(block_index=0)  # doctest: +SKIP
-    >>> result = problem.solve(solver="LMGC90", model=model)  # doctest: +SKIP
+    >>> problem.solver(Solver.CRA())  # doctest: +SKIP
+    >>> result = problem.solve()  # doctest: +SKIP
     """
 
     def __init__(self, model: BlockModel, name: Optional[str] = None, **kwargs) -> None:
         super().__init__(name=name)
         self.model_id = str(model.guid)
+        self._model: Optional[BlockModel] = model
         self._boundary_conditions: list[BoundaryCondition] = []
-        self._supports: list[int] = []
         self._contact_properties = ContactProperties()
         self._solver = None
-        # The implicitly created "default" boundary condition, while it is still untouched
-        # apart from supports. Dropped as soon as a real boundary condition is registered.
-        self._auto_default: Optional[BoundaryCondition] = None
 
     @property
     def __data__(self) -> dict:
         return {
             "name": self.name,
             "model_id": self.model_id,
-            "supports": self._supports,
             "boundary_conditions": self._boundary_conditions,
             "contact_properties": self._contact_properties,
             "solver": self._solver,
@@ -71,85 +60,113 @@ class Problem(Data):
         Data.__init__(obj, name=data.get("name"))
         obj.model_id = data["model_id"]
         obj._boundary_conditions = list(data.get("boundary_conditions", []))
-        obj._supports = list(data.get("supports", []))
         obj._contact_properties = data["contact_properties"]
         obj._solver = data["solver"]
-        # A deserialized problem has explicit boundary conditions; nothing to auto-drop.
-        obj._auto_default = None
+        obj._model = None
         return obj
+
+    @property
+    def model(self) -> BlockModel:
+        """The block model this problem is defined over. Transient: never serialized with the problem."""
+        if self._model is None:
+            raise ValueError(f"No model loaded into this problem (model_id={self.model_id}). Call problem.load_model(model) first.")
+        return self._model
+
+    def load_model(self, model: BlockModel) -> None:
+        """Load the model into the problem, checking that the model ID matches.
+
+        Parameters
+        ----------
+        model : :class:`compas_dem.models.BlockModel`
+            The model to load.
+
+        Raises
+        ------
+        ValueError
+            If the model's ``guid`` does not match the problem's ``model_id``.
+        """
+        if str(model.guid) != self.model_id:
+            raise ValueError(f"Model ID {model.guid} does not match problem's model_id {self.model_id}.")
+        self._model = model
 
     # ============================================================================
     # Boundary conditions
     # ============================================================================
 
-    def _default_boundary_condition(self) -> BoundaryCondition:
-        """Return the first boundary condition, creating an empty default one if needed.
-
-        Adding a load directly from the problem, without specifying a boundary condition,
-        will write to the default boundary condition.
-        This is for backward compatibility with code that predates boundary conditions, and
-        convieniece for simple problems.
-
-        """
-        if not self._boundary_conditions:
-            boundary_condition = BoundaryCondition(name="default")
-            for block_index in self._supports:
-                boundary_condition.add_support(block_index)
-            self._boundary_conditions.append(boundary_condition)
-            self._auto_default = boundary_condition
-        return self._boundary_conditions[0]
-
-    def _resolve_target(self, boundary_condition: Optional[BoundaryCondition]) -> BoundaryCondition:
-        """Return the boundary condition a convenience ``add_*`` call should write to.
-
-        ``None`` targets the default (first) boundary condition. A :class:`BoundaryCondition` must
-        already be registered on this problem via :meth:`add_boundary_condition`.
-        """
-        if boundary_condition is None:
-            return self._default_boundary_condition()
-        if not any(bc is boundary_condition for bc in self._boundary_conditions):
-            raise ValueError("The given boundary condition is not registered on this problem. Call problem.add_boundary_condition(boundary_condition) first.")
-        return boundary_condition
-
-    def add_boundary_condition(self, boundary_condition: BoundaryCondition) -> int:
+    def add_boundary_condition(self, name: str = "default") -> BoundaryCondition:
         """Register a boundary condition on the problem.
-
-        The problem's supports are copied into the boundary condition, so add them with
-        :meth:`add_support` before registering any boundary condition.
 
         Parameters
         ----------
-        boundary_condition : :class:`BoundaryCondition`
-            The boundary condition to append. It is stored by reference, so its ``guid``
-            is preserved and later edits to the object are reflected here.
-
+        name : str, optional
+            Name for the boundary condition. Default ``"default"``.
+        Raises
+        ------
+        ValueError
+            If a boundary condition with the same name is already registered.
         Returns
         -------
-        int
-            The index of the newly added boundary condition.
+        BoundaryCondition
+            The newly added boundary condition instance.
         """
-        for block_index in self._supports:
-            boundary_condition.add_support(block_index)
-
-        if self._auto_default is not None:
-            self._boundary_conditions[0] = boundary_condition
-            self._auto_default = None
-            index = 0
+        if name == "default" and name in (bc.name for bc in self._boundary_conditions):
+            name = f"default_{len(self._boundary_conditions)}"
+        if name in (bc.name for bc in self._boundary_conditions):
+            raise ValueError(f"A boundary condition named '{name}' is already registered on this problem.")
         else:
+            boundary_condition = BoundaryCondition(name=name)
             self._boundary_conditions.append(boundary_condition)
-            index = len(self._boundary_conditions) - 1
-
-        return index
+            return boundary_condition
 
     @property
     def boundary_conditions(self) -> list[BoundaryCondition]:
         """The ordered list of boundary conditions attached to this problem."""
         return self._boundary_conditions
 
-    @property
-    def boundary_condition(self) -> list[BoundaryCondition]:
-        """Alias for :attr:`boundary_conditions`; supports ``problem.boundary_condition[i]`` indexing."""
-        return self._boundary_conditions
+    def _find_boundary_condition(self, key: Union[int, str, BoundaryCondition]) -> BoundaryCondition:
+        """Return the registered boundary condition identified by index, name, or object."""
+        if isinstance(key, BoundaryCondition):
+            if any(bc is key for bc in self._boundary_conditions):
+                return key
+            raise ValueError("The given boundary condition is not registered on this problem. Call problem.add_boundary_condition(boundary_condition) first.")
+        if isinstance(key, int) and not isinstance(key, bool):
+            if 0 <= key < len(self._boundary_conditions):
+                return self._boundary_conditions[key]
+            raise ValueError(f"No boundary condition at index {key}; {len(self._boundary_conditions)} are registered.")
+        if isinstance(key, str):
+            matches = [bc for bc in self._boundary_conditions if bc.name == key]
+            if not matches:
+                raise ValueError(f"No boundary condition named '{key}' is registered on this problem.")
+            if len(matches) > 1:
+                raise ValueError(f"Multiple boundary conditions are named '{key}'; identify it by index or object instead.")
+            return matches[0]
+        raise TypeError("Identify a boundary condition by its index, its name, or the BoundaryCondition object itself.")
+
+    def set_solve_order(self, boundary_conditions: list[Union[str, BoundaryCondition]]) -> None:
+        """Reorder the registered boundary conditions.
+
+        Setting one boundary condition inside the method only reorders the list of boundary conditions by placing it first,
+        and the rest of the boundary conditions will follow in their original order.
+
+        Parameters
+        ----------
+        boundary_conditions : list[str | :class:`BoundaryCondition`]
+
+        Raises
+        ------
+        ValueError
+            If the list is empty, if an entry does not resolve to a registered boundary
+            condition, or if the same boundary condition appears more than once.
+        TypeError
+            If an entry is not an str, or :class:`BoundaryCondition`.
+        """
+        if not boundary_conditions:
+            raise ValueError("No boundary conditions given to reorder.")
+        resolved = [self._find_boundary_condition(key) for key in boundary_conditions]
+        if len(set(id(bc) for bc in resolved)) != len(resolved):
+            raise ValueError("The solve order contains the same boundary condition more than once.")
+        remainder = [bc for bc in self._boundary_conditions if not any(bc is r for r in resolved)]
+        self._boundary_conditions = resolved + remainder
 
     # ============================================================================
     # Pre-visualization utilities
@@ -157,7 +174,6 @@ class Problem(Data):
 
     def inspect_model(
         self,
-        model: BlockModel,
         show_blocks: bool = False,
         face_indices: bool = True,
         show_loads: bool = True,
@@ -208,6 +224,7 @@ class Problem(Data):
         from compas_viewer.viewer import Viewer
 
         viewer = Viewer()
+        model = self.model
         if not grid:
             viewer.config.renderer.show_grid = False
 
@@ -298,35 +315,32 @@ class Problem(Data):
                 body_view = viewer.scene.add_group(name="Body Forces")
                 origin = cg.centroid_points([list(block.point) for block in blocks.values()])
                 scale = max(block_scale(block) for block in blocks.values()) if blocks else 1.0
-                for bc, acceleration in body_forces:
-                    vector = Vector(*acceleration)
+                for bc, entry in body_forces:
+                    vector = Vector(*entry["acceleration"])
                     line = arrow(origin, vector, scale)
                     if line is None:
                         continue
                     body_view.add(
                         line,
-                        name=f"Body Force: [{vector.x:.2f}, {vector.y:.2f}, {vector.z:.2f}] m/s²{suffix(bc)}",
+                        name=f"Body Force: [{vector.x:.2f}, {vector.y:.2f}, {vector.z:.2f}] m/s² ({entry['loading_type']}){suffix(bc)}",
                         linewidth=2.5,
                         linecolor=Color.orange(),
                     )
 
         if show_supports:
-            # Supports live on the problem, so they are drawn once rather than
-            # once per boundary condition. Everything left in the boundary conditions is a
-            # prescribed movement.
-            prescribed: list[tuple[BoundaryCondition, dict]] = [(bc, entry) for bc, entry in entries("displacements") if not _is_support(entry)]
+            # Supports live on the model (block.is_support); the boundary conditions
+            # only hold prescribed movements.
+            prescribed: list[tuple[BoundaryCondition, dict]] = entries("displacements")
 
-            if not self._supports:
-                print("No supports defined in the problem.")
+            support_blocks = [block for block in model.supports()]
+            if not support_blocks:
+                print("No supports defined in the model.")
             else:
                 supports_view = viewer.scene.add_group(name="Supports")
-                for block_index in self._supports:
-                    if block_index not in blocks:
-                        print(f"Support references block_index={block_index}, which does not exist in the model.")
-                        continue
+                for block in support_blocks:
                     supports_view.add(
-                        blocks[block_index].modelgeometry,
-                        name=f"Support: block {block_index}",
+                        block.modelgeometry,
+                        name=f"Support: block {block.graphnode}",
                         color=Color.red(),
                         opacity=0.5,
                     )
@@ -384,20 +398,14 @@ class Problem(Data):
     # Boundary conditions
     # ============================================================================
 
-    def add_gravity(self, g: float = 9.81, boundary_condition: Optional[BoundaryCondition] = None) -> None:
-        """Changes applied gravity in a boundary condition.
-
-        Parameters
-        ----------
-        g : float, optional
-            Gravitational acceleration in [m/s²]. Default 9.81.
-        boundary_condition : :class:`BoundaryCondition`, optional
-            The boundary condition to write to. Must already be registered via
-            :meth:`add_boundary_condition`. Defaults to the first (default) boundary condition.
-        """
-        self._resolve_target(boundary_condition).add_gravity(g)
-
-    def add_global_body_force(self, ax: float, ay: float, az: float, boundary_condition: Optional[BoundaryCondition] = None) -> None:
+    def add_global_body_force(
+        self,
+        ax: float,
+        ay: float,
+        az: float,
+        loading_type: str = "ramp",
+        boundary_condition: BoundaryCondition = None,
+    ) -> None:
         """Add a global body acceleration applied to all blocks.
 
         The resultant force on each block is F = [ax, ay, az] * density * volume.
@@ -406,24 +414,127 @@ class Problem(Data):
         ----------
         ax, ay, az : float
             Acceleration components in [m/s²].
-        boundary_condition : :class:`BoundaryCondition`, optional
-            The boundary condition to write to. Defaults to the first (default) boundary condition.
+        loading_type : str, optional
+            Time-series shape used by the solver. ``"ramp"`` (default) ramps
+            from zero to full over the simulation; ``"instantaneous"`` applies
+            the full load at t=0 and releases it at the end.
+        boundary_condition : :class:`BoundaryCondition`
+            The boundary condition to write to.
 
         .. note::
             This method takes acceleration components, not forces.
         """
-        self._resolve_target(boundary_condition).add_global_body_force(ax, ay, az)
+        if boundary_condition is None:
+            raise ValueError("No boundary condition specified. Please specify a boundary condition to add the global body force to.")
+        boundary_condition.add_global_body_force(ax, ay, az, loading_type=loading_type)
 
-    def add_point_load(
+    def add_point_load_at_vertex(
+        self,
+        block_index: int,
+        vertex_index: int,
+        force: list[float],
+        loading_type: str = "ramp",
+        boundary_condition: BoundaryCondition = None,
+    ) -> None:
+        """Add a point load at a specific vertex of a block.
+
+        Parameters
+        ----------
+        block_index : int
+            Graph node index of the target block.
+        vertex_index : int
+            Index of the vertex on which to apply the load.
+        force : list[float]
+            Force vector [fx, fy, fz].
+        loading_type : str, optional
+            Time-series shape used by the solver. ``"ramp"`` (default) ramps
+            from zero to full over the simulation; ``"instantaneous"`` applies
+            the full load at t=0 and releases it at the end.
+        boundary_condition : :class:`BoundaryCondition`
+            The boundary condition to write to.
+        """
+        if boundary_condition is None:
+            raise ValueError("No boundary condition specified. Please specify a boundary condition to add the point load to.")
+        block = self.model._block(block_index)
+        try:
+            point = block.modelgeometry.vertex_coordinates(vertex_index)
+        except KeyError:
+            raise ValueError(f"Block {block_index} does not have a vertex with index {vertex_index}.") from None
+        boundary_condition.add_point_load(block_index, force, point=point, loading_type=loading_type)
+
+    def add_point_load_at_face(
+        self,
+        block_index: int,
+        face_index: int,
+        force: list[float],
+        loading_type: str = "ramp",
+        boundary_condition: BoundaryCondition = None,
+    ) -> None:
+        """Add a point load at the centroid of a specific face of a block.
+
+        Parameters
+        ----------
+        block_index : int
+            Graph node index of the target block.
+        face_index : int
+            Index of the face on which to apply the load.
+        force : list[float]
+            Force vector [fx, fy, fz].
+        loading_type : str, optional
+            Time-series shape used by the solver. ``"ramp"`` (default) ramps
+            from zero to full over the simulation; ``"instantaneous"`` applies
+            the full load at t=0 and releases it at the end.
+        boundary_condition : :class:`BoundaryCondition`
+            The boundary condition to write to.
+        """
+        if boundary_condition is None:
+            raise ValueError("No boundary condition specified. Please specify a boundary condition to add the point load to.")
+        block = self.model._block(block_index)
+        try:
+            point = block.modelgeometry.face_center(face_index)
+        except KeyError:
+            raise ValueError(f"Block {block_index} does not have a face with index {face_index}.") from None
+        boundary_condition.add_point_load(block_index, force, point=point, loading_type=loading_type)
+
+    def add_point_load_at_point(
+        self,
+        block_index: int,
+        point: list[float],
+        force: list[float],
+        loading_type: str = "ramp",
+        boundary_condition: BoundaryCondition = None,
+    ) -> None:
+        """Add a point load at an arbitrary point on a block.
+
+        Parameters
+        ----------
+        block_index : int
+            Graph node index of the target block.
+        point : list[float]
+            Application point [x, y, z]. The equivalent moment at the block centroid
+            is resolved at solve time.
+        force : list[float]
+            Force vector [fx, fy, fz].
+        loading_type : str, optional
+            Time-series shape used by the solver. ``"ramp"`` (default) ramps
+            from zero to full over the simulation; ``"instantaneous"`` applies
+            the full load at t=0 and releases it at the end.
+        boundary_condition : :class:`BoundaryCondition`
+            The boundary condition to write to.
+        """
+        if boundary_condition is None:
+            raise ValueError("No boundary condition specified. Please specify a boundary condition to add the point load to.")
+        self.model._block(block_index)
+        boundary_condition.add_point_load(block_index, force, point=point, loading_type=loading_type)
+
+    def add_point_load_at_centroid(
         self,
         block_index: int,
         force: list[float],
-        moment: Optional[list[float]] = None,
-        point: Optional[list[float]] = None,
         loading_type: str = "ramp",
-        boundary_condition: Optional[BoundaryCondition] = None,
+        boundary_condition: BoundaryCondition = None,
     ) -> None:
-        """Add a concentrated force to a specific block.
+        """Add a point load at the centroid of a block.
 
         Parameters
         ----------
@@ -431,20 +542,37 @@ class Problem(Data):
             Graph node index of the target block.
         force : list[float]
             Force vector [fx, fy, fz].
-        moment : list[float], optional
-            Moment vector [mx, my, mz] applied at the centroid.
-            Cannot be combined with `point`.
-        point : list[float], optional
-            Application point [x, y, z]. The equivalent moment at the block
-            centroid is resolved at solve time.
-            If ``None``, the load is applied at the block centroid (zero moment).
-            Cannot be combined with `moment`.
         loading_type : str, optional
-            ``"ramp"`` (default) or ``"instantaneous"``.
+            Time-series shape used by the solver. ``"ramp"`` (default) ramps
+            from zero to full over the simulation; ``"instantaneous"`` applies
+            the full load at t=0 and releases it at the end.
+        boundary_condition : :class:`BoundaryCondition`
+            The boundary condition to write to.
+        """
+        if boundary_condition is None:
+            raise ValueError("No boundary condition specified. Please specify a boundary condition to add the point load to.")
+        self.model._block(block_index)
+        boundary_condition.add_point_load(block_index, force, loading_type=loading_type)
+
+    def add_moment(self, block_index: int, moment: list[float], loading_type: str = "ramp", boundary_condition: BoundaryCondition = None) -> None:
+        """Add a moment at the centroid of a block.
+
+        Parameters
+        ----------
+        block_index : int
+            Graph node index of the target block.
+        moment : list[float]
+            Moment vector [mx, my, mz].
+        loading_type : str, optional
+            Time-series shape used by the solver. ``"ramp"`` (default) ramps
+            from zero to full over the simulation; ``"instantaneous"`` applies
+            the full load at t=0 and releases it at the end.
         boundary_condition : :class:`BoundaryCondition`, optional
             The boundary condition to write to. Defaults to the first (default) boundary condition.
         """
-        self._resolve_target(boundary_condition).add_point_load(block_index, force, moment, point, loading_type)
+        if boundary_condition is None:
+            raise ValueError("No boundary condition specified. Please specify a boundary condition to add the moment to.")
+        boundary_condition.add_moment(block_index, moment=moment, loading_type=loading_type)
 
     def add_surface_load(
         self,
@@ -452,7 +580,7 @@ class Problem(Data):
         face_index: int,
         load: list[float],
         loading_type: str = "ramp",
-        boundary_condition: Optional[BoundaryCondition] = None,
+        boundary_condition: BoundaryCondition = None,
     ) -> None:
         """Add a distributed pressure load over a block face.
 
@@ -472,14 +600,15 @@ class Problem(Data):
         boundary_condition : :class:`BoundaryCondition`, optional
             The boundary condition to write to. Defaults to the first (default) boundary condition.
         """
-        self._resolve_target(boundary_condition).add_surface_load(block_index, face_index, load, loading_type)
+        if boundary_condition is None:
+            raise ValueError("No boundary condition specified. Please specify a boundary condition to add the surface load to.")
+        boundary_condition.add_surface_load(block_index, face_index, load, loading_type)
 
     def add_displacement(
         self,
         block_index: int,
         displacement: Optional[list[float]] = None,
-        rotation: Optional[list[float]] = None,
-        boundary_condition: Optional[BoundaryCondition] = None,
+        boundary_condition: BoundaryCondition = None,
     ) -> None:
         """Prescribe a displacement and/or rotation on a block.
 
@@ -494,13 +623,12 @@ class Problem(Data):
         boundary_condition : :class:`BoundaryCondition`, optional
             The boundary condition to write to. Defaults to the first (default) boundary condition.
         """
-        target = self._resolve_target(boundary_condition)
+        if boundary_condition is None:
+            raise ValueError("No boundary condition specified. Please specify a boundary condition to add the displacement to.")
         if displacement is not None:
-            target.add_displacement(block_index, *displacement)
-        if rotation is not None:
-            target.add_rotation(block_index, rotation)
+            boundary_condition.add_displacement(block_index, *displacement)
 
-    def add_rotation(self, block_index: int, rotation: list[float], boundary_condition: Optional[BoundaryCondition] = None) -> None:
+    def add_rotation(self, block_index: int, rotation: list[float], boundary_condition: BoundaryCondition = None) -> None:
         """Prescribe a rotation on a block about its centroid.
 
         Parameters
@@ -512,48 +640,9 @@ class Problem(Data):
         boundary_condition : :class:`BoundaryCondition`, optional
             The boundary condition to write to. Defaults to the first (default) boundary condition.
         """
-        self._resolve_target(boundary_condition).add_rotation(block_index, rotation)
-
-    def add_support(self, block_index: int) -> None:
-        """Fix a block — zero translation and zero rotation.
-
-        Supports belong to the model rather than to any one loading, so they are
-        kept on the problem and copied into each boundary condition as it is registered.
-        Add them before any call to :meth:`add_boundary_condition`.
-
-        Parameters
-        ----------
-        block_index : int
-            Node index of the block to fix.
-        """
-        self._supports.append(block_index)
-
-    def add_supports(self, block_indices: list[int]) -> None:
-        """Fix multiple blocks — zero translation and zero rotation.
-
-        Parameters
-        ----------
-        block_indices : list[int]
-            List of node indices of the blocks to fix.
-        """
-        for block_index in block_indices:
-            self.add_support(block_index)
-
-    @property
-    def supports(self) -> list[int]:
-        """The node indices of the fixed blocks, copied into every boundary condition."""
-        return self._supports
-
-    def add_supports_from_model(self, model: BlockModel) -> None:
-        """Fix all blocks whose ``is_support`` flag is ``True`` in the block model.
-
-        Parameters
-        ----------
-        model : :class:`compas_dem.models.BlockModel`
-        """
-        for block in model.elements():
-            if getattr(block, "is_support", False):
-                self.add_support(block.graphnode)
+        if boundary_condition is None:
+            raise ValueError("No boundary condition specified. Please specify a boundary condition to add the rotation to.")
+        boundary_condition.add_rotation(block_index, rotation)
 
     # =============================================================================
     # Contact properties
@@ -563,7 +652,7 @@ class Problem(Data):
         "MohrCoulomb": MohrCoulomb,
     }
 
-    def add_contact_model(self, model: str, **kwargs) -> None:
+    def set_contact_model(self, model: str, **kwargs) -> None:
         """Set the contact model by name.
 
         Parameters
@@ -582,7 +671,7 @@ class Problem(Data):
             raise ValueError(f"Contact model '{model}' is not recognised. Available: {list(self._CONTACT_MODELS)}.")
         self._contact_properties.contact_model = self._CONTACT_MODELS[model](**kwargs)
 
-    def add_joint_model(self, kn: float, kt: float) -> None:
+    def set_joint_model(self, kn: float, kt: float) -> None:
         """Set the joint stiffness model.
 
         Parameters
@@ -602,14 +691,58 @@ class Problem(Data):
     # =============================================================================
     # Solve
     # =============================================================================
-    def solver(self, solver: Solver) -> None:
+    def set_solver(self, solver: Solver) -> None:
         self._solver = solver
+
+    def solve(self):
+        """Solve the problem on the loaded model using the configured solver.
+
+        All boundary conditions registered on the problem are solved concurrently.
+        To reorder them beforehand, call :meth:`set_solve_order`.
+
+        Returns
+        -------
+        :class:`~compas_dem.problem.Results`
+
+        Raises
+        ------
+        ValueError
+            If no model is loaded, no solver is configured, or the solver name is not recognised.
+        """
+        model = self.model
+        if self._solver is None:
+            raise ValueError("No solver configured. Call problem.set_solver(Solver.LMGC90(...)) before solving.")
+        self._check_model_validity(model)
+        solver = self._solver
+        params = {k: v for k, v in solver.parameters.items() if v is not None}
+        if solver.name == "LMGC90":
+            from compas_dem.analysis.lmgc90 import lmgc90_solve
+
+            return lmgc90_solve(self, model, **params)
+        elif solver.name == "CRA":
+            from compas_dem.analysis.cra import cra_solve
+
+            return cra_solve(self, model, **params)
+        elif solver.name == "RBE":
+            from compas_dem.analysis.cra import rbe_solve
+
+            return rbe_solve(self, model, **params)
+        elif solver.name == "PRD":
+            from compas_dem.analysis.prd import prd_solve
+
+            return prd_solve(self, model, **params)
+        elif solver.name == "BLA":
+            from compas_dem.analysis.bla import bla_solve
+
+            return bla_solve(self, model, **params)
+        else:
+            raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE', 'PRD', 'BLA'.")
 
     # ============================================================================
     # Validation
     # ============================================================================
 
-    def check_model_validity(self, model: BlockModel) -> None:
+    def _check_model_validity(self, model: BlockModel) -> None:
         """Check that the model is valid for solving.
 
         Parameters
@@ -621,8 +754,7 @@ class Problem(Data):
         ValueError
             If the model is invalid.
         """
-        has_supports = bool(self._supports) or any(element.is_support for element in model.elements())
-        if not has_supports:
-            raise ValueError("The model has no supports defined. Please add supports before solving.")
+        if not any(element.is_support for element in model.elements()):
+            raise ValueError("The model has no supports defined. Flag support blocks with block.is_support = True before solving.")
         if not self.contact_properties.contact_model:
             raise ValueError("No contact model defined. Please add a contact model before solving.")

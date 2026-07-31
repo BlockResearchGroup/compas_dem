@@ -10,7 +10,7 @@ HERE = os.path.dirname(__file__)
 model = compas.json_load(os.path.join(HERE, "DEM_model.json"))
 problem: Problem = compas.json_load(os.path.join(HERE, "DEM_problem_updated.json"))
 
-print(f"Problem loaded with {resolve_centroidal_displacements(problem)[0]}")
+print(f"Problem loaded with {resolve_centroidal_displacements(problem.active_boundary_conditions)[0]}")
 
 lmgc90 = Solver.LMGC90(duration=1.0, n_steps=100, urf_threshold=0.001)
 problem.solver(lmgc90)

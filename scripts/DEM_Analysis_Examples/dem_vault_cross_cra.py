@@ -57,15 +57,14 @@ model.assign_material(conc, elements=list(model.elements()))
 problem = Problem(model)
 
 # problem.inspect_model()
-problem.add_supports_from_model(model)
-problem.add_contact_model("MohrCoulomb", mu=0.55, c=0)
+problem.set_contact_model("MohrCoulomb", mu=0.55, c=0)
 
 
 # rbe = Solver.RBE()
 
 lmgc90 = Solver.RBE()
-problem.solver(lmgc90)
-solution = model.solve(problem)
+problem.set_solver(lmgc90)
+solution = problem.solve()
 
 
 # =============================================================================

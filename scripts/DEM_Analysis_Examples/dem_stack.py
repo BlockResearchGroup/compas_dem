@@ -65,16 +65,15 @@ model.assign_material(conc, elements=list(model.elements()))
 # =============================================================================
 
 prob: Problem = Problem(model)
-prob.add_contact_model("MohrCoulomb", mu=0.5, c=0.0)
-prob.add_supports_from_model(model)
+prob.set_contact_model("MohrCoulomb", mu=0.5, c=0.0)
 
 # =============================================================================
 # Solver
 # =============================================================================
 
 lmgc90: Solver = Solver.LMGC90(n_steps=1000, dt=0.001)
-prob.solver(lmgc90)
-result = model.solve(prob)
+prob.set_solver(lmgc90)
+result = prob.solve()
 
 # =============================================================================
 # Viz

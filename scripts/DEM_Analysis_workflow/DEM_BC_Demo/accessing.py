@@ -1,13 +1,25 @@
 import pathlib
 
 import compas
+from compas_dem.analysis.resolve import resolve_centroidal_displacements
+from compas_dem.analysis.resolve import resolve_centroidal_loads
 from compas_dem.models import BlockModel
 from compas_dem.problem import BoundaryCondition
 from compas_dem.problem import Problem
+from compas_dem.problem import Results
 
 FILE = pathlib.Path(__file__).parent / "dem_arch.json"
 problem: Problem = compas.json_load(FILE)
 model: BlockModel = compas.json_load(pathlib.Path(__file__).parent / "dem_arch_model.json")
+results: Results = compas.json_load(pathlib.Path(__file__).parent / "dem_arch_result.json")
+
+for edge in results.edges():
+    trans = results.transformation(edge[0])
+    print(f"Edge: {edge}")
+    print(f"Transformation: {trans}")
+    print(f"Contact Polygon: {results.contact_polygon(edge)}")
+    print(f"Contact Force Vector: {results.resultant_global(edge)}")
+    break
 
 boundary_conditions = problem.boundary_conditions
 boundary_condition_gravity: BoundaryCondition = boundary_conditions[0]
@@ -51,28 +63,24 @@ print(f"Contact Model with C: {contact_properties.contact_model.c}")
 print(f"Joint Model: Kn = {contact_properties.joint_model.kn}, Kt = {contact_properties.joint_model.kt}")
 
 
-from compas_dem.analysis.resolve import resolve_centroidal_displacements
-from compas_dem.analysis.resolve import resolve_centroidal_loads
-
-
 print("\n")
 print("----------------------------------------------------------------")
 print("\n")
 
-print("Supports set in the problem")
-print(f"Supports: {problem.supports}")
+print("Supports set on the model")
+print(f"Supports: {[block.graphnode for block in model.supports()]}")
 
 print("\n")
 print("----------------------------------------------------------------")
 print("\n")
 
 print("Centroidal Loads for Boundary Condition 3 (Surface Loads):")
-print(resolve_centroidal_loads(problem, model, boundary_condition=boundary_condition_surface_load))
+print(resolve_centroidal_loads(model, boundary_condition_surface_load))
 
 # Returns a dictionary of centroidal loads for each block in the model, based on the specified boundary condition.
 
 
 print("Centroidal Loads for Boundary Condition 2 (Settlement):")
-print(resolve_centroidal_displacements(problem, boundary_condition=boundary_condition_displacement))
+print(resolve_centroidal_displacements(boundary_condition_displacement))
 
 # Returns a dictionary of centroidal displacements for each block in the model, based on the specified boundary condition.
