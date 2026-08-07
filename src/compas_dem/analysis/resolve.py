@@ -39,7 +39,7 @@ def resolve_centroidal_loads(model, boundary_conditions) -> dict:
     Parameters
     ----------
     model : :class:`~compas_dem.models.BlockModel`
-    boundary_conditions : :class:`~compas_dem.problem.BoundaryCondition` | list[:class:`~compas_dem.problem.BoundaryCondition`]
+    boundary_conditions : :class:`~compas_dem.problem.BoundaryConditionGroup` | list[:class:`~compas_dem.problem.BoundaryConditionGroup`]
         The boundary condition(s) to resolve. Multiple boundary conditions are summed together.
 
     Returns
@@ -74,35 +74,35 @@ def resolve_centroidal_loads(model, boundary_conditions) -> dict:
 
     for bc in boundary_conditions:
         for entry in bc.body_forces:
-            a_vec = Vector(*entry["acceleration"])
+            a_vec = Vector(*entry.acceleration)
             for idx, block in blocks.items():
-                accumulate(idx, a_vec * _element_mass(block), Vector(0, 0, 0), entry["loading_type"])
+                accumulate(idx, a_vec * _element_mass(block), Vector(0, 0, 0), entry.loading_type)
 
         for entry in bc.point_loads:
-            idx = entry["block_index"]
+            idx = entry.block_index
             if idx not in blocks:
                 raise ValueError(f"Point load references block_index={idx} which does not exist in the model.")
-            force = Vector(*(entry["force"] or [0.0, 0.0, 0.0]))
-            if entry["point"] is not None:
-                r = Vector(*entry["point"]) - blocks[idx].point
+            force = Vector(*(entry.force or [0.0, 0.0, 0.0]))
+            if entry.point is not None:
+                r = Vector(*entry.point) - blocks[idx].point
                 moment = r.cross(force)
-            elif entry["moment"] is not None:
-                moment = Vector(*entry["moment"])
+            elif entry.moment is not None:
+                moment = Vector(*entry.moment)
             else:
                 moment = Vector(0, 0, 0)
-            accumulate(idx, force, moment, entry["loading_type"])
+            accumulate(idx, force, moment, entry.loading_type)
 
         for entry in bc.surface_loads:
-            idx = entry["block_index"]
+            idx = entry.block_index
             if idx not in blocks:
                 raise ValueError(f"Surface load references block_index={idx} which does not exist in the model.")
             block = blocks[idx]
-            loading_point = block.modelgeometry.face_center(entry["face_index"])
-            area = block.modelgeometry.face_area(entry["face_index"])
-            force = Vector(*entry["load"]) * area
+            loading_point = block.modelgeometry.face_center(entry.face_index)
+            area = block.modelgeometry.face_area(entry.face_index)
+            force = Vector(*entry.load) * area
             r = Vector(*loading_point) - block.point
             moment = r.cross(force)
-            accumulate(idx, force, moment, entry["loading_type"])
+            accumulate(idx, force, moment, entry.loading_type)
 
     return loads
 
@@ -116,7 +116,7 @@ def resolve_centroidal_displacements(boundary_conditions) -> dict:
 
     Parameters
     ----------
-    boundary_conditions : :class:`~compas_dem.problem.BoundaryCondition` | list[:class:`~compas_dem.problem.BoundaryCondition`]
+    boundary_conditions : :class:`~compas_dem.problem.BoundaryConditionGroup` | list[:class:`~compas_dem.problem.BoundaryConditionGroup`]
         The boundary condition(s) to resolve. Multiple boundary conditions are merged
         together, per component.
 
@@ -131,12 +131,13 @@ def resolve_centroidal_displacements(boundary_conditions) -> dict:
 
     for bc in _as_list(boundary_conditions):
         for entry in bc.displacements:
-            idx = entry["block_index"]
+            idx = entry.block_index
             if idx not in displacements:
                 displacements[idx] = {"translation": [None, None, None], "rotation": [None, None, None]}
             for key in ("translation", "rotation"):
-                if entry[key] is not None:
-                    for j, v in enumerate(entry[key]):
+                components = getattr(entry, key, None)
+                if components is not None:
+                    for j, v in enumerate(components):
                         if v is not None:
                             displacements[idx][key][j] = v
 

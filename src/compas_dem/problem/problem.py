@@ -9,7 +9,7 @@ from compas_dem.interactions import ContactProperties
 from compas_dem.interactions import JointModel
 from compas_dem.interactions import MohrCoulomb
 from compas_dem.models import BlockModel
-from compas_dem.problem.boundary_condition import BoundaryCondition
+from compas_dem.problem.boundary_condition import BoundaryConditionGroup
 from compas_dem.problem.solvers import Solver
 
 
@@ -40,7 +40,7 @@ class Problem(Data):
         super().__init__(name=name)
         self.model_id = str(model.guid)
         self._model: Optional[BlockModel] = model
-        self._boundary_conditions: list[BoundaryCondition] = []
+        self._boundary_conditions: list[BoundaryConditionGroup] = []
         self._contact_properties = ContactProperties()
         self._solver = None
 
@@ -93,7 +93,7 @@ class Problem(Data):
     # Boundary conditions
     # ============================================================================
 
-    def add_boundary_condition(self, name: str = "default") -> BoundaryCondition:
+    def add_boundary_condition(self, name: str = "default") -> BoundaryConditionGroup:
         """Register a boundary condition on the problem.
 
         Parameters
@@ -106,7 +106,7 @@ class Problem(Data):
             If a boundary condition with the same name is already registered.
         Returns
         -------
-        BoundaryCondition
+        BoundaryConditionGroup
             The newly added boundary condition instance.
         """
         if name == "default" and name in (bc.name for bc in self._boundary_conditions):
@@ -114,18 +114,18 @@ class Problem(Data):
         if name in (bc.name for bc in self._boundary_conditions):
             raise ValueError(f"A boundary condition named '{name}' is already registered on this problem.")
         else:
-            boundary_condition = BoundaryCondition(name=name)
+            boundary_condition = BoundaryConditionGroup(name=name)
             self._boundary_conditions.append(boundary_condition)
             return boundary_condition
 
     @property
-    def boundary_conditions(self) -> list[BoundaryCondition]:
+    def boundary_conditions(self) -> list[BoundaryConditionGroup]:
         """The ordered list of boundary conditions attached to this problem."""
         return self._boundary_conditions
 
-    def _find_boundary_condition(self, key: Union[int, str, BoundaryCondition]) -> BoundaryCondition:
+    def _find_boundary_condition(self, key: Union[int, str, BoundaryConditionGroup]) -> BoundaryConditionGroup:
         """Return the registered boundary condition identified by index, name, or object."""
-        if isinstance(key, BoundaryCondition):
+        if isinstance(key, BoundaryConditionGroup):
             if any(bc is key for bc in self._boundary_conditions):
                 return key
             raise ValueError("The given boundary condition is not registered on this problem. Call problem.add_boundary_condition(boundary_condition) first.")
@@ -140,9 +140,9 @@ class Problem(Data):
             if len(matches) > 1:
                 raise ValueError(f"Multiple boundary conditions are named '{key}'; identify it by index or object instead.")
             return matches[0]
-        raise TypeError("Identify a boundary condition by its index, its name, or the BoundaryCondition object itself.")
+        raise TypeError("Identify a boundary condition by its index, its name, or the BoundaryConditionGroup object itself.")
 
-    def set_solve_order(self, boundary_conditions: list[Union[str, BoundaryCondition]]) -> None:
+    def set_solve_order(self, boundary_conditions: list[Union[str, BoundaryConditionGroup]]) -> None:
         """Reorder the registered boundary conditions.
 
         Setting one boundary condition inside the method only reorders the list of boundary conditions by placing it first,
@@ -150,7 +150,7 @@ class Problem(Data):
 
         Parameters
         ----------
-        boundary_conditions : list[str | :class:`BoundaryCondition`]
+        boundary_conditions : list[str | :class:`BoundaryConditionGroup`]
 
         Raises
         ------
@@ -158,7 +158,7 @@ class Problem(Data):
             If the list is empty, if an entry does not resolve to a registered boundary
             condition, or if the same boundary condition appears more than once.
         TypeError
-            If an entry is not an str, or :class:`BoundaryCondition`.
+            If an entry is not an str, or :class:`BoundaryConditionGroup`.
         """
         if not boundary_conditions:
             raise ValueError("No boundary conditions given to reorder.")
@@ -231,7 +231,7 @@ class Problem(Data):
         blocks = {block.graphnode: block for block in model.elements()}
         multiple_boundary_conditions = len(self._boundary_conditions) > 1
 
-        def suffix(boundary_condition: BoundaryCondition) -> str:
+        def suffix(boundary_condition: BoundaryConditionGroup) -> str:
             """Disambiguate entries by boundary condition, but only when there is more than one."""
             return f"  [{boundary_condition.name or '<unnamed>'}]" if multiple_boundary_conditions else ""
 
@@ -244,11 +244,11 @@ class Problem(Data):
                 return None
             return cg.Line(point, [p - v for p, v in zip(point, vector.unitized() * scale)])
 
-        def entries(attr: str) -> list[tuple[BoundaryCondition, object]]:
+        def entries(attr: str) -> list[tuple[BoundaryConditionGroup, object]]:
             """Flatten one kind of entry across all boundary conditions, keeping its origin."""
             return [(bc, entry) for bc in self._boundary_conditions for entry in getattr(bc, attr)]
 
-        def resolve_block(boundary_condition: BoundaryCondition, index: int, kind: str):
+        def resolve_block(boundary_condition: BoundaryConditionGroup, index: int, kind: str):
             """Look up a block, warning instead of raising so inspection still runs."""
             if index not in blocks:
                 print(f"{kind} references block_index={index}, which does not exist in the model.{suffix(boundary_condition)}")
@@ -265,17 +265,17 @@ class Problem(Data):
             else:
                 loads_view = viewer.scene.add_group(name="Point Loads")
                 for bc, loads in point_loads:
-                    block = resolve_block(bc, loads["block_index"], "Point load")
+                    block = resolve_block(bc, loads.block_index, "Point load")
                     if block is None:
                         continue
-                    force = Vector(*loads["force"])
-                    point = loads["point"] if loads["point"] is not None else list(block.point)
+                    force = Vector(*loads.force)
+                    point = loads.point if loads.point is not None else list(block.point)
                     line = arrow(point, force, block_scale(block))
                     if line is None:
                         continue
                     loads_view.add(
                         line,
-                        name=f"Point Load: [{force.x:.1f}, {force.y:.1f}, {force.z:.1f}] \n Moment: {loads['moment'] if loads['moment'] else [0, 0, 0]}{suffix(bc)}",
+                        name=f"Point Load: [{force.x:.1f}, {force.y:.1f}, {force.z:.1f}] \n Moment: {loads.moment if loads.moment else [0, 0, 0]}{suffix(bc)}",
                         linewidth=2.5,
                         linecolor=Color.red(),
                     )
@@ -285,24 +285,24 @@ class Problem(Data):
             else:
                 surface_view = viewer.scene.add_group(name="Surface Loads")
                 for bc, loads in surface_loads:
-                    block = resolve_block(bc, loads["block_index"], "Surface load")
+                    block = resolve_block(bc, loads.block_index, "Surface load")
                     if block is None:
                         continue
                     mesh = block.modelgeometry
-                    face = loads["face_index"]
+                    face = loads.face_index
                     if face not in list(mesh.faces()):
-                        print(f"Surface load on block {loads['block_index']} references face_index={face}, which does not exist.{suffix(bc)}")
+                        print(f"Surface load on block {loads.block_index} references face_index={face}, which does not exist.{suffix(bc)}")
                         continue
-                    load = Vector(*loads["load"])
+                    load = Vector(*loads.load)
                     # The solver multiplies the traction by the face area to get the resultant.
                     resultant = load * mesh.face_area(face)
                     label = (
-                        f"Surface Load: [{load.x:.1f}, {load.y:.1f}, {load.z:.1f}] on block {loads['block_index']}, face {face} \n"
+                        f"Surface Load: [{load.x:.1f}, {load.y:.1f}, {load.z:.1f}] on block {loads.block_index}, face {face} \n"
                         f" Resultant: [{resultant.x:.1f}, {resultant.y:.1f}, {resultant.z:.1f}]{suffix(bc)}"
                     )
                     surface_view.add(
                         mesh.face_polygon(face),
-                        name=f"Loaded Face: block {loads['block_index']}, face {face}{suffix(bc)}",
+                        name=f"Loaded Face: block {loads.block_index}, face {face}{suffix(bc)}",
                         color=Color.cyan(),
                         opacity=0.5,
                     )
@@ -316,13 +316,13 @@ class Problem(Data):
                 origin = cg.centroid_points([list(block.point) for block in blocks.values()])
                 scale = max(block_scale(block) for block in blocks.values()) if blocks else 1.0
                 for bc, entry in body_forces:
-                    vector = Vector(*entry["acceleration"])
+                    vector = Vector(*entry.acceleration)
                     line = arrow(origin, vector, scale)
                     if line is None:
                         continue
                     body_view.add(
                         line,
-                        name=f"Body Force: [{vector.x:.2f}, {vector.y:.2f}, {vector.z:.2f}] m/s² ({entry['loading_type']}){suffix(bc)}",
+                        name=f"Body Force: [{vector.x:.2f}, {vector.y:.2f}, {vector.z:.2f}] m/s² ({entry.loading_type}){suffix(bc)}",
                         linewidth=2.5,
                         linecolor=Color.orange(),
                     )
@@ -330,7 +330,7 @@ class Problem(Data):
         if show_supports:
             # Supports live on the model (block.is_support); the boundary conditions
             # only hold prescribed movements.
-            prescribed: list[tuple[BoundaryCondition, dict]] = entries("displacements")
+            prescribed: list[tuple[BoundaryConditionGroup, dict]] = entries("displacements")
 
             support_blocks = [block for block in model.supports()]
             if not support_blocks:
@@ -348,11 +348,12 @@ class Problem(Data):
             if prescribed:
                 prescribed_view = viewer.scene.add_group(name="Prescribed Displacements")
                 for bc, entry in prescribed:
-                    block = resolve_block(bc, entry["block_index"], "Prescribed displacement")
+                    block = resolve_block(bc, entry.block_index, "Prescribed displacement")
                     if block is None:
                         continue
-                    translation = entry["translation"]
-                    rotation = entry["rotation"]
+                    # Translation carries only `translation`, Rotation only `rotation`.
+                    translation = getattr(entry, "translation", None)
+                    rotation = getattr(entry, "rotation", None)
                     components = translation if translation is not None else rotation
                     if components is None:
                         continue
@@ -365,7 +366,7 @@ class Problem(Data):
                         continue
                     prescribed_view.add(
                         line,
-                        name=f"Prescribed {kind}: {translation or rotation} {units} on block {entry['block_index']}{suffix(bc)}",
+                        name=f"Prescribed {kind}: {translation or rotation} {units} on block {entry.block_index}{suffix(bc)}",
                         linewidth=2.5,
                         linecolor=Color.violet(),
                     )
@@ -404,7 +405,7 @@ class Problem(Data):
         ay: float,
         az: float,
         loading_type: str = "ramp",
-        boundary_condition: BoundaryCondition = None,
+        boundary_condition: BoundaryConditionGroup = None,
     ) -> None:
         """Add a global body acceleration applied to all blocks.
 
@@ -418,7 +419,7 @@ class Problem(Data):
             Time-series shape used by the solver. ``"ramp"`` (default) ramps
             from zero to full over the simulation; ``"instantaneous"`` applies
             the full load at t=0 and releases it at the end.
-        boundary_condition : :class:`BoundaryCondition`
+        boundary_condition : :class:`BoundaryConditionGroup`
             The boundary condition to write to.
 
         .. note::
@@ -434,7 +435,7 @@ class Problem(Data):
         vertex_index: int,
         force: list[float],
         loading_type: str = "ramp",
-        boundary_condition: BoundaryCondition = None,
+        boundary_condition: BoundaryConditionGroup = None,
     ) -> None:
         """Add a point load at a specific vertex of a block.
 
@@ -450,7 +451,7 @@ class Problem(Data):
             Time-series shape used by the solver. ``"ramp"`` (default) ramps
             from zero to full over the simulation; ``"instantaneous"`` applies
             the full load at t=0 and releases it at the end.
-        boundary_condition : :class:`BoundaryCondition`
+        boundary_condition : :class:`BoundaryConditionGroup`
             The boundary condition to write to.
         """
         if boundary_condition is None:
@@ -468,7 +469,7 @@ class Problem(Data):
         face_index: int,
         force: list[float],
         loading_type: str = "ramp",
-        boundary_condition: BoundaryCondition = None,
+        boundary_condition: BoundaryConditionGroup = None,
     ) -> None:
         """Add a point load at the centroid of a specific face of a block.
 
@@ -484,7 +485,7 @@ class Problem(Data):
             Time-series shape used by the solver. ``"ramp"`` (default) ramps
             from zero to full over the simulation; ``"instantaneous"`` applies
             the full load at t=0 and releases it at the end.
-        boundary_condition : :class:`BoundaryCondition`
+        boundary_condition : :class:`BoundaryConditionGroup`
             The boundary condition to write to.
         """
         if boundary_condition is None:
@@ -502,7 +503,7 @@ class Problem(Data):
         point: list[float],
         force: list[float],
         loading_type: str = "ramp",
-        boundary_condition: BoundaryCondition = None,
+        boundary_condition: BoundaryConditionGroup = None,
     ) -> None:
         """Add a point load at an arbitrary point on a block.
 
@@ -519,7 +520,7 @@ class Problem(Data):
             Time-series shape used by the solver. ``"ramp"`` (default) ramps
             from zero to full over the simulation; ``"instantaneous"`` applies
             the full load at t=0 and releases it at the end.
-        boundary_condition : :class:`BoundaryCondition`
+        boundary_condition : :class:`BoundaryConditionGroup`
             The boundary condition to write to.
         """
         if boundary_condition is None:
@@ -532,7 +533,7 @@ class Problem(Data):
         block_index: int,
         force: list[float],
         loading_type: str = "ramp",
-        boundary_condition: BoundaryCondition = None,
+        boundary_condition: BoundaryConditionGroup = None,
     ) -> None:
         """Add a point load at the centroid of a block.
 
@@ -546,7 +547,7 @@ class Problem(Data):
             Time-series shape used by the solver. ``"ramp"`` (default) ramps
             from zero to full over the simulation; ``"instantaneous"`` applies
             the full load at t=0 and releases it at the end.
-        boundary_condition : :class:`BoundaryCondition`
+        boundary_condition : :class:`BoundaryConditionGroup`
             The boundary condition to write to.
         """
         if boundary_condition is None:
@@ -554,7 +555,7 @@ class Problem(Data):
         self.model._block(block_index)
         boundary_condition.add_point_load(block_index, force, loading_type=loading_type)
 
-    def add_moment(self, block_index: int, moment: list[float], loading_type: str = "ramp", boundary_condition: BoundaryCondition = None) -> None:
+    def add_moment(self, block_index: int, moment: list[float], loading_type: str = "ramp", boundary_condition: BoundaryConditionGroup = None) -> None:
         """Add a moment at the centroid of a block.
 
         Parameters
@@ -567,7 +568,7 @@ class Problem(Data):
             Time-series shape used by the solver. ``"ramp"`` (default) ramps
             from zero to full over the simulation; ``"instantaneous"`` applies
             the full load at t=0 and releases it at the end.
-        boundary_condition : :class:`BoundaryCondition`, optional
+        boundary_condition : :class:`BoundaryConditionGroup`, optional
             The boundary condition to write to. Defaults to the first (default) boundary condition.
         """
         if boundary_condition is None:
@@ -580,7 +581,7 @@ class Problem(Data):
         face_index: int,
         load: list[float],
         loading_type: str = "ramp",
-        boundary_condition: BoundaryCondition = None,
+        boundary_condition: BoundaryConditionGroup = None,
     ) -> None:
         """Add a distributed pressure load over a block face.
 
@@ -597,7 +598,7 @@ class Problem(Data):
             Load vector [fx, fy, fz].
         loading_type : str, optional
             ``"ramp"`` (default) or ``"instantaneous"``.
-        boundary_condition : :class:`BoundaryCondition`, optional
+        boundary_condition : :class:`BoundaryConditionGroup`, optional
             The boundary condition to write to. Defaults to the first (default) boundary condition.
         """
         if boundary_condition is None:
@@ -608,7 +609,7 @@ class Problem(Data):
         self,
         block_index: int,
         displacement: Optional[list[float]] = None,
-        boundary_condition: BoundaryCondition = None,
+        boundary_condition: BoundaryConditionGroup = None,
     ) -> None:
         """Prescribe a displacement and/or rotation on a block.
 
@@ -620,7 +621,7 @@ class Problem(Data):
             Translational displacement [dx, dy, dz] in [m].
         rotation : list[float], optional
             Rotation vector [rx, ry, rz] in [rad].
-        boundary_condition : :class:`BoundaryCondition`, optional
+        boundary_condition : :class:`BoundaryConditionGroup`, optional
             The boundary condition to write to. Defaults to the first (default) boundary condition.
         """
         if boundary_condition is None:
@@ -628,7 +629,7 @@ class Problem(Data):
         if displacement is not None:
             boundary_condition.add_displacement(block_index, *displacement)
 
-    def add_rotation(self, block_index: int, rotation: list[float], boundary_condition: BoundaryCondition = None) -> None:
+    def add_rotation(self, block_index: int, rotation: list[float], boundary_condition: BoundaryConditionGroup = None) -> None:
         """Prescribe a rotation on a block about its centroid.
 
         Parameters
@@ -637,7 +638,7 @@ class Problem(Data):
             Node index of the target block.
         rotation : list[float]
             Rotation vector [rx, ry, rz] in [rad].
-        boundary_condition : :class:`BoundaryCondition`, optional
+        boundary_condition : :class:`BoundaryConditionGroup`, optional
             The boundary condition to write to. Defaults to the first (default) boundary condition.
         """
         if boundary_condition is None:
