@@ -172,7 +172,14 @@ class BlockModel(Model):
         :class:`BlockModel`
 
         """
-        raise NotImplementedError
+        import rhinoscriptsyntax as rs
+        from compas_rhino.conversions.breps import brep_to_compas_mesh
+
+        model = cls()
+        for guid in guids:
+            mesh = brep_to_compas_mesh(rs.coercebrep(guid))
+            model.add_block_from_mesh(mesh)
+        return model
 
     @classmethod
     def from_rhinomeshes(cls, guids) -> "BlockModel":
@@ -188,6 +195,17 @@ class BlockModel(Model):
         :class:`BlockModel`
 
         """
+        # import rhinoscriptsyntax as rs
+        # from compas_rhino.conversions.breps import brep_to_compas_mesh
+
+        # model = cls()
+        # for guid in guids:
+        #     mesh = mesh_to_compas(rs.coercemesh(guid))
+        #     # mesh.unify_cycles()
+        #     # if mesh.volume() < 0:
+        #     #     mesh.flip_cycles()
+        #     model.add_element(Block.from_mesh(mesh))
+        # return model
         raise NotImplementedError
 
     # =============================================================================
@@ -208,6 +226,7 @@ class BlockModel(Model):
         :class:`BlockModel`
 
         """
+
         return cls.from_boxes(template.blocks())
 
     @classmethod
@@ -412,6 +431,64 @@ class BlockModel(Model):
             if not element.is_support:
                 yield element
 
+    def _block(self, block_index: int) -> Block:
+        """Return the block at a graph node index."""
+        try:
+            return self.graph.node_element(block_index)  # type: ignore
+        except KeyError:
+            raise ValueError(f"No block at index {block_index}; the model has {self.graph.number_of_nodes()} blocks.") from None
+
+    def add_support(self, block_index: int) -> None:
+        """Assign a block as a support.
+
+        Parameters
+        ----------
+        block_index : int
+            Graph node index of the block to flag as a support.
+
+        Raises
+        ------
+        ValueError
+            If the model has no block at the given index.
+        """
+        self._block(block_index).is_support = True
+
+    def add_supports(self, block_indices: list[int]) -> None:
+        """Assign multiple blocks as supports.
+
+        Parameters
+        ----------
+        block_indices : list[int]
+            Graph node indices of the blocks to flag as supports.
+
+        Raises
+        ------
+        ValueError
+            If the model has no block at one of the given indices.
+        """
+        for block_index in block_indices:
+            self.add_support(block_index)
+
+    def remove_support(self, block_index: int) -> None:
+        """Turn a support block back into a regular block.
+
+        Parameters
+        ----------
+        block_index : int
+            Graph node index of the block to unflag.
+
+        Raises
+        ------
+        ValueError
+            If the model has no block at the given index.
+        """
+        self._block(block_index).is_support = False
+
+    def clear_supports(self) -> None:
+        """Turn all support blocks back into regular blocks."""
+        for element in self.elements():
+            element.is_support = False
+
     # =============================================================================
     # Contacts
     # =============================================================================
@@ -422,4 +499,5 @@ class BlockModel(Model):
         minimum_area=0.01,
         contacttype: Type[Contact] = FrictionContact,
     ) -> None:
+        """Compute the contacts between blocks in the model."""
         return super().compute_contacts(tolerance, minimum_area, contacttype)

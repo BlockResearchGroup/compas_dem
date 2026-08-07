@@ -1,9 +1,9 @@
 __all__ = []
 try:
     try:
-        from compas_dem.analysis.cra import cra_penalty_solve  # noqa: F401
+        from compas_dem.analysis.cra import cra_solve  # noqa: F401
 
-        __all__.append("cra_penalty_solve")
+        __all__.append("cra_solve")
     except ImportError:
         pass
 
@@ -18,6 +18,20 @@ try:
         from compas_dem.analysis.lmgc90 import lmgc90_solve  # noqa: F401
 
         __all__.append("lmgc90_solve")
+    except ImportError:
+        pass
+
+    try:
+        from compas_dem.analysis.prd import prd_solve  # noqa: F401
+
+        __all__.append("prd_solve")
+    except ImportError:
+        pass
+
+    try:
+        from compas_dem.analysis.bla import bla_solve  # noqa: F401
+
+        __all__.append("bla_solve")
     except ImportError:
         pass
 

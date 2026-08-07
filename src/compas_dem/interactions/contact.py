@@ -16,6 +16,39 @@ from compas.itertools import pairwise
 from compas_model.interactions import Contact
 
 
+def weighted_point(points, weights) -> Point:
+    """Weighted centroid of ``points``, normalised by the weights actually used.
+
+    :func:`compas.geometry.centroid_points_weighted` zips points against weights but
+    divides by ``sum(weights)``. If the two sequences differ in length -- which happens
+    whenever a caller builds a contact from points that :class:`compas.geometry.Polygon`
+    then collapses as duplicates -- the numerator is truncated while the denominator is
+    not, and the result is silently dragged towards the world origin. Normalising by the
+    weights that were actually consumed keeps the result inside the point set, and a
+    near-zero total falls back to the plain centroid rather than exploding.
+    """
+    n = min(len(points), len(weights))
+    used = list(weights[:n])
+    total = sum(used)
+    if abs(total) < 1e-12:
+        used, total = [1.0] * n, float(n)
+    return Point(*centroid_points_weighted(list(points[:n]), [w / total for w in used]))
+
+
+def local_resultant(forces) -> list[float]:
+    """Total force of a contact in its own frame, as ``[Fu, Fv, Fn]``.
+
+    Components are summed over the contact's points and ordered to match the contact
+    frame's axes -- ``x = t1``, ``y = t2``, ``z = n`` -- so the vector converts to world
+    coordinates with that frame directly. ``Fn`` is positive in compression.
+    """
+    return [
+        sum(f.get("c_u", 0.0) for f in forces),
+        sum(f.get("c_v", 0.0) for f in forces),
+        sum(f.get("c_np", 0.0) - f.get("c_nn", 0.0) for f in forces),
+    ]
+
+
 def outer_product(u, v):
     return [[ui * vi for vi in v] for ui in u]
 
@@ -57,12 +90,17 @@ class VertexContact(Data):
 
     """
 
+    # NOTE: Vertex contacts might not need a frame, just keep three components of forces in
+    # global XYZ with a point of application. But a frame is useful for visualizing the forces
+    # in a local coordinate system.
+
     @property
     def __data__(self) -> dict:
         return {
             "point": self._point,
             "frame": self._frame,
             "name": self.name,
+            "forces": self._forces,
         }
 
     def __init__(
@@ -70,22 +108,64 @@ class VertexContact(Data):
         point: Point,
         frame: Frame = None,
         name: Optional[str] = None,
+        forces: Optional[list[dict[str, float]]] = None,
     ):
         super().__init__(name)
         self._point = point
         self._frame = frame
+        self._forces = forces or []
 
     @property
     def point(self) -> Point:
         return self._point
 
     @property
+    def points(self) -> list[Point]:
+        """The single contact point, as a list, so that consumers can iterate any
+        contact type uniformly alongside :attr:`forces`."""
+        return [self._point]
+
+    @property
     def frame(self) -> Optional[Frame]:
         return self._frame
 
     @property
+    def forces(self) -> list[dict[str, float]]:
+        return self._forces
+
+    @property
     def geometry(self):
         return self.point
+
+    @property
+    def resultantpoint(self) -> Point:
+        """Point of application of the resultant, i.e. the contact point itself."""
+        return self._point
+
+    @property
+    def resultant(self) -> Optional[Vector]:
+        """Resultant force, projected onto global XYZ, as a :class:`compas.geometry.Vector`."""
+        if not self._forces or self._frame is None:
+            return None
+        n, t1, t2 = self._frame.zaxis, self._frame.xaxis, self._frame.yaxis
+        total = Vector(0, 0, 0)
+        for force in self._forces:
+            fn = force.get("c_np", 0.0) - force.get("c_nn", 0.0)
+            total += n * fn + t1 * force.get("c_u", 0.0) + t2 * force.get("c_v", 0.0)
+        return total
+
+    @property
+    def resultantforce(self) -> Optional[Line]:
+        """Line of length ``|resultant|`` centred on the contact point."""
+        return self.resultantline()
+
+    def resultantline(self, scale: float = 1.0) -> Optional[Line]:
+        """Line of length ``|resultant| * scale`` centred on the contact point."""
+        r = self.resultant
+        if r is None or r.length == 0:
+            return None
+        half = r * 0.5 * scale
+        return Line(self._point - half, self._point + half)
 
 
 class EdgeContact(Data):
@@ -104,6 +184,8 @@ class EdgeContact(Data):
         ``"c_u"`` (tangential t1), ``"c_v"`` (tangential t2).
 
     """
+
+    #
 
     def __init__(self, points, frame, forces=None, name=None, **kwargs):
         super().__init__(name=name, **kwargs)
@@ -218,8 +300,8 @@ class EdgeContact(Data):
         if self._forces:
             fn_vals = [f.get("c_np", 0.0) - f.get("c_nn", 0.0) for f in self._forces]
             if abs(sum(fn_vals)) > 1e-12:
-                return Point(*centroid_points_weighted(pts, fn_vals))
-        return Point(*centroid_points_weighted(pts, [1] * len(pts)))
+                return weighted_point(pts, fn_vals)
+        return weighted_point(pts, [1] * len(pts))
 
     @property
     def resultant(self) -> Optional[Vector]:
@@ -519,11 +601,17 @@ class FrictionContact(Contact):
 
     @property
     def resultantpoint(self) -> Optional[Union[Point, list[float]]]:
+        """Point of application of the resultant: the normal-force-weighted centroid.
+
+        Falls back to the plain centroid when the normal forces net to zero, matching
+        :attr:`resultantforce` and :attr:`resultantline`. Returns ``None`` only when the
+        contact carries no forces at all, so callers get either a usable point or an
+        obvious absence -- never a silently misplaced one.
+        """
         if not self.forces:
-            return []
+            return None
         normalcomponents = [f["c_np"] - f["c_nn"] for f in self.forces]
-        if sum(normalcomponents):
-            return Point(*centroid_points_weighted(self.points, normalcomponents))
+        return weighted_point(self.points, normalcomponents)
 
     @property
     def resultantforce(self) -> list[Line]:
@@ -534,15 +622,15 @@ class FrictionContact(Contact):
         sum_u = sum(f["c_u"] for f in self.forces)
         sum_v = sum(f["c_v"] for f in self.forces)
         if abs(sum_n) > 1e-12:
-            position = Point(*centroid_points_weighted(self.points, normalcomponents))
+            position = weighted_point(self.points, normalcomponents)
         else:
-            position = Point(*centroid_points_weighted(self.points, [1] * len(self.points)))
+            position = weighted_point(self.points, [1] * len(self.points))
         frame = self.frame
         w, u, v = frame.zaxis, frame.xaxis, frame.yaxis
         forcevector = (w * sum_n + u * sum_u + v * sum_v) * 0.5
         p1 = position + forcevector
         p2 = position - forcevector
-        return [Line(p1, p2)]
+        return [Line(p2, p1)]
 
     @property
     def resultantdata(self) -> Optional[list[float]]:
@@ -552,7 +640,7 @@ class FrictionContact(Contact):
                 sum_n = sum(normalcomponents)
                 sum_u = sum(f["c_u"] for f in self.forces)
                 sum_v = sum(f["c_v"] for f in self.forces)
-                position = centroid_points_weighted(self.points, normalcomponents)
+                position = list(weighted_point(self.points, normalcomponents))
                 u, v, w = self.frame.xaxis, self.frame.yaxis, self.frame.zaxis
                 forcevector = u * sum_u + v * sum_v + w * sum_n
                 direction = list(forcevector.unitized())
@@ -572,9 +660,9 @@ class FrictionContact(Contact):
         if forcevector.length == 0:
             return None
         if sum_n:
-            position = Point(*centroid_points_weighted(self.points, normalcomponents))
+            position = weighted_point(self.points, normalcomponents)
         else:
-            position = Point(*centroid_points_weighted(self.points, [1] * len(self.points)))
+            position = weighted_point(self.points, [1] * len(self.points))
         p1 = position + forcevector * scale
         p2 = position - forcevector * scale
-        return Line(p1, p2)
+        return Line(p2, p1)

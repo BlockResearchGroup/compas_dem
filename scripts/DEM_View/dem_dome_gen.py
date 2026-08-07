@@ -26,21 +26,12 @@ for polygon in patch.polygons:
     faces = [[0, 3, 2, 1], [4, 5, 6, 7], [2, 3, 7, 6], [1, 2, 6, 5], [0, 1, 5, 4], [3, 0, 4, 7]]
     blocks.append(Mesh.from_vertices_and_faces(vertices, faces))
 
-columns = [blocks[i : i + 12] for i in range(0, len(blocks), 12)]
-rows = list(zip(*columns))
-
+# Use individual blocks as bricks (mesh.join() has issues)
 bricks = []
-for i in range(len(rows)):
-    for j in range(0, len(rows[0]), 2):
-        if i % 2 == 0:
-            a: Mesh = rows[i][j]
-            b: Mesh = rows[i][j + 1]
-        else:
-            a: Mesh = rows[i][j - 1]
-            b: Mesh = rows[i][j]
-        brick: Mesh = a.copy()
-        brick.join(b, True)
-        bricks.append(brick)
+for i, block in enumerate(blocks):
+    brick: Mesh = block.copy()
+    brick.attributes["is_support"] = brick.centroid()[2] < 0.4
+    bricks.append(brick)
 
 # =============================================================================
 # Model and interactions
@@ -50,7 +41,10 @@ model = BlockModel()
 
 for brick in bricks:
     element = Block.from_mesh(brick)
+    element.is_support = brick.attributes["is_support"]
     model.add_element(element)
+
+# =============================================================================
 
 model.compute_contacts(tolerance=0.001)
 

@@ -29,11 +29,8 @@ class JointModel(Data):
 
     @property
     def __data__(self) -> dict:
-        data = super().__data__
-        data.update(
-            {
-                "kn": self.kn,
-                "kt": self.kt,
-            }
-        )
-        return data
+        return {"name": self.name, "kn": self.kn, "kt": self.kt}
+
+    @classmethod
+    def __from_data__(cls, data: dict) -> "JointModel":
+        return cls(kn=data["kn"], kt=data["kt"], name=data.get("name"))

@@ -45,9 +45,14 @@ problem = Problem(model)
 problem.add_contact_model("MohrCoulomb", phi=40, c=0)
 problem.add_support(49)
 
-problem.add_displacement(block_index=0, displacement=[0.1, 0, 0], rotation=[0, 0, 0])
-lmgc90 = Solver.LMGC90(n_steps=100, dt=0.01)
-solution = problem.solve(lmgc90)
+block0 = model.graph.node_element(0)
+print("block 0 centroid:", block0.modelgeometry.centroid())
+
+problem.add_displacement(block_index=0, displacement=[0.1, 0, 0])
+# lmgc90 = Solver.LMGC90(n_steps=100, dt=0.01)
+lmgc90 = Solver.PRD(linear=False)
+problem.solver(lmgc90)
+solution = model.solve(problem)
 # =============================================================================
 # Viz
 # =============================================================================
@@ -55,5 +60,5 @@ solution = problem.solve(lmgc90)
 viewer = DEMViewer(model)
 
 viewer.setup()
-viewer.add_solution(scale=0.5)
+viewer.add_solution(solution, scale=0.5)
 viewer.show()

@@ -6,44 +6,33 @@ To run this script, install `compas_dem` and its dependencies using the preconfi
     $ conda env create -f environment.yml
     $ conda activate dem-dev
 
+To generate the input file, run the `dem_dome.py` script first.
+
 """
 
+import pathlib
+
+import compas
 from compas_dem.material import Stone
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.problem import Solver
-from compas_dem.templates import ArchTemplate
 from compas_dem.viewer import DEMViewer
 
 # =============================================================================
-# Template
+# Import
 # =============================================================================
 
-template = ArchTemplate(rise=3, span=10, thickness=0.25, depth=0.5, n=50)
-
-# =============================================================================
-# Model and interactions
-# =============================================================================
-
-model = BlockModel.from_template(template)
-
-model.compute_contacts(tolerance=0.001)
-
-# =============================================================================
-# Supports
-# =============================================================================
-
-for element in model.elements():
-    if model.graph.degree(element.graphnode) == 1:
-        element.is_support = True
+model: BlockModel = compas.json_load(pathlib.Path(__file__).parent.parent.parent / "data" / "dome.json")  # type: ignore
 
 # =============================================================================
 # Material
 # =============================================================================
 
-generic_stone = Stone(density=2000)
-model.add_material(generic_stone)
-model.assign_material(generic_stone, elements=list(model.elements()))
+stone: Stone = Stone.from_predefined_material("LimeStone")
+stone.density = 2000  # Overwrite default density for limestone
+model.add_material(stone)
+model.assign_material(stone, elements=list(model.elements()))
 
 # =============================================================================
 # Problem setup and solve
@@ -51,8 +40,8 @@ model.assign_material(generic_stone, elements=list(model.elements()))
 
 problem = Problem(model)
 problem.set_contact_model("MohrCoulomb", mu=0.5, c=0.0)
-cra_solver = Solver.CRA()
-problem.set_solver(cra_solver)
+rbe_solver = Solver.LMGC90(duration=0.2, n_steps=100, urf_threshold=1e-3, theta=0.7)
+problem.set_solver(rbe_solver)
 solution = problem.solve()
 
 # =============================================================================

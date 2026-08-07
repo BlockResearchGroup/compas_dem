@@ -44,6 +44,6 @@ problem.add_contact_model("MohrCoulomb", mu=0.5)
 HERE = os.path.dirname(__file__)
 compas.json_dump(problem, os.path.join(HERE, "DEM_problem_updated.json"))
 
-viewer = DEMViewer(problem.model)
+viewer = DEMViewer(model)
 viewer.setup()
 viewer.show()

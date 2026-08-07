@@ -1,33 +1,38 @@
-"""Compute the equilibrium of an arch structure using the CRA method.
+import pathlib
 
-To run this script, install `compas_dem` and its dependencies using the preconfigured
-"dem-dev" environment in the `compas_dem` repo.
-
-    $ conda env create -f environment.yml
-    $ conda activate dem-dev
-
-"""
-
-from compas_dem.material import Stone
+from compas.datastructures import Mesh
+from compas.files import OBJ
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.problem import Solver
-from compas_dem.templates import ArchTemplate
 from compas_dem.viewer import DEMViewer
+from compas_model.materials import Concrete
 
 # =============================================================================
-# Template
+# Data
 # =============================================================================
 
-template = ArchTemplate(rise=3, span=10, thickness=0.25, depth=0.5, n=50)
+FILE = pathlib.Path(__file__).parent.parent.parent / "data" / "crossvault.obj"
+print(f"Reading geometry from {FILE}...")
+obj = OBJ(FILE)
+obj.read()
+
+meshes = []
+for name in obj.objects:  # type: ignore
+    vertices, faces = obj.objects[name]  # type: ignore
+    mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
+    mesh.scale(0.025, 0.025, 0.025)
+    mesh.name = name
+    meshes.append(mesh)
 
 # =============================================================================
 # Model and interactions
 # =============================================================================
 
-model = BlockModel.from_template(template)
+model = BlockModel.from_boxes(meshes)
 
 model.compute_contacts(tolerance=0.001)
+
 
 # =============================================================================
 # Supports
@@ -41,24 +46,32 @@ for element in model.elements():
 # Material
 # =============================================================================
 
-generic_stone = Stone(density=2000)
-model.add_material(generic_stone)
-model.assign_material(generic_stone, elements=list(model.elements()))
+conc: Concrete = Concrete.from_strength_class("C30")
+model.add_material(conc)
+model.assign_material(conc, elements=list(model.elements()))
 
 # =============================================================================
-# Problem setup and solve
-# =============================================================================
+# Problem
+# ============================================================================
 
 problem = Problem(model)
-problem.set_contact_model("MohrCoulomb", mu=0.5, c=0.0)
-cra_solver = Solver.CRA()
-problem.set_solver(cra_solver)
+
+# problem.inspect_model()
+problem.set_contact_model("MohrCoulomb", mu=0.55, c=0)
+
+
+# rbe = Solver.RBE()
+
+lmgc90 = Solver.RBE()
+problem.set_solver(lmgc90)
 solution = problem.solve()
+
 
 # =============================================================================
 # Viz
 # =============================================================================
 
 viewer = DEMViewer(model)
-viewer.add_solution(solution)
+
+viewer.add_solution(solution, scale=0.5)
 viewer.show()

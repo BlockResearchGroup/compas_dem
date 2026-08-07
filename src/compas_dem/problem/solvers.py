@@ -21,8 +21,19 @@ class Solver(Data):
     def __repr__(self):
         return f"Solver(name={self.name}, parameters={self.parameters})"
 
+    @property
     def __data__(self):
         return {"name": self.name, "parameters": self.parameters}
+
+    @classmethod
+    def __from_data__(cls, data: dict) -> "Solver":
+        # Solver.__init__ takes no arguments and the factory classmethods
+        # (LMGC90/CRA/...) set name+parameters, so reconstruct by hand rather
+        # than the default cls(**data).
+        obj = cls()
+        obj.name = data["name"]
+        obj.parameters = data["parameters"]
+        return obj
 
     @classmethod
     def LMGC90(
@@ -33,7 +44,7 @@ class Solver(Data):
         theta: float = 0.5,
         urf_threshold: Optional[float] = None,
         track_block: Optional[int] = None,
-        contact_law: str = "IQS_CLB",
+        verbose: int = 1000,
     ):
         """
         LMGC90 solver configuration.
@@ -52,8 +63,6 @@ class Solver(Data):
             Unbalanced force threshold for convergence. If None, it will be set to a default value based on the model.
         track_block : int, Optional
             Optional block index to track and print its displacement/rotation during the simulation.
-        contact_law : str
-            Contact law to use in LMGC90. Default is "IQS_CLB" (a common choice for DEM simulations).
         """
         self = cls()
         self.name = "LMGC90"
@@ -64,15 +73,16 @@ class Solver(Data):
             "theta": theta,
             "urf_threshold": urf_threshold,
             "track_block": track_block,
-            "contact_law": contact_law,
+            "verbose": verbose,
         }
         return self
 
     @classmethod
     def CRA(
         cls,
-        d_bnd: float = 0.001,
-        eps: float = 0.0001,
+        d_bnd: float = 0.01,
+        eps: float = 0.001,
+        penalty: bool = False,
         verbose: bool = False,
         timer: bool = False,
     ):
@@ -82,9 +92,15 @@ class Solver(Data):
         Parameters
         ----------
         d_bnd : float
-            Penalty boundary parameter. Default ``0.001``.
+            Bound on the virtual displacement. Default ``0.01``.
+
+            Deliberately looser than compas_cra's own ``0.001``: on a finely
+            discretised model that bound is too tight to satisfy the contact
+            constraints and the solve reports ``infeasible``.
         eps : float
-            Penalty convergence tolerance. Default ``0.0001``.
+            Contact overlapping parameter. Default ``0.001``.
+        penalty : bool
+            Use the penalty formulation instead of the plain CRA solve.
         verbose : bool
             Print solver output.
         timer : bool
@@ -93,11 +109,95 @@ class Solver(Data):
         self = cls()
         self.name = "CRA"
         self.parameters = {
-            "method": "cra",
             "d_bnd": d_bnd,
             "eps": eps,
+            "penalty": penalty,
             "verbose": verbose,
             "timer": timer,
+        }
+        return self
+
+    @classmethod
+    def PRD(
+        cls,
+        n_steps: int = 1,
+        open_tol: float = 1e-3,
+        mu: Optional[float] = None,
+        solver: str = "CLARABEL",
+        verbose: bool = False,
+    ):
+        """PRD (Piecewise Rigid Displacement) solver configuration.
+
+        Parameters
+        ----------
+        n_steps : int
+            Number of increments for the incremental nonlinear solve.
+            If ``1`` (default), run the one-shot linear LP instead.
+        open_tol : float
+            Contact opening tolerance, used when ``n_steps > 1``. Default ``1e-3``.
+        mu : float, optional
+            Friction coefficient. Falls back to the contact model's ``mu`` if not given.
+        solver : str
+            CVXPY back-end solver. Default ``"CLARABEL"``.
+            Other options: ``"MOSEK"``, ``"GUROBI"``, ``"HIGHS"``.
+        verbose : bool
+            Print solver output. Default ``False``.
+        """
+        self = cls()
+        self.name = "PRD"
+        self.parameters = {
+            "n_steps": n_steps,
+            "open_tol": open_tol,
+            "mu": mu,
+            "solver": solver,
+            "verbose": verbose,
+        }
+        return self
+
+    @classmethod
+    def BLA(
+        cls,
+        n_steps: int = 1,
+        open_tol: float = 1e-3,
+        associative: bool = True,
+        non_associative_params: Optional[dict] = None,
+        mu: Optional[float] = None,
+        solver: str = "CLARABEL",
+        verbose: bool = False,
+    ):
+        """BLA (Block Limit Analysis) solver configuration.
+
+        Parameters
+        ----------
+        n_steps : int
+            Number of increments for the incremental solve.
+            If ``1`` (default), run the one-shot linear LP instead.
+        open_tol : float
+            Contact opening tolerance, used when ``n_steps > 1``. Default ``1e-3``.
+        associative : bool
+            If ``True`` (default), use associative friction model.
+            If ``False``, use non-associative friction model with parameters in ``non_associative_params``.
+        non_associative_params : dict, optional
+            Parameters for non-associative friction model (used when ``associative=False``).
+                {mu: 0.6, betta: 0.6, xi: 0.0, gamma: 0.0, c_0k: 1e-5, tol: 1e-3, max_iter: 10}
+        mu : float, optional
+            Friction coefficient. Falls back to the contact model's ``mu`` if not given.
+        solver : str
+            CVXPY back-end solver. Default ``"CLARABEL"``.
+            Other options: ``"MOSEK"``, ``"GUROBI"``, ``"HIGHS"``.
+        verbose : bool
+            Print solver output. Default ``False``.
+        """
+        self = cls()
+        self.name = "BLA"
+        self.parameters = {
+            "n_steps": n_steps,
+            "open_tol": open_tol,
+            "associative": associative,
+            "non_associative_params": non_associative_params,
+            "mu": mu,
+            "solver": solver,
+            "verbose": verbose,
         }
         return self
 
@@ -119,7 +219,6 @@ class Solver(Data):
         self = cls()
         self.name = "RBE"
         self.parameters = {
-            "method": "rbe",
             "verbose": verbose,
             "timer": timer,
         }

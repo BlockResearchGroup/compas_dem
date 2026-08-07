@@ -1,39 +1,25 @@
 import os
 
 import compas
+from compas_dem.models import BlockModel
+from compas_dem.problem import Problem
 from compas_dem.problem import Solver
 from compas_dem.viewer import DEMViewer
 
-# =============================================================================
-# Load Problem
-# =============================================================================
-
 HERE = os.path.dirname(__file__)
-problem = compas.json_load(
-    os.path.join(HERE, "DEM_problem.json"),
-)
 
-# =============================================================================
-# Create Problem
-# =============================================================================
+model: BlockModel = compas.json_load(os.path.join(HERE, "DEM_model.json"))
+problem: Problem = compas.json_load(os.path.join(HERE, "DEM_problem.json"))
 
 # lmgc90 = Solver.LMGC90(duration=1.0, n_steps=100, urf_threshold=0.001)
-# problem.solve(lmgc90)
+# problem.solve(lmgc90, model)
 
 lmgc90 = Solver.LMGC90(n_steps=100, dt=0.001)
-problem.solve(lmgc90)
+problem.solver(lmgc90)
+result = model.solve(problem)
 
-# =============================================================================
-# Save results
-# =============================================================================
+compas.json_dump(result, os.path.join(HERE, "DEM_results.json"))
 
-HERE = os.path.dirname(__file__)
-compas.json_dump(problem, os.path.join(HERE, "DEM_results.json"))
-
-# # =============================================================================
-# # Visualize problem
-# # =============================================================================
-
-viewer = DEMViewer(problem.model)
-viewer.add_solution(scale=0.5)
+viewer = DEMViewer(model)
+viewer.add_solution(result, scale=0.5)
 viewer.show()

@@ -42,6 +42,6 @@ compas.json_dump(problem, os.path.join(HERE, "DEM_problem.json"))
 # Visualize problem
 # =============================================================================
 
-viewer = DEMViewer(problem.model)
+viewer = DEMViewer(model)
 viewer.setup()
 viewer.show()

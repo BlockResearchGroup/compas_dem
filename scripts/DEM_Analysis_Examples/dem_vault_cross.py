@@ -12,8 +12,8 @@ from compas_model.materials import Concrete
 # Data
 # =============================================================================
 
-FILE = pathlib.Path(__file__).parent.parent / "data" / "crossvault.obj"
-
+FILE = pathlib.Path(__file__).parent.parent.parent / "data" / "crossvault.obj"
+print(f"Reading geometry from {FILE}...")
 obj = OBJ(FILE)
 obj.read()
 
@@ -57,14 +57,14 @@ model.assign_material(conc, elements=list(model.elements()))
 problem = Problem(model)
 
 # problem.inspect_model()
-problem.add_supports_from_model()
-problem.add_contact_model("MohrCoulomb", phi=40, c=0)
+problem.set_contact_model("MohrCoulomb", mu=0.55, c=0)
 
 
 # rbe = Solver.RBE()
 
-lmgc90 = Solver.LMGC90(duration=1.0, n_steps=1000)
-solution = problem.solve(lmgc90)
+lmgc90 = Solver.LMGC90(dt=0.001, n_steps=100)
+problem.set_solver(lmgc90)
+solution = problem.solve()
 
 
 # =============================================================================
@@ -73,5 +73,5 @@ solution = problem.solve(lmgc90)
 
 viewer = DEMViewer(model)
 
-viewer.add_solution(scale=0.5)
+viewer.add_solution(solution, scale=0.5)
 viewer.show()

@@ -45,15 +45,15 @@ for node in model.graph.nodes_where(degree=1):
 # =============================================================================
 
 problem = Problem(model)
-problem.add_contact_model("MohrCoulomb", phi=40, c=0)
-problem.add_supports_from_model()
+problem.set_contact_model("MohrCoulomb", phi=40, c=0)
 
 # =============================================================================
 # Solver
 # =============================================================================
 
 rbe = Solver.RBE(verbose=True)
-solution = problem.solve(rbe)
+problem.set_solver(rbe)
+solution = problem.solve()
 
 # =============================================================================
 # Viz
@@ -62,5 +62,5 @@ solution = problem.solve(rbe)
 viewer = DEMViewer(model)
 
 viewer.setup()
-viewer.add_solution(scale=1)
+viewer.add_solution(solution, scale=1)
 viewer.show()

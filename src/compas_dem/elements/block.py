@@ -150,3 +150,4 @@ class Block(Element):
 
     def compute_point(self) -> Point:
         return Point(*self.modelgeometry.centroid())
+

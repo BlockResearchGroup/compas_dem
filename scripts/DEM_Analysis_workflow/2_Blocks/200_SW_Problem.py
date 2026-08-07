@@ -23,7 +23,7 @@ problem = Problem(model)
 # Add supports
 # =============================================================================
 
-problem.add_supports_from_model()
+problem.add_supports_from_model(model)
 
 # =============================================================================
 # Add contact properties
@@ -41,6 +41,6 @@ compas.json_dump(problem, os.path.join(HERE, "DEM_problem.json"))
 # Visualize problem
 # =============================================================================
 
-viewer = DEMViewer(problem.model)
+viewer = DEMViewer(model)
 viewer.setup()
 viewer.show()

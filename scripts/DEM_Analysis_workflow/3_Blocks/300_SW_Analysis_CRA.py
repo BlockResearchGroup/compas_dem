@@ -3,25 +3,13 @@ import os
 import compas
 from compas_dem.problem import Solver
 
-# =============================================================================
-# Load Problem
-# =============================================================================
-
 HERE = os.path.dirname(__file__)
-problem = compas.json_load(
-    os.path.join(HERE, "DEM_problem.json"),
-)
 
-# =============================================================================
-# Create Problem
-# =============================================================================
+model = compas.json_load(os.path.join(HERE, "DEM_model.json"))
+problem = compas.json_load(os.path.join(HERE, "DEM_problem.json"))
 
 cra = Solver.CRA(verbose=True)
-problem.solve(cra)
+problem.solver(cra)
+result = model.solve(problem)
 
-# =============================================================================
-# Save results
-# =============================================================================
-
-HERE = os.path.dirname(__file__)
-compas.json_dump(problem, os.path.join(HERE, "DEM_results.json"))
+compas.json_dump(result, os.path.join(HERE, "DEM_results.json"))

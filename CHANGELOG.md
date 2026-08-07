@@ -9,9 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added `BoundaryConditionGroup`, which stores the boundary conditions that act together and carries the `add_*` methods that build them.
+* Added concrete bodies to `PointLoad`, `SurfaceLoad`, `BodyForce`, `Gravity`, `Translation` and `Rotation`, which were previously empty subclasses.
+* Added `loading_type` to `Load` and `block_index` to `Displacement`, shared by their subclasses.
+
 
 ### Changed
 
+* Changed `BoundaryCondition` from a container of load dictionaries into a base class for a single boundary condition, with `Load` and `Displacement` deriving from it.
+* Changed `BoundaryConditionGroup.add_*` to build and store the matching `BoundaryCondition` subclass instead of a plain dictionary, and to return the instance it created.
+* Changed `Problem` to hold `BoundaryConditionGroup` instances; `add_boundary_condition` now returns a group.
+* Changed `resolve_centroidal_loads`, `resolve_centroidal_displacements` and `Problem.inspect_model` to read boundary condition attributes rather than dictionary keys.
 * Fixed tangential force direction in post-processing for vizualization.
 * Reorganized the `scripts/` examples folder for clarity.
 * Adapted the examples to the new API.

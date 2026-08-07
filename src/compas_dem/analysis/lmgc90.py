@@ -3,40 +3,45 @@ from collections import defaultdict
 import numpy as np
 
 import compas.geometry as cg
+from compas_dem.analysis.resolve import _element_mass
+from compas_dem.analysis.resolve import resolve_centroidal_displacements
+from compas_dem.analysis.resolve import resolve_centroidal_loads
 from compas_dem.interactions import EdgeContact
 from compas_dem.interactions import FrictionContact
+from compas_dem.interactions import VertexContact
+from compas_dem.models import BlockModel
 from compas_dem.problem.problem import Problem
+from compas_dem.problem.results import Results
 
 try:
     from compas_lmgc90.solver import Solver
-except ImportError:
+except (ImportError, FileNotFoundError):
     raise ImportError("compas_lmgc90 is not installed. Install it to use the LMGC90 solver.")
+
+
 # ---------------------------------------------------------------------------
 # UFR – Unbalanced Force Ratio
 # ---------------------------------------------------------------------------
 
 
-def compute_urf(solver: Solver, problem: Problem) -> float:
+def compute_urf(solver: Solver, problem: Problem, model: BlockModel) -> float:
     """Return the Unbalanced Force Ratio for the current simulation step.
 
     UFR = Σ_i |F_i_net| / ( Σ_i |F_i_applied| + Σ_ij |F_ij_contact| )
-
-    Reads from ``solver.last_result`` (set by :meth:`Solver.run`).
-    Returns 0.0 when no forces are present, and approaches 0 at equilibrium.
     """
     result = solver.last_result
-    lmgc_to_graphnode = {i: el.graphnode for i, el in enumerate(problem.model.elements())}
+    blocks = {b.graphnode: b for b in model.elements()}
+    lmgc_to_graphnode = {i: el.graphnode for i, el in enumerate(model.elements())}
 
-    # Applied forces from the problem plus LMGC90's always-on gravity
     g_vec = np.array([0.0, 0.0, -9.81])
+    centroidal_loads = resolve_centroidal_loads(model, problem.boundary_conditions)
+
     applied_forces = {}
-    for idx, block in problem._blocks.items():
-        external = np.asarray(list(problem.centroidal_loads[idx]["force"]), dtype=float)
-        mass = getattr(block, "mass", None)
-        gravity = mass * g_vec if mass is not None else np.zeros(3)
+    for idx, block in blocks.items():
+        external = np.asarray(list(centroidal_loads[idx]["force"]), dtype=float)
+        gravity = _element_mass(block) * g_vec
         applied_forces[idx] = external + gravity
 
-    # Net contact force per body — interaction_bodies uses 1-based LMGC90 indices
     contact_net: dict = defaultdict(lambda: np.zeros(3))
     for i in range(len(result.interaction_bodies)):
         cd_id, an_id = result.interaction_bodies[i]
@@ -58,24 +63,25 @@ def compute_urf(solver: Solver, problem: Problem) -> float:
 
 def lmgc90_solve(
     problem: Problem,
-    contact_law: str = "IQS_CLB",
+    model: BlockModel,
     duration: float = None,
     n_steps: int = None,
     dt: float = None,
-    theta: float = 0.5,
+    theta: float = 0.7,
     urf_threshold: float = None,
     track_block: int = None,
+    verbose: int = 0,
 ) -> Solver:
-    """Translate a Problem into a configured LMGC90 Solver. Run the simulation and
-    Postprocess results back into the Problem's BlockModel in-place after the run (refer
-    to :func:`_post_processing_lmgc90` for details).
+    """
+    Translate a Problem into a configured LMGC90 Solver. Run the simulation and
+    post-process results back into the BlockModel in-place.
 
     Parameters
     ----------
     problem : :class:`~compas_dem.problem.Problem`
-        The problem containing model, forces, BCs, and contact properties.
-    contact_law : str, optional
-        LMGC90 contact law identifier. Default ``"IQS_CLB"``.
+        The problem containing forces, BCs, and contact properties.
+    model : :class:`~compas_dem.models.BlockModel`
+        The block model to solve.
     duration : float, optional
         Total simulation time [s].
     n_steps : int, optional
@@ -83,29 +89,15 @@ def lmgc90_solve(
     dt : float, optional
         Time step size [s].
     theta : float, optional
-        Time-integration parameter. Default ``0.5``.
+        Time-integration parameter. Default ``0.7``.
     urf_threshold : float, optional
-        Unbalanced Force Ratio convergence threshold.  When provided, the UFR
-        is computed after every step and the simulation stops early once UFR
-        drops below this value.  ``None`` (default) disables UFR tracking.
-        Requires ``solver.get_contacts()`` to expose ``"body_ids"`` and
-        ``"force_vectors"`` keys; a warning is printed and tracking is skipped
-        if those keys are absent.
+        Unbalanced Force Ratio convergence threshold.
 
     Returns
     -------
     :class:`compas_lmgc90.solver.Solver`
-        A configured LMGC90 solver after running the simulation.
-        ``solver.urf_history`` (list of float) is attached when *urf_threshold*
-        is provided.
-
-    Examples
-    --------
-    >>> solver = lmgc90_solve(problem, duration=1.0, n_steps=100)
-    >>> solver = lmgc90_solve(problem, dt=0.01, n_steps=100)
-    >>> solver = lmgc90_solve(problem, duration=1.0, dt=0.01)
-    >>> solver = lmgc90_solve(problem, duration=1.0, n_steps=500, urf_threshold=1e-3)
     """
+
     given = sum(x is not None for x in [duration, n_steps, dt])
     if given == 3:
         raise ValueError("Provide exactly two of duration, n_steps, dt — the third is computed automatically.")
@@ -123,18 +115,17 @@ def lmgc90_solve(
         else:
             dt = duration / n_steps
 
-    model = problem.model
-
     # ------------------------------------------------------------------
-    # Density: first non-support block with material, or fallback
+    # Density: first block with material, or fallback
     # ------------------------------------------------------------------
+    density = None
     for block in model.blocks():
         if block.material and block.material.density:
             density = block.material.density
             break
 
     # ------------------------------------------------------------------
-    # Contact friction: last contact properties added to the problem
+    # Contact friction
     # ------------------------------------------------------------------
     if problem.contact_properties.contact_model:
         mu = problem.contact_properties.contact_model.mu
@@ -142,28 +133,41 @@ def lmgc90_solve(
         raise Warning("No contact properties with a contact model found in the problem; defaulting to mu=0.6.")
 
     # ------------------------------------------------------------------
-    # Build solver
+    # Resolve BCs
     # ------------------------------------------------------------------
-    # Fully-fixed blocks (all-zero translation + rotation) must go through
-    # the supports mechanism for vizualization and later flagging.
-    for block in model.elements():
-        idx = block.graphnode
-        disp = problem.centroidal_displacements.get(idx)
-        if disp is not None:
-            t = disp["translation"] or [0.0, 0.0, 0.0]
-            r = disp["rotation"] or [0.0, 0.0, 0.0]
-            if all(v == 0.0 for v in t) and all(v == 0.0 for v in r):
-                block.is_support = True
+    # All boundary conditions are unpacked together: the resolve functions sum the
+    # loads and merge the displacements across every registered boundary condition.
+    boundary_conditions = problem.boundary_conditions
 
-    solver = Solver(model, density=density, dt=dt, theta=theta)
-    # solver.set_supports_from_model()
+    centroidal_displacements = resolve_centroidal_displacements(boundary_conditions)
+    centroidal_loads = resolve_centroidal_loads(model, boundary_conditions)
 
-    # ------------------------------------------------------------------
-    # Displacement BCs → apply_velocity (prescribed non-zero only)
-    # ------------------------------------------------------------------
+    # Blocks flagged as supports on the model get a fully fixed displacement entry,
+    # so they are pinned through the zero imposed velocities below. A displacement
+    # prescribed on a support block (e.g. a settlement) wins over the fixity, per component.
     for block in model.elements():
+        if not block.is_support:
+            continue
+        disp = centroidal_displacements.get(block.graphnode)
+        if disp is None:
+            centroidal_displacements[block.graphnode] = {"translation": [0.0, 0.0, 0.0], "rotation": [0.0, 0.0, 0.0]}
+        else:
+            disp["translation"] = [0.0 if v is None else v for v in (disp["translation"] or [None, None, None])]
+            disp["rotation"] = [0.0 if v is None else v for v in (disp["rotation"] or [None, None, None])]
+
+    solver = Solver(density=density, dt=dt, theta=theta)
+    solver.geometry_from_model(model)
+
+    # The solver identifies blocks by their position in insertion order (the order
+    # model.elements() yields them), while loads and BCs are keyed by graph node,
+    # which is not guaranteed to be that same index.
+    graphnode_to_lmgc = {block.graphnode: i for i, block in enumerate(model.elements())}
+    # ------------------------------------------------------------------
+    # Displacement BCs → apply_velocity
+    # ------------------------------------------------------------------
+    for i, block in enumerate(model.elements()):
         idx = block.graphnode
-        disp = problem.centroidal_displacements.get(idx)
+        disp = centroidal_displacements.get(idx)
         if disp is None:
             continue
 
@@ -172,47 +176,59 @@ def lmgc90_solve(
 
         for component, value in zip(["Vx", "Vy", "Vz"], translation):
             if value is not None:
-                solver.apply_velocity(block_index=idx, component=component, value=value / duration)
+                solver.apply_velocity(
+                    block_index=i,
+                    component=component,
+                    value=np.array([[0.0, duration], [value / duration, 0.0]]),
+                )
         for component, value in zip(["Rx", "Ry", "Rz"], rotation):
             if value is not None:
-                solver.apply_velocity(block_index=idx, component=component, value=value / duration)
+                solver.apply_velocity(
+                    block_index=i,
+                    component=component,
+                    value=np.array([[0.0, duration], [value / duration, 0.0]]),
+                )
 
     # ------------------------------------------------------------------
-    # Applied forces: decompose centroidal (force, moment) into per-axis
-    # time series — The three values inputted are at t=0, t=duration*0.9, and t=duration, allowing for ramped or instantaneous loading.
+    # Applied forces → per-axis time series
     # ------------------------------------------------------------------
+    # Sampled at [0, 0.98T, T]: a ramped value r grows 0 -> r and holds, while an
+    # instantaneous value i is applied at t=0 and released at the end. Both live on
+    # the same three samples, so a block carrying ramped and instantaneous loads at
+    # once needs a single series per component -- [i, r + i, r] -- rather than one
+    # loading type winning for the whole block.
     t_series = np.array([0.0, duration * 0.98, duration])
-    # t_series = np.array([0.0, duration * 0.2, 0.8*duration, duration * 0.98])
 
-    for idx, entry in problem.centroidal_loads.items():
-        f = entry["force"]
-        m = entry["moment"]
-        ramp = entry.get("loading_type", "ramp") == "ramp"
+    for idx, entry in centroidal_loads.items():
+        block_index = graphnode_to_lmgc[idx]
+        ramped = entry["by_loading_type"]["ramp"]
+        instantaneous = entry["by_loading_type"]["instantaneous"]
 
-        def _vals(v):
-            return [0, v, v] if ramp else [v, v, 0]
+        components = [
+            ("Fx", ramped["force"].x, instantaneous["force"].x),
+            ("Fy", ramped["force"].y, instantaneous["force"].y),
+            ("Fz", ramped["force"].z, instantaneous["force"].z),
+            ("Mx", ramped["moment"].x, instantaneous["moment"].x),
+            ("My", ramped["moment"].y, instantaneous["moment"].y),
+            ("Mz", ramped["moment"].z, instantaneous["moment"].z),
+        ]
 
-        if abs(f.x) > 1e-12:
-            solver.apply_force(block_index=idx, component="Fx", value=np.array([t_series, _vals(f.x)]))
-        if abs(f.y) > 1e-12:
-            solver.apply_force(block_index=idx, component="Fy", value=np.array([t_series, _vals(f.y)]))
-        if abs(f.z) > 1e-12:
-            solver.apply_force(block_index=idx, component="Fz", value=np.array([t_series, _vals(f.z)]))
-        if abs(m.x) > 1e-12:
-            solver.apply_force(block_index=idx, component="Mx", value=np.array([t_series, _vals(m.x)]))
-        if abs(m.y) > 1e-12:
-            solver.apply_force(block_index=idx, component="My", value=np.array([t_series, _vals(m.y)]))
-        if abs(m.z) > 1e-12:
-            solver.apply_force(block_index=idx, component="Mz", value=np.array([t_series, _vals(m.z)]))
+        for component, r, i in components:
+            if abs(r) < 1e-12 and abs(i) < 1e-12:
+                continue
+            solver.apply_force(
+                block_index=block_index,
+                component=component,
+                value=np.array([t_series, [i, r + i, r]]),
+            )
 
     # ------------------------------------------------------------------
     # Contact law
     # ------------------------------------------------------------------
-    solver.contact_law(contact_law, mu)
+    solver.contact_law("IQS_CLB", mu)
 
     solver.preprocess()
 
-    # raise NotImplementedError("The LMGC90 solver run loop and postprocessing are still being developed. This function is not yet complete.")
     force_time = []
     urf_history = []
     displacement_history = []
@@ -222,14 +238,13 @@ def lmgc90_solve(
         if step == 0:
             result = solver.lmgc90.compute_one_step()
 
-            for i, block in enumerate(problem.model.elements()):
+            for i, block in enumerate(model.elements()):
                 pos = np.array(result.bodies[i])
                 rot = np.array(result.body_frames[i]).reshape(3, 3)
                 block.init_frame = cg.Frame(pos, rot[0, :], rot[1, :])
 
             solver._update_meshes(result)
             solver.last_result = result
-
         else:
             solver.run(nb_steps=1)
 
@@ -239,17 +254,15 @@ def lmgc90_solve(
 
         if urf_threshold is not None:
             if step % 10 == 0:
-                urf = compute_urf(solver, problem)
+                urf = compute_urf(solver, problem, model)
                 urf_history.append(urf)
                 print(f"Completed step {step}/{n_steps}...  UFR = {urf:.2e}")
                 if urf >= 1.0:
                     print(f"Diverged at step {step} (UFR = {urf:.2e} >= 1.0). Stopping.")
                     break
 
-                _jump_window = 200  # Ignores URF jumps in the first n steps
-                # Allows the solver to stabilize initially
-
-                _Max_URF_JUMP_FACTOR = 3.5  # If UFR jumps by more than this factor compared to the recent average, consider it a failure
+                _jump_window = 200
+                _Max_URF_JUMP_FACTOR = 3.5
 
                 if len(urf_history) > _jump_window:
                     baseline = np.mean(urf_history[-_jump_window - 1 : -1])
@@ -260,243 +273,274 @@ def lmgc90_solve(
                     print(f"Converged at step {step} (UFR = {urf:.2e} < {urf_threshold:.2e}). Stopping early.")
                     break
 
-        elif step % 10 == 0:
+        elif step % verbose == 0:
             print(f"Completed step {step}/{n_steps}...")
 
-        if step % 10 == 0:
+        if step % verbose == 0:
             result = solver.last_result
             force_time.append([result.interaction_force_magnitude[i] for i in range(len(result.interaction_bodies))])
-
-        # This is the solver loop, New tracking functions can be added here,
-        # Such as tracking specific contact forces, displacements, or other quantities of interest at each step.
 
     solver.force_time = force_time
     solver.urf_history = urf_history
     solver.displacement_history = displacement_history
 
     print("LMGC90 solver run complete.")
-    _post_processing_lmgc90(solver, problem)
+    results = _post_processing_lmgc90(solver, problem, model)
+    results.metadata["mu"] = mu
+    results.metadata["force_time"] = force_time
+    results.metadata["urf_history"] = urf_history
+    results.metadata["n_steps"] = step + 1
+    results.metadata["displacement_history"] = [d.tolist() for d in displacement_history]
 
     solver.name = "LMGC90"
-
     solver.finalize()
 
-    return
+    return results
 
 
-def _post_processing_lmgc90(solver: "Solver", problem: Problem) -> None:
-    """Post-process results from the LMGC90 solver into BlockModel on the graph's edges and nodes.
+def _contact_axes(result, p: int) -> tuple:
+    """Return ``(t1, t2, n)`` for contact point ``p``, ordered so that ``t1 x t2 == n``.
 
-
-    Block attributes set
-    --------------------
-    displacement : list[float]
-        [dx, dy, dz] between initial and final centroid positions.
-    deformed_mesh : :class:`compas.datastructures.Mesh`
-        The deformed mesh from the solver.
-
-    Edge attributes set
-    -------------------
-    contacts : dict
-        Per-contact-point data aggregated for that interface:
-        ``contact_point``, ``force_magnitude``, ``force_vector``,
-        ``contact_polygon``, ``gap``, ``status``.
+    LMGC90's local frame is ``(t, n, s)`` with ``t x n == s``, hence ``t x s == -n``.
+    Using LMGC90's ``s`` directly as the frame y-axis therefore yields a frame whose
+    z-axis is *minus* the contact normal. We instead take ``t2 = n x t``, which is
+    exactly ``-s``, so the resulting frame has ``zaxis == n`` as every consumer
+    (:class:`FrictionContact`, :class:`EdgeContact`, the viewer) expects.
     """
-    elements = list(problem.model.elements())
+    n = cg.Vector(*result.interaction_normals[p])
+    t1 = cg.Vector(*result.interaction_tangent1[p])
+    t2 = n.cross(t1).unitized()  # == -interaction_tangent2[p]
+    return t1, t2, n
+
+
+def _contact_forces(result, p: int) -> dict:
+    """Return the force at contact point ``p`` in the frame built by :func:`_contact_axes`.
+
+    LMGC90 reports ``rloc = (Ft, Fn, Fs)`` in its own ``(t, n, s)`` frame, and
+    ``Ft*t + Fn*n + Fs*s`` reproduces ``interaction_force_global`` exactly. Since the
+    frame's y-axis is ``-s``, the component along it is ``-Fs``; the components along
+    ``t`` and ``n`` are taken as-is.
+    """
+    Ft, Fn, Fs = result.interaction_rloc[p]
+    return {"c_np": max(Fn, 0.0), "c_nn": max(-Fn, 0.0), "c_u": Ft, "c_v": -Fs}
+
+
+def _process_contact_points(result, points: list) -> list[dict]:
+    """Return a list of dicts containing contact point data for the given LMGC90 contact indices.
+
+    Each dict contains:
+        - "point": :class:`compas.geometry.Point` of the contact point
+        - "indices": list of LMGC90 contact indices that coincide at this point
+        - "fn": net normal force (positive = tension, negative = compression)
+        - "c_u": tangential force along t1
+        - "c_v": tangential force along t2
+    """
+    merged: list[dict] = []
+    for p in points:
+        pt = cg.Point(*result.interaction_coords[p])
+        f = _contact_forces(result, p)
+        entry = next((m for m in merged if m["point"] == pt), None)
+        if entry is None:
+            merged.append(
+                {
+                    "point": pt,
+                    "indices": [p],
+                    "fn": f["c_np"] - f["c_nn"],
+                    "c_u": f["c_u"],
+                    "c_v": f["c_v"],
+                }
+            )
+        else:
+            entry["indices"].append(p)
+            entry["fn"] += f["c_np"] - f["c_nn"]
+            entry["c_u"] += f["c_u"]
+            entry["c_v"] += f["c_v"]
+
+    for m in merged:
+        m["forces"] = {
+            "c_np": max(m["fn"], 0.0),
+            "c_nn": max(-m["fn"], 0.0),
+            "c_u": m["c_u"],
+            "c_v": m["c_v"],
+        }
+    return merged
+
+
+def _local_resultant(merged: list[dict]) -> np.ndarray:
+    """Return a contact's resultant force in its own frame, as ``[Fu, Fv, Fn]``.
+
+    Parameters
+    ----------
+    merged : list[dict]
+        Contact points as returned by :func:`_process_contact_points`.
+
+    Returns
+    -------
+    ``[Fu, Fv, Fn]``, or a zero vector if the contact carries no points.
+    """
+    if not merged:
+        return [0, 0, 0]
+    return [
+        sum(m["c_u"] for m in merged),
+        sum(m["c_v"] for m in merged),
+        sum(m["fn"] for m in merged),
+    ]
+
+
+def _post_processing_lmgc90(solver: "Solver", problem: Problem, model: BlockModel) -> Results:
+    """Build a standalone :class:`~compas_dem.problem.Results` from LMGC90 solver output.
+
+    Does **not** mutate the model or its graph. All data is written only to the
+    returned :class:`Results` object, which can be serialized independently via
+    ``compas.json_dump``.
+
+    Parameters
+    ----------
+    solver : :class:`compas_lmgc90.solver.Solver`
+    problem : :class:`~compas_dem.problem.Problem`
+    model : :class:`~compas_dem.models.BlockModel`
+
+    Returns
+    -------
+    :class:`~compas_dem.problem.Results`
+    """
+    results = Results(model_id=str(model.guid), problem_id=str(problem.guid))
+
+    elements = list(model.elements())
     contact_data = solver.get_contacts()
     result = solver.last_result
-    model = problem.model
 
-    # ==============================================================================
-    # Annotate each block result via graph node attribute (serializable)
-    # Attribute: "transformation"
-    # ==============================================================================
+    # LMGC90 body ids are 1-based indices into ``model.elements()``; the graph node
+    # of an element is not guaranteed to be that same index.
+    lmgc_to_graphnode = {i: el.graphnode for i, el in enumerate(elements)}
+
+    # ------------------------------------------------------------------
+    # Node data — block transformations
+    # ------------------------------------------------------------------
     for i, block in enumerate(elements):
         pos = np.array(result.bodies[i])
         rot = np.array(result.body_frames[i]).reshape(3, 3)
         new_frame = cg.Frame(pos, rot[0, :], rot[1, :])
         T = cg.Transformation.from_frame_to_frame(block.init_frame, new_frame)
-        model.graph.node_attribute(block.graphnode, "transformation", T)
+        results.set_node(block.graphnode, "transformation", T)
 
-    # ==============================================================================
-    # Annotate contact results via graph edge attributes (serializable)
-    # Attributes: "contact_point", "force_magnitude", "force_vector", "contact_polygon", "gap", "status"
-    # ==============================================================================
-    # Contact attributes are extracted from LMGC90's per contact point data.
-
+    # LMGC90 key -> Results key. ``force_tangent2`` is written separately below: LMGC90
+    # reports it along ``s``, while the contact frame stored here uses ``-s`` as y-axis.
     _per_point_keys = [
         "contact_points",
-        "force_normal",
-        "force_tangent1",
-        "force_tangent2",
         "gaps",
         "status",
     ]
     _new_key_name = [
-        "contact_point",
-        "force_normal",
-        "force_tangent1",
-        "force_tangent2",
+        "contact_points",
         "gap",
         "status",
     ]
 
-    # ==============================================================================
-    # Group contact points by body pairs - Taken directly from compas_LMGC90's post-processing method.
-    # ==============================================================================
-    contact_groups = {}
-    for i in range(len(solver.last_result.interaction_coords)):
-        body_pair = tuple(sorted(b - 1 for b in solver.last_result.interaction_bodies[i]))
+    # Group solver contact indices by body pair
+    contact_groups: dict[tuple, list] = {}
+    for i in range(len(result.interaction_coords)):
+        body_pair = tuple(sorted(lmgc_to_graphnode[b - 1] for b in result.interaction_bodies[i]))
         if body_pair not in contact_groups:
             contact_groups[body_pair] = []
         contact_groups[body_pair].append(i)
 
-    # ==============================================================================
-    # Recall Last result from LMGC90
-
-    result = solver.last_result
-    graph = problem.model.graph
-
-    # Loop through LMGC90's contact pairs and indices of contact points.
-    Added_Edges = 0
+    # ------------------------------------------------------------------
+    # Edge data — contacts
+    # ------------------------------------------------------------------
+    graph = model.graph
     for pair, points in contact_groups.items():
         u, v = pair
 
         if not points:
             continue
 
-        # -----------------------------------------------------------------------------
-        # LMGC90 body pairs are undirected (sorted); compas graph edges are directed.
-        # Checking for both orientations if they exist and setting the edge accordingly.
+        # Determine canonical edge direction from the graph (read-only).
+        # If neither direction exists, record it so model.attach() can add it.
         if graph.has_edge((u, v)):
             edge = (u, v)
         elif graph.has_edge((v, u)):
             edge = (v, u)
         else:
-            if not graph.has_node(u) or not graph.has_node(v):
-                continue
-
-            graph.add_edge(u, v)
             edge = (u, v)
-            Added_Edges += 1
+            results.metadata.setdefault("added_edges", []).append(list(edge))
 
-        graph.edge_attribute(edge, "face_contact", False)
-        graph.edge_attribute(edge, "point_contact", False)
-        graph.edge_attribute(edge, "edge_contact", False)
-        # -----------------------------------------------------------------------------
+        results.set_edge(edge, "face_contact", False)
+        results.set_edge(edge, "point_contact", False)
+        results.set_edge(edge, "edge_contact", False)
 
-        # per-point contact data
-        # -------
+        # Coincident interactions are merged first, so that every per-point array below
+        # and the contact object's own points stay the same length.
+        lmgc90_contacts = _process_contact_points(result, points)
+        if len(lmgc90_contacts) != len(points):
+            results.metadata.setdefault("merged_contacts", {})[f"{edge[0]},{edge[1]}"] = [len(points), len(lmgc90_contacts)]
+
+        # ``gap`` and ``status`` describe the interaction itself, so a merged point takes
+        # them from its first constituent. Force components are summed over the merge.
         for k, name in zip(_per_point_keys, _new_key_name):
-            graph.edge_attribute(edge, name, [contact_data[k][i] for i in points])
-        graph.edge_attribute(
-            edge,
-            "force_magnitude",
-            float(np.linalg.norm(np.sum([result.interaction_force_magnitude[p] for p in points], axis=0))),
-        )
-        graph.edge_attribute(
-            edge,
-            "force_vector",
-            [list(result.interaction_force_global[p]) for p in points],
-        )
-        graph.edge_attribute(
-            edge,
-            "force",
-            np.sum([result.interaction_force_global[p] for p in points], axis=0).tolist(),
-        )
+            results.set_edge(edge, name, [contact_data[k][m["indices"][0]] for m in lmgc90_contacts])
+        results.set_edge(edge, "contact_points", [list(m["point"]) for m in lmgc90_contacts])
+        results.set_edge(edge, "force_normal", [m["fn"] for m in lmgc90_contacts])
+        results.set_edge(edge, "force_tangent1", [m["c_u"] for m in lmgc90_contacts])
+        results.set_edge(edge, "force_tangent2", [m["c_v"] for m in lmgc90_contacts])
 
-        # for p in points:
-        #     print("--------------Interaction Force Global---------------")
-        #     print(f"Point {p}: {result.interaction_force_global[p]}")
-        # ---------------------------------------------------------------------
+        # ``interaction_force_global`` is the force on the *candidate* body of each
+        # interaction. Record which node that is so the sign of "force" is unambiguous,
+        # and flip any point whose candidate is the other node before summing.
+        def _signed(p):
+            sign = 1.0 if lmgc_to_graphnode[result.interaction_bodies[p][0] - 1] == edge[0] else -1.0
+            return sign * np.asarray(result.interaction_force_global[p], dtype=float)
 
-        # Identify contact type based on the number of contact points and set attributes accordingly.
-        # ----------
+        force_vectors = [np.sum([_signed(p) for p in m["indices"]], axis=0).tolist() for m in lmgc90_contacts]
+        resultant = np.sum(force_vectors, axis=0)
 
-        contact_frames = [
-            cg.Frame(
-                point=cg.Point(*result.interaction_coords[p]),
-                xaxis=cg.Vector(*result.interaction_tangent1[p]),
-                yaxis=cg.Vector(*result.interaction_normals[p]),
-            )
-            for p in points
-        ]
+        local_resultant = _local_resultant(lmgc90_contacts)
+        results.set_edge(edge, "resultant_local", local_resultant)
+        # results.set_edge(edge, "force_on_node", edge[0])
+        results.set_edge(edge, "force_vector", force_vectors)
+        results.set_edge(edge, "resultant_global", resultant.tolist())
+        # Magnitude of the resultant, consistent with "force" and with the other backends.
+        results.set_edge(edge, "force_magnitude", float(np.linalg.norm(resultant)))
+        results.set_edge(edge, "nodal_force_magnitudes", [float(np.linalg.norm(f)) for f in force_vectors])
 
-        graph.edge_attribute(edge, "contact_frame", contact_frames[0])
+        contact_frames = [cg.Frame(m["point"], *_contact_axes(result, m["indices"][0])[:2]) for m in lmgc90_contacts]
+        results.set_edge(edge, "contact_frames", contact_frames)
+        results.set_edge(edge, "contact_frame", contact_frames[0])
 
-        polygon_pts = [result.interaction_coords[p] for p in points]
+        contact_pts = [m["point"] for m in lmgc90_contacts]
+        forces = [m["forces"] for m in lmgc90_contacts]
+        t1, t2, _ = _contact_axes(result, points[0])
 
-        contact_pts = graph.edge_attribute(edge, "contact_point")
-        contact_frames = graph.edge_attribute(edge, "contact_frame")
+        if len(contact_pts) >= 3:
+            results.set_edge(edge, "contact_polygon", cg.Polygon(contact_pts))
+            results.set_edge(edge, "face_contact", True)
+            fc = FrictionContact(points=contact_pts)
+            fc._frame = cg.Frame(contact_frames[0].point, t1, t2)
+            fc.forces = forces
+            results.set_edge(edge, "contact_data", fc)
 
-        if len(polygon_pts) >= 3:
-            graph.edge_attribute(edge, "contact_polygon", cg.Polygon(polygon_pts))
-
-            graph.edge_attribute(edge, "face_contact", True)
-            fc = FrictionContact(points=[cg.Point(*p) for p in contact_pts])
-            lmgc_tangent = cg.Vector(*result.interaction_tangent1[points[0]])
-            lmgc_normal = cg.Vector(*result.interaction_normals[points[0]])
-            lmgc_tangent2 = lmgc_normal.cross(lmgc_tangent).unitized()
-            fc._frame = cg.Frame(contact_frames.point, lmgc_tangent, lmgc_tangent2)
-
-            for p in points:
-                # Local forces
-                Ft, Fn, Fs = result.interaction_rloc[p]
-
-                fc.forces.append(
-                    {
-                        "c_np": max(Fn, 0),
-                        "c_nn": max(-Fn, 0),
-                        "c_u": -Ft,
-                        "c_v": -Fs,
-                    }
-                )
-            graph.edge_attribute(edge, "contact_data", fc)
-
-        elif len(polygon_pts) == 2:
-            print(f"Edge contact between bodies {u} and {v} with contact points {polygon_pts}. Setting edge_contact=True.")
-            graph.edge_attribute(edge, "edge_contact", True)
-
-            lmgc_tangent = cg.Vector(*result.interaction_tangent1[points[0]])
-            lmgc_tangent2 = cg.Vector(*result.interaction_tangent2[points[0]])
-
+        elif len(contact_pts) == 2:
+            line = cg.Line(contact_pts[0], contact_pts[1])
             ec = EdgeContact(
-                points=[cg.Point(*p) for p in polygon_pts],
-                frame=cg.Frame(
-                    cg.Line(cg.Point(*polygon_pts[0]), cg.Point(*polygon_pts[1])).midpoint,
-                    lmgc_tangent,
-                    lmgc_tangent2,
-                ),
+                points=contact_pts,
+                frame=cg.Frame(line.midpoint, t1, t2),
+                forces=forces,
             )
-            for p in points:
-                Ft, Fn, Fs = result.interaction_rloc[p]
-                ec.forces.append(
-                    {
-                        "c_np": max(Fn, 0),
-                        "c_nn": max(-Fn, 0),
-                        "c_u": -Ft,
-                        "c_v": -Fs,
-                    }
-                )
-            graph.edge_attribute(edge, "edge_contact", True)
-            graph.edge_attribute(edge, "contact_data", ec)
+            results.set_edge(edge, "edge_contact", True)
+            results.set_edge(edge, "contact_data", ec)
+            results.set_edge(edge, "contact_geometry", line)
 
-        elif len(polygon_pts) == 1:
-            graph.edge_attribute(edge, "point_contact", True)
+        elif len(contact_pts) == 1:
+            results.set_edge(edge, "point_contact", True)
+            vc = VertexContact(
+                point=contact_pts[0],
+                frame=cg.Frame(contact_pts[0], t1, t2),
+                forces=forces,
+            )
+            results.set_edge(edge, "contact_data", vc)
+            results.set_edge(edge, "contact_geometry", contact_pts[0])
 
         else:
-            print(f"Warning: contact between bodies {u} and {v} has no contact points. This is unexpected; check LMGC90 results.")
+            print(f"Warning: contact between bodies {u} and {v} has no contact points.")
 
-        # ------------------------------------------------------------------------------
-        # --- contact frames (T, N at each contact point) ---
-        contact_frames = [
-            cg.Frame(
-                result.interaction_coords[p],
-                result.interaction_tangent1[p],
-                result.interaction_normals[p],
-            )
-            for p in points
-        ]
-        graph.edge_attribute(edge, "contact_frames", contact_frames)
-    if Added_Edges > 0:
-        print(f"Added {Added_Edges} edges to the model graph to account for contacts without existing edges.")
+    return results
