@@ -1,19 +1,28 @@
 import os
 
 import compas
+from compas_dem.models import Analysis
 from compas_dem.problem import Problem
 
 HERE = os.path.dirname(__file__)
+PATH = os.path.join(HERE, "DEM_analysis.json")
 
-model = compas.json_load(os.path.join(HERE, "DEM_model.json"))
-problem: Problem = compas.json_load(os.path.join(HERE, "DEM_problem.json"))
+analysis: Analysis = compas.json_load(PATH)
+model = analysis.model
 
-problem.add_point_load(block_index=14, force=[0, 0, -50000.0])
+# A second problem over the same model: the same contact behaviour as the
+# self-weight case, plus a point load. One copy of the geometry on disk, and the
+# self-weight problem is left untouched.
 
-compas.json_dump(problem, os.path.join(HERE, "DEM_problem_updated.json"))
+problem = Problem(model, name="Point load")
+problem.set_contact_model("MohrCoulomb", mu=0.5)
 
-problem.inspect_model(model)
+point_load = problem.add_boundary_condition("Point load")
+problem.add_point_load_at_centroid(block_index=14, force=[0, 0, -50000.0], boundary_condition=point_load)
 
-# viewer = DEMViewer(model)
-# viewer.add_solution(scale=10e-12)
-# viewer.show()
+analysis.problems = [p for p in analysis.problems if p.name != problem.name]
+analysis.add_problem(problem)
+
+compas.json_dump(analysis, PATH)
+
+problem.inspect_model()

@@ -1,48 +1,49 @@
 import os
 
 import compas
+from compas_dem.models import Analysis
 from compas_dem.problem import Problem
 from compas_dem.viewer import DEMViewer
 
 # =============================================================================
-# Load model
+# Load analysis
 # =============================================================================
 
 HERE = os.path.dirname(__file__)
-model = compas.json_load(
-    os.path.join(HERE, "DEM_model.json"),
-)
+PATH = os.path.join(HERE, "DEM_analysis.json")
+
+analysis: Analysis = compas.json_load(PATH)
+model = analysis.model
 
 # =============================================================================
 # Create Problem
 # =============================================================================
 
-problem = Problem(model)
-
-# =============================================================================
-# Add supports
-# =============================================================================
-
-problem.add_support(block_index=29)
+problem = Problem(model, name="Settlement")
 
 # =============================================================================
 # Add displacement to problem
 # =============================================================================
+# Block 0 is a support (see 100_init.py); a prescribed displacement on a support
+# overrides its fixity component by component, which is the settlement idiom.
 
-problem.add_displacement(block_index=0, dx=-0.05)
+settlement = problem.add_boundary_condition("Settlement")
+problem.add_displacement(block_index=0, displacement=[-0.05, 0, 0], boundary_condition=settlement)
 
 # =============================================================================
 # Add contact properties
 # =============================================================================
 
-problem.add_contact_model("MohrCoulomb", mu=0.5)
+problem.set_contact_model("MohrCoulomb", mu=0.5)
 
 # =============================================================================
-# Save problem
+# Save problem into the analysis
 # =============================================================================
 
-HERE = os.path.dirname(__file__)
-compas.json_dump(problem, os.path.join(HERE, "DEM_problem_updated.json"))
+analysis.problems = [p for p in analysis.problems if p.name != problem.name]
+analysis.add_problem(problem)
+
+compas.json_dump(analysis, PATH)
 
 viewer = DEMViewer(model)
 viewer.setup()
