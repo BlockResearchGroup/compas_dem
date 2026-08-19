@@ -9,20 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Added `BoundaryConditionGroup`, which stores the boundary conditions that act together and carries the `add_*` methods that build them.
-* Added concrete bodies to `PointLoad`, `SurfaceLoad`, `BodyForce`, `Gravity`, `Translation` and `Rotation`, which were previously empty subclasses.
-* Added `loading_type` to `Load` and `block_index` to `Displacement`, shared by their subclasses.
-
+- Add Analysis class holding a model and its problems, so the model is
+  serialized once and re-linked into each problem on load.
+- Change boundary condition logic: an explicit BC is required on every load
+  call, supports moved to the model, and solve() moved to Problem.
+- Remove active-BC selection in favour of set_solve_order(), which reorders
+  the registered boundary conditions without dropping any.
+- Add load placement options: point loads at centroid, vertex, face or an
+  arbitrary point, plus moments, with loading_type on every load.
+- Adapt solvers: expose n_steps and open_tol directly on BLA and PRD, and fix
+  BLA ignoring n_steps and always running 80 increments.
 
 ### Changed
 
-* Changed `BoundaryCondition` from a container of load dictionaries into a base class for a single boundary condition, with `Load` and `Displacement` deriving from it.
-* Changed `BoundaryConditionGroup.add_*` to build and store the matching `BoundaryCondition` subclass instead of a plain dictionary, and to return the instance it created.
-* Changed `Problem` to hold `BoundaryConditionGroup` instances; `add_boundary_condition` now returns a group.
-* Changed `resolve_centroidal_loads`, `resolve_centroidal_displacements` and `Problem.inspect_model` to read boundary condition attributes rather than dictionary keys.
+* Fixed the formatting issues.
 * Fixed tangential force direction in post-processing for vizualization.
 * Reorganized the `scripts/` examples folder for clarity.
 * Adapted the examples to the new API.
+* Adapted the Arch Workflow.
+
 
 
 ### Removed
