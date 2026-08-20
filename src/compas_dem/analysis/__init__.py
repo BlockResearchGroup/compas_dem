@@ -1,46 +1,25 @@
-__all__ = []
-try:
+from importlib import import_module
+
+
+_EXPORTS = {
+    "bla_solve": ("compas_dem.analysis.bla", "bla_solve"),
+    "cra_solve": ("compas_dem.analysis.cra", "cra_solve"),
+    "lmgc90_solve": ("compas_dem.analysis.lmgc90", "lmgc90_solve"),
+    "prd_solve": ("compas_dem.analysis.prd", "prd_solve"),
+    "rbe_solve": ("compas_dem.analysis.cra", "rbe_solve"),
+    "threedec_solve": ("compas_dem.analysis.threedec", "threedec_solve"),
+}
+
+__all__ = list(_EXPORTS)
+
+
+def __getattr__(name):
+    """Load an optional solver backend only when its public function is used."""
     try:
-        from compas_dem.analysis.cra import cra_solve  # noqa: F401
+        module_name, attribute_name = _EXPORTS[name]
+    except KeyError as error:
+        raise AttributeError("module {!r} has no attribute {!r}".format(__name__, name)) from error
 
-        __all__.append("cra_solve")
-    except ImportError:
-        pass
-
-    try:
-        from compas_dem.analysis.cra import rbe_solve  # noqa: F401
-
-        __all__.append("rbe_solve")
-    except ImportError:
-        pass
-
-    try:
-        from compas_dem.analysis.lmgc90 import lmgc90_solve  # noqa: F401
-
-        __all__.append("lmgc90_solve")
-    except ImportError:
-        pass
-
-    try:
-        from compas_dem.analysis.threedec import threedec_solve  # noqa: F401
-
-        __all__.append("threedec_solve")
-    except ImportError:
-        pass
-
-    try:
-        from compas_dem.analysis.prd import prd_solve  # noqa: F401
-
-        __all__.append("prd_solve")
-    except ImportError:
-        pass
-
-    try:
-        from compas_dem.analysis.bla import bla_solve  # noqa: F401
-
-        __all__.append("bla_solve")
-    except ImportError:
-        pass
-
-except ImportError:
-    print("One or more analysis modules could not be imported. Please ensure all dependencies are installed.")
+    value = getattr(import_module(module_name), attribute_name)
+    globals()[name] = value
+    return value

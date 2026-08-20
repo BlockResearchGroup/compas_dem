@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 from types import ModuleType
 from unittest.mock import Mock
@@ -14,6 +15,17 @@ from compas_dem.problem.results import Results
 from compas_dem.templates import ArchTemplate
 
 from compas_dem.analysis.threedec import threedec_solve
+
+
+def test_threedec_import_does_not_load_unrelated_solver_backends():
+    """Importing 3DEC must not initialise optional CRA/Pyomo dependencies."""
+    completed = subprocess.run(
+        [sys.executable, "-c", "from compas_dem.analysis.threedec import threedec_solve"],
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 0, completed.stderr
 
 
 def test_threedec_solver_configuration_roundtrip():
