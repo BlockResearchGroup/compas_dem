@@ -20,5 +20,5 @@ Classes
     :nosignatures:
 
     Problem
-    BoundaryConditions
+    BoundaryConditionGroup
     Solver

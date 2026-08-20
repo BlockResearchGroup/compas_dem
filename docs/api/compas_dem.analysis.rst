@@ -27,5 +27,5 @@ Functions
     :nosignatures:
 
     lmgc90_solve
-    cra_penalty_solve
+    cra_solve
     rbe_solve
