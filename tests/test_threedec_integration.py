@@ -1,4 +1,6 @@
 import os
+import sys
+from types import ModuleType
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -65,25 +67,29 @@ def test_problem_solve_dispatches_to_threedec_adapter():
 
 
 def test_threedec_adapter_builds_solves_and_converts():
-    compas_3dec = pytest.importorskip("compas_3dec")
     model = Mock()
     problem = Mock()
     problem.model = model
     analysis = Mock()
     raw_results = Mock()
     dem_results = Mock()
-    with patch.object(compas_3dec, "ThreeDECAnalysisBuilder") as builder_type:
-        with patch.object(compas_3dec, "ThreeDECSolver") as solver_type:
-            builder_type.from_dem_problem.return_value.build.return_value = analysis
-            solver_type.return_value.solve.return_value = raw_results
-            raw_results.to_compas_dem_results.return_value = dem_results
+    builder_type = Mock()
+    solver_type = Mock()
+    compas_3dec = ModuleType("compas_3dec")
+    compas_3dec.ThreeDECAnalysisBuilder = builder_type
+    compas_3dec.ThreeDECSolver = solver_type
 
-            result = threedec_solve(problem, model, version="7.0")
+    builder_type.from_dem_problem.return_value.build.return_value = analysis
+    solver_type.return_value.solve.return_value = raw_results
+    raw_results.to_compas_dem_results.return_value = dem_results
 
-            assert result is dem_results
-            builder_type.from_dem_problem.assert_called_once_with(problem)
-            solver_type.return_value.solve.assert_called_once_with(analysis)
-            raw_results.to_compas_dem_results.assert_called_once_with(analysis)
+    with patch.dict(sys.modules, {"compas_3dec": compas_3dec}):
+        result = threedec_solve(problem, model, version="7.0")
+
+    assert result is dem_results
+    builder_type.from_dem_problem.assert_called_once_with(problem)
+    solver_type.return_value.solve.assert_called_once_with(analysis)
+    raw_results.to_compas_dem_results.assert_called_once_with(analysis)
 
 
 @pytest.mark.skipif(not os.getenv("COMPAS_3DEC_EXECUTABLE"), reason="Set COMPAS_3DEC_EXECUTABLE to run the real 3DEC smoke test.")

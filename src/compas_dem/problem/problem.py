@@ -31,8 +31,8 @@ class Problem(Data):
     >>> from compas_dem.models import BlockModel
     >>> model = BlockModel()
     >>> problem = Problem(model)
-    >>> problem.add_gravity()
-    >>> problem.solver(Solver.CRA())  # doctest: +SKIP
+    >>> _ = problem.add_boundary_condition("gravity").add_gravity()
+    >>> problem.set_solver(Solver.CRA())  # doctest: +SKIP
     >>> result = problem.solve()  # doctest: +SKIP
     """
 
