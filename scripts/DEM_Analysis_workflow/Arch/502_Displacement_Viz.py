@@ -8,7 +8,8 @@ from compas_dem.viewer import DEMViewer
 HERE = os.path.dirname(__file__)
 
 model = compas.json_load(os.path.join(HERE, "DEM_model.json"))
-problem: Problem = compas.json_load(os.path.join(HERE, "DEM_results.json"))
+problem: Problem = compas.json_load(os.path.join(HERE, "DEM_problem_updated.json"))
+results = compas.json_load(os.path.join(HERE, "DEM_results.json"))
 
 print(f"Support Horizontal settlement is {resolve_centroidal_displacements(problem.active_boundary_conditions)[0]}")
 
