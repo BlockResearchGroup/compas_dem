@@ -78,6 +78,49 @@ class Solver(Data):
         return self
 
     @classmethod
+    def ThreeDEC(
+        cls,
+        version: str = "7.0",
+        executable: Optional[str] = None,
+        workspace: Optional[str] = None,
+        arguments: Optional[list[str]] = None,
+        ratio: float = 1e-5,
+        ratio_keyword: str = "ratio-local",
+        time: float = 1.0,
+        gravity_steps: int = 10,
+        suppress_output: bool = True,
+        timeout: Optional[float] = None,
+        gridpoint_tolerance: float = 1e-6,
+    ):
+        """Configure the solver provided by ``compas_3dec``.
+
+        Analysis parameters are copied into the portable prepared analysis by
+        ``compas_3dec``. Executable and workspace settings are used only by the
+        runtime solver and are filtered from that prepared snapshot.
+        """
+        self = cls()
+        self.name = "3DEC"
+        self.parameters = {
+            "version": version,
+            "executable": executable,
+            "workspace": workspace,
+            "arguments": arguments,
+            "ratio": ratio,
+            "ratio_keyword": ratio_keyword,
+            "time": time,
+            "gravity_steps": gravity_steps,
+            "suppress_output": suppress_output,
+            "timeout": timeout,
+            "gridpoint_tolerance": gridpoint_tolerance,
+        }
+        return self
+
+    @classmethod
+    def threeDEC(cls, **kwargs):
+        """Backward-compatible alias for :meth:`ThreeDEC`."""
+        return cls.ThreeDEC(**kwargs)
+
+    @classmethod
     def CRA(
         cls,
         d_bnd: float = 0.01,

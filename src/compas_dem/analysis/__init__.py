@@ -22,6 +22,13 @@ try:
         pass
 
     try:
+        from compas_dem.analysis.threedec import threedec_solve  # noqa: F401
+
+        __all__.append("threedec_solve")
+    except ImportError:
+        pass
+
+    try:
         from compas_dem.analysis.prd import prd_solve  # noqa: F401
 
         __all__.append("prd_solve")
