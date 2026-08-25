@@ -16,9 +16,13 @@ def threedec_solve(
     ratio_keyword: str = "ratio-local",
     time: float = 1.0,
     gravity_steps: int = 10,
+    stages: Optional[list[list[str]]] = None,
     suppress_output: bool = True,
     timeout: Optional[float] = None,
     gridpoint_tolerance: float = 1e-6,
+    progress_callback=None,
+    event_pump=None,
+    poll_interval: float = 0.2,
 ) -> Results:
     """Solve a refactored COMPAS DEM problem with ``compas_3dec``."""
     try:
@@ -40,11 +44,14 @@ def threedec_solve(
         suppress_output=suppress_output,
         timeout=timeout,
         gridpoint_tolerance=gridpoint_tolerance,
+        progress_callback=progress_callback,
+        event_pump=event_pump,
+        poll_interval=poll_interval,
     )
     analysis = ThreeDECAnalysisBuilder.from_dem_problem(problem).build()
 
     # These values live in Problem.solver and are picked up by
     # ThreeDECAnalysisBuilder when it creates the portable snapshot.
-    _ = (ratio, ratio_keyword, time, gravity_steps)
+    _ = (ratio, ratio_keyword, time, gravity_steps, stages)
     raw_results = solver.solve(analysis)
     return raw_results.to_compas_dem_results(analysis)

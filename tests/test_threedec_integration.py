@@ -47,6 +47,14 @@ def test_threedec_alias():
     assert Solver.threeDEC(version="7.0").name == "3DEC"
 
 
+def test_threedec_stage_plan_is_validated_and_serialized():
+    solver = Solver.ThreeDEC().set_stages([["Gravity"], ["Dead", "Live"], ["Settlement"]])
+
+    assert solver.parameters["stages"] == [["Gravity"], ["Dead", "Live"], ["Settlement"]]
+    with pytest.raises(ValueError, match="more than one"):
+        solver.set_stages([["Gravity", "Live"], ["Live"]])
+
+
 def test_problem_solve_dispatches_to_threedec_adapter():
     mesh = Mesh.from_vertices_and_faces(
         [
@@ -67,15 +75,19 @@ def test_problem_solve_dispatches_to_threedec_adapter():
     problem.set_solver(Solver.ThreeDEC(version="7.0"))
 
     sentinel = object()
+    progress = Mock()
+    pump = Mock()
     with patch(
         "compas_dem.analysis.threedec.threedec_solve",
         return_value=sentinel,
     ) as solve:
-        result = problem.solve()
+        result = problem.solve(progress_callback=progress, event_pump=pump)
 
     assert result is sentinel
     solve.assert_called_once()
     assert solve.call_args.args[:2] == (problem, model)
+    assert solve.call_args.kwargs["progress_callback"] is progress
+    assert solve.call_args.kwargs["event_pump"] is pump
 
 
 def test_threedec_adapter_builds_solves_and_converts():

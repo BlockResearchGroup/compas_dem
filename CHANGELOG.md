@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added concrete bodies to `PointLoad`, `SurfaceLoad`, `BodyForce`, `Gravity`, `Translation` and `Rotation`, which were previously empty subclasses.
 * Added `loading_type` to `Load` and `block_index` to `Displacement`, shared by their subclasses.
 * Added optional 3DEC solver integration through `compas_3dec`, including solver configuration, problem dispatch, result conversion, an opt-in gravity smoke test, and a DEMViewer example.
+* Added 3DEC execution-stage configuration and responsive progress callback forwarding.
 
 
 ### Changed
