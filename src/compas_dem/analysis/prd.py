@@ -89,9 +89,9 @@ def prd_solve(
     # Solve
     # ------------------------------------------------------------------
     if n_steps == 1:
-        cvx_result = prd.solve(dual=True, mu=mu, verbose=verbose, solver=solver)
+        prd.solve(dual=True, mu=mu, verbose=verbose, solver=solver)
     else:
-        cvx_result = prd.solve_nonlinear(
+        prd.solve_nonlinear(
             nsteps=n_steps,
             open_tol=open_tol,
             solver=solver,
@@ -104,7 +104,6 @@ def prd_solve(
     prd.name = "PRD"
     results = _post_processing_prd(prd, problem, model)
     results.metadata["mu"] = mu
-    # results.metadata["solver_status"] = cvx_result.status
     return results
 
 

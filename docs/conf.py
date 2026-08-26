@@ -15,7 +15,10 @@ organization = "blockresearchgroup"
 master_doc = "index"
 source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 templates_path = sphinx_compas2_theme.get_autosummary_templates_path()
-exclude_patterns = sphinx_compas2_theme.default_exclude_patterns
+# compas_geometry_guide.md is developer reference, not part of the published docs.
+# Excluding it keeps the build from needing a markdown parser for a page that is
+# not in any toctree.
+exclude_patterns = list(sphinx_compas2_theme.default_exclude_patterns) + ["compas_geometry_guide.md"]
 add_module_names = True
 language = "en"
 
