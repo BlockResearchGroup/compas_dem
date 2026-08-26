@@ -59,7 +59,7 @@
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Solver.RBE" href="compas_dem.problem.Solver.RBE.html" />
+    <link rel="next" title="Solver.PRD" href="compas_dem.problem.Solver.PRD.html" />
     <link rel="prev" title="Solver.CRA" href="compas_dem.problem.Solver.CRA.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -508,6 +508,7 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.models.html">compas_dem.models</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.models.BlockModel.html">BlockModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.models.Analysis.html">Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -524,13 +525,23 @@ document.write(`
 </li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.problem.html">compas_dem.problem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Problem.html">Problem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryConditionGroup.html">BoundaryConditionGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Load.html">Load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.PointLoad.html">PointLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.SurfaceLoad.html">SurfaceLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BodyForce.html">BodyForce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Gravity.html">Gravity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Displacement.html">Displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Translation.html">Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Rotation.html">Rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Results.html">Results</a></li>
 <li class="toctree-l3 current active"><a class="reference internal" href="compas_dem.problem.Solver.html">Solver</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.analysis.html">compas_dem.analysis</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.lmgc90_solve.html">lmgc90_solve</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.cra_penalty_solve.html">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.cra_solve.html">cra_solve</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
@@ -612,7 +623,7 @@ document.write(`
 <h1>Solver.LMGC90</h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_dem.problem.Solver.LMGC90">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Solver.</span></span><span class="sig-name descname"><span class="pre">LMGC90</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">urf_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contact_law</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'IQS_CLB'</span></span></em><span class="sig-paren">)</span></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Solver.</span></span><span class="sig-name descname"><span class="pre">LMGC90</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">urf_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>LMGC90 solver configuration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -628,8 +639,6 @@ document.write(`
 <dt><strong>urf_threshold</strong><span class="classifier">float, Optional</span></dt><dd><p>Unbalanced force threshold for convergence. If None, it will be set to a default value based on the model.</p>
 </dd>
 <dt><strong>track_block</strong><span class="classifier">int, Optional</span></dt><dd><p>Optional block index to track and print its displacement/rotation during the simulation.</p>
-</dd>
-<dt><strong>contact_law</strong><span class="classifier">str</span></dt><dd><p>Contact law to use in LMGC90. Default is “IQS_CLB” (a common choice for DEM simulations).</p>
 </dd>
 </dl>
 </dd>

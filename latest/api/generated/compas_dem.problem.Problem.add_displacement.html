@@ -60,7 +60,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Problem.add_global_body_force" href="compas_dem.problem.Problem.add_global_body_force.html" />
-    <link rel="prev" title="Problem.add_contact_model" href="compas_dem.problem.Problem.add_contact_model.html" />
+    <link rel="prev" title="Problem.add_boundary_condition" href="compas_dem.problem.Problem.add_boundary_condition.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -508,6 +508,7 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.models.html">compas_dem.models</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.models.BlockModel.html">BlockModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.models.Analysis.html">Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -524,13 +525,23 @@ document.write(`
 </li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.problem.html">compas_dem.problem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3 current active"><a class="reference internal" href="compas_dem.problem.Problem.html">Problem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryConditionGroup.html">BoundaryConditionGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Load.html">Load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.PointLoad.html">PointLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.SurfaceLoad.html">SurfaceLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BodyForce.html">BodyForce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Gravity.html">Gravity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Displacement.html">Displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Translation.html">Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Rotation.html">Rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Results.html">Results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Solver.html">Solver</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.analysis.html">compas_dem.analysis</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.lmgc90_solve.html">lmgc90_solve</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.cra_penalty_solve.html">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.cra_solve.html">cra_solve</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
@@ -612,16 +623,18 @@ document.write(`
 <h1>Problem.add_displacement</h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_dem.problem.Problem.add_displacement">
-<span class="sig-prename descclassname"><span class="pre">Problem.</span></span><span class="sig-name descname"><span class="pre">add_displacement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<span class="sig-prename descclassname"><span class="pre">Problem.</span></span><span class="sig-name descname"><span class="pre">add_displacement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_condition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Prescribe a displacement and/or rotation on a block.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dd class="field-odd"><dl>
 <dt><strong>block_index</strong><span class="classifier">int</span></dt><dd><p>Node index of the target block.</p>
 </dd>
 <dt><strong>displacement</strong><span class="classifier">list[float], optional</span></dt><dd><p>Translational displacement [dx, dy, dz] in [m].</p>
 </dd>
 <dt><strong>rotation</strong><span class="classifier">list[float], optional</span></dt><dd><p>Rotation vector [rx, ry, rz] in [rad].</p>
+</dd>
+<dt><strong>boundary_condition</strong><span class="classifier"><a class="reference internal" href="compas_dem.problem.BoundaryConditionGroup.html#compas_dem.problem.BoundaryConditionGroup" title="compas_dem.problem.BoundaryConditionGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoundaryConditionGroup</span></code></a>, optional</span></dt><dd><p>The boundary condition to write to. Defaults to the first (default) boundary condition.</p>
 </dd>
 </dl>
 </dd>

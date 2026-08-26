@@ -508,6 +508,7 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/compas_dem.models.html">compas_dem.models</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.models.BlockModel.html">BlockModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.models.Analysis.html">Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -524,13 +525,23 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/compas_dem.problem.html">compas_dem.problem</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Problem.html">Problem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.BoundaryConditionGroup.html">BoundaryConditionGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Load.html">Load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.PointLoad.html">PointLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.SurfaceLoad.html">SurfaceLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.BodyForce.html">BodyForce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Gravity.html">Gravity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Displacement.html">Displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Translation.html">Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Rotation.html">Rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Results.html">Results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Solver.html">Solver</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/compas_dem.analysis.html">compas_dem.analysis</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.analysis.lmgc90_solve.html">lmgc90_solve</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.analysis.cra_penalty_solve.html">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.analysis.cra_solve.html">cra_solve</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
@@ -620,7 +631,7 @@ off to a solver. <code class="docutils literal notranslate"><span class="pre">co
 <span class="kn">import</span><span class="w"> </span><span class="nn">compas</span>
 
 <span class="n">HERE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
-<span class="n">problem</span> <span class="o">=</span> <span class="n">compas</span><span class="o">.</span><span class="n">json_load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">&quot;DEM_problem.json&quot;</span><span class="p">))</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">compas</span><span class="o">.</span><span class="n">json_load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">"DEM_problem.json"</span><span class="p">))</span>
 </pre></div>
 </div>
 </section>
@@ -636,7 +647,7 @@ graph edges.</p>
 <span class="n">lmgc90</span> <span class="o">=</span> <span class="n">Solver</span><span class="o">.</span><span class="n">LMGC90</span><span class="p">(</span><span class="n">n_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
 <span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">lmgc90</span><span class="p">)</span>
 
-<span class="n">compas</span><span class="o">.</span><span class="n">json_dump</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">&quot;DEM_results.json&quot;</span><span class="p">))</span>
+<span class="n">compas</span><span class="o">.</span><span class="n">json_dump</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">"DEM_results.json"</span><span class="p">))</span>
 </pre></div>
 </div>
 </section>
@@ -649,7 +660,7 @@ configuration was swapped.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cra</span> <span class="o">=</span> <span class="n">Solver</span><span class="o">.</span><span class="n">CRA</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">cra</span><span class="p">)</span>
 
-<span class="n">compas</span><span class="o">.</span><span class="n">json_dump</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">&quot;DEM_results.json&quot;</span><span class="p">))</span>
+<span class="n">compas</span><span class="o">.</span><span class="n">json_dump</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">"DEM_results.json"</span><span class="p">))</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -662,17 +673,17 @@ solver of interest, then move on to the visualisation step below.</p>
 <h2>Inspect the results</h2>
 <p>The solver writes per-block transformations on the model graph’s nodes and
 per-contact forces on its edges. We can iterate through them directly.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">compas</span><span class="o">.</span><span class="n">json_load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">&quot;DEM_results.json&quot;</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">compas</span><span class="o">.</span><span class="n">json_load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">HERE</span><span class="p">,</span> <span class="s2">"DEM_results.json"</span><span class="p">))</span>
 
 <span class="n">graph</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span>
 
 <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
-    <span class="n">block_transformation</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">node_attribute</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;transformation&quot;</span><span class="p">)</span>
+    <span class="n">block_transformation</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">node_attribute</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"transformation"</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
-    <span class="n">gap</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">edge_attribute</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="s2">&quot;gap&quot;</span><span class="p">)</span>
-    <span class="n">magnitude</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">edge_attribute</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="s2">&quot;force_magnitude&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Edge </span><span class="si">{</span><span class="n">edge</span><span class="si">}</span><span class="s2"> gap: </span><span class="si">{</span><span class="n">gap</span><span class="si">}</span><span class="s2">, force magnitude: </span><span class="si">{</span><span class="n">magnitude</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">gap</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">edge_attribute</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="s2">"gap"</span><span class="p">)</span>
+    <span class="n">magnitude</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">edge_attribute</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="s2">"force_magnitude"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Edge </span><span class="si">{</span><span class="n">edge</span><span class="si">}</span><span class="s2"> gap: </span><span class="si">{</span><span class="n">gap</span><span class="si">}</span><span class="s2">, force magnitude: </span><span class="si">{</span><span class="n">magnitude</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

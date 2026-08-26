@@ -508,6 +508,7 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="compas_dem.models.html">compas_dem.models</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.models.BlockModel.html">BlockModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.models.Analysis.html">Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -524,13 +525,23 @@ document.write(`
 </li>
 <li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">compas_dem.problem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Problem.html">Problem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.BoundaryConditionGroup.html">BoundaryConditionGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Load.html">Load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.PointLoad.html">PointLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.SurfaceLoad.html">SurfaceLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.BodyForce.html">BodyForce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Gravity.html">Gravity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Displacement.html">Displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Translation.html">Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Rotation.html">Rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Results.html">Results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Solver.html">Solver</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="compas_dem.analysis.html">compas_dem.analysis</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.analysis.lmgc90_solve.html">lmgc90_solve</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.analysis.cra_penalty_solve.html">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.analysis.cra_solve.html">cra_solve</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
@@ -604,10 +615,16 @@ document.write(`
 <h1>compas_dem.problem</h1>
 <p>Defines the structural problem to be solved on a
 <a class="reference internal" href="generated/compas_dem.models.BlockModel.html" title="compas_dem.models.BlockModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockModel</span></code></a>. A <a class="reference internal" href="generated/compas_dem.problem.Problem.html" title="compas_dem.problem.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code></a> ties a block model
-to its <a class="reference internal" href="generated/compas_dem.problem.BoundaryConditions.html" title="compas_dem.problem.BoundaryConditions"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoundaryConditions</span></code></a> — supports, applied loads, prescribed
-displacements — and to a <a class="reference internal" href="generated/compas_dem.problem.Solver.html" title="compas_dem.problem.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a> that captures the configuration of
-the underlying numerical engine (LMGC90, CRA, or RBE). Once configured, a
-problem is handed to a routine in <code class="xref py py-mod docutils literal notranslate"><span class="pre">compas_dem.analysis</span></code> for execution.</p>
+to its boundary conditions — applied loads and prescribed displacements,
+grouped into one or more <a class="reference internal" href="generated/compas_dem.problem.BoundaryConditionGroup.html" title="compas_dem.problem.BoundaryConditionGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoundaryConditionGroup</span></code></a> — and to a
+<a class="reference internal" href="generated/compas_dem.problem.Solver.html" title="compas_dem.problem.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a> that captures the configuration of the underlying numerical
+engine (LMGC90, CRA, RBE, PRD or BLA). Supports are not part of the problem:
+they live on the model, as <code class="docutils literal notranslate"><span class="pre">block.is_support</span></code>.</p>
+<p>Each <code class="docutils literal notranslate"><span class="pre">add_*</span></code> call on a group builds the matching <a class="reference internal" href="generated/compas_dem.problem.BoundaryCondition.html" title="compas_dem.problem.BoundaryCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoundaryCondition</span></code></a>
+subclass, so a group holds objects rather than plain dictionaries. Once
+configured, <a class="reference internal" href="generated/compas_dem.problem.Problem.solve.html" title="compas_dem.problem.Problem.solve"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Problem.solve()</span></code></a> dispatches to the routine in
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">compas_dem.analysis</span></code> that matches the chosen solver, and returns a
+<a class="reference internal" href="generated/compas_dem.problem.Results.html" title="compas_dem.problem.Results"><code class="xref py py-class docutils literal notranslate"><span class="pre">Results</span></code></a>.</p>
 <section id="classes">
 <h2>Classes</h2>
 <table class="autosummary longtable table autosummary">
@@ -615,8 +632,38 @@ problem is handed to a routine in <code class="xref py py-mod docutils literal n
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/compas_dem.problem.Problem.html" title="compas_dem.problem.Problem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Problem</span></code></a></p></td>
 <td><p>Defines a structural problem over a block model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/compas_dem.problem.BoundaryConditions.html" title="compas_dem.problem.BoundaryConditions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoundaryConditions</span></code></a></p></td>
-<td><p>Container for all forces and displacement BCs applied to a block model.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/compas_dem.problem.BoundaryConditionGroup.html" title="compas_dem.problem.BoundaryConditionGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoundaryConditionGroup</span></code></a></p></td>
+<td><p>A named set of loads and displacement BCs applied together to a block model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/compas_dem.problem.BoundaryCondition.html" title="compas_dem.problem.BoundaryCondition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoundaryCondition</span></code></a></p></td>
+<td><p>Base class for a single boundary condition applied to a block model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/compas_dem.problem.Load.html" title="compas_dem.problem.Load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Load</span></code></a></p></td>
+<td><p>Base class for applied loads.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/compas_dem.problem.PointLoad.html" title="compas_dem.problem.PointLoad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PointLoad</span></code></a></p></td>
+<td><p>A concentrated force applied to a specific block.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/compas_dem.problem.SurfaceLoad.html" title="compas_dem.problem.SurfaceLoad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SurfaceLoad</span></code></a></p></td>
+<td><p>A distributed pressure load over a block face.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/compas_dem.problem.BodyForce.html" title="compas_dem.problem.BodyForce"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BodyForce</span></code></a></p></td>
+<td><p>A global body force applied to all blocks.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/compas_dem.problem.Gravity.html" title="compas_dem.problem.Gravity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Gravity</span></code></a></p></td>
+<td><p>Self-weight applied to all blocks using material density.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/compas_dem.problem.Displacement.html" title="compas_dem.problem.Displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Displacement</span></code></a></p></td>
+<td><p>Base class for prescribed movements of a block.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/compas_dem.problem.Translation.html" title="compas_dem.problem.Translation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Translation</span></code></a></p></td>
+<td><p>A prescribed translational displacement on a block, per component.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/compas_dem.problem.Rotation.html" title="compas_dem.problem.Rotation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Rotation</span></code></a></p></td>
+<td><p>A prescribed rotation on a block about its centroid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/compas_dem.problem.Results.html" title="compas_dem.problem.Results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Results</span></code></a></p></td>
+<td><p>Standalone container for DEM solver results.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/compas_dem.problem.Solver.html" title="compas_dem.problem.Solver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Solver</span></code></a></p></td>
 <td><p>Container for solver configuration.</p></td>

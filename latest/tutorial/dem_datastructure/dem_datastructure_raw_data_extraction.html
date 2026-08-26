@@ -508,6 +508,7 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/compas_dem.models.html">compas_dem.models</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.models.BlockModel.html">BlockModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.models.Analysis.html">Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -524,13 +525,23 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/compas_dem.problem.html">compas_dem.problem</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Problem.html">Problem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.BoundaryConditionGroup.html">BoundaryConditionGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Load.html">Load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.PointLoad.html">PointLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.SurfaceLoad.html">SurfaceLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.BodyForce.html">BodyForce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Gravity.html">Gravity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Displacement.html">Displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Translation.html">Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Rotation.html">Rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Results.html">Results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Solver.html">Solver</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/compas_dem.analysis.html">compas_dem.analysis</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.analysis.lmgc90_solve.html">lmgc90_solve</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.analysis.cra_penalty_solve.html">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.analysis.cra_solve.html">cra_solve</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
@@ -688,7 +699,7 @@ information into NumPy arrays for computational workflows.</p>
 <p>Extract connectivity information (2 integers per row) as pairs of element indices that are in contact. This provides the graph structure of the assembly.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">contact_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
-    <span class="n">contacts</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edge_attribute</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;contacts&quot;</span><span class="p">)</span>
+    <span class="n">contacts</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edge_attribute</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"contacts"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">contacts</span><span class="p">:</span>
         <span class="n">contact_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
 <span class="n">numpy_contact_indices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">contact_indices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>

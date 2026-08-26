@@ -59,7 +59,7 @@
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="cra_penalty_solve" href="compas_dem.analysis.cra_penalty_solve.html" />
+    <link rel="next" title="cra_solve" href="compas_dem.analysis.cra_solve.html" />
     <link rel="prev" title="compas_dem.analysis" href="../compas_dem.analysis.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -508,6 +508,7 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.models.html">compas_dem.models</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.models.BlockModel.html">BlockModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.models.Analysis.html">Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -524,13 +525,23 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.problem.html">compas_dem.problem</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Problem.html">Problem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryConditionGroup.html">BoundaryConditionGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Load.html">Load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.PointLoad.html">PointLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.SurfaceLoad.html">SurfaceLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BodyForce.html">BodyForce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Gravity.html">Gravity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Displacement.html">Displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Translation.html">Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Rotation.html">Rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Results.html">Results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Solver.html">Solver</a></li>
 </ul>
 </li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.analysis.html">compas_dem.analysis</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">lmgc90_solve</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.cra_penalty_solve.html">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.cra_solve.html">cra_solve</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
@@ -607,16 +618,15 @@ document.write(`
 <h1>lmgc90_solve</h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="compas_dem.analysis.lmgc90_solve">
-<span class="sig-prename descclassname"><span class="pre">compas_dem.analysis.</span></span><span class="sig-name descname"><span class="pre">lmgc90_solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contact_law</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'IQS_CLB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">urf_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<span class="sig-prename descclassname"><span class="pre">compas_dem.analysis.</span></span><span class="sig-name descname"><span class="pre">lmgc90_solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">urf_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Translate a Problem into a configured LMGC90 Solver. Run the simulation and
-Postprocess results back into the Problem’s BlockModel in-place after the run (refer
-to <code class="xref py py-func docutils literal notranslate"><span class="pre">_post_processing_lmgc90()</span></code> for details).</p>
+post-process results back into the BlockModel in-place.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>problem</strong><span class="classifier"><a class="reference internal" href="compas_dem.problem.Problem.html#compas_dem.problem.Problem" title="compas_dem.problem.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code></a></span></dt><dd><p>The problem containing model, forces, BCs, and contact properties.</p>
+<dt><strong>problem</strong><span class="classifier"><a class="reference internal" href="compas_dem.problem.Problem.html#compas_dem.problem.Problem" title="compas_dem.problem.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code></a></span></dt><dd><p>The problem containing forces, BCs, and contact properties.</p>
 </dd>
-<dt><strong>contact_law</strong><span class="classifier">str, optional</span></dt><dd><p>LMGC90 contact law identifier. Default <code class="docutils literal notranslate"><span class="pre">&quot;IQS_CLB&quot;</span></code>.</p>
+<dt><strong>model</strong><span class="classifier"><a class="reference internal" href="compas_dem.models.BlockModel.html#compas_dem.models.BlockModel" title="compas_dem.models.BlockModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockModel</span></code></a></span></dt><dd><p>The block model to solve.</p>
 </dd>
 <dt><strong>duration</strong><span class="classifier">float, optional</span></dt><dd><p>Total simulation time [s].</p>
 </dd>
@@ -624,33 +634,18 @@ to <code class="xref py py-func docutils literal notranslate"><span class="pre">
 </dd>
 <dt><strong>dt</strong><span class="classifier">float, optional</span></dt><dd><p>Time step size [s].</p>
 </dd>
-<dt><strong>theta</strong><span class="classifier">float, optional</span></dt><dd><p>Time-integration parameter. Default <code class="docutils literal notranslate"><span class="pre">0.5</span></code>.</p>
+<dt><strong>theta</strong><span class="classifier">float, optional</span></dt><dd><p>Time-integration parameter. Default <code class="docutils literal notranslate"><span class="pre">0.7</span></code>.</p>
 </dd>
-<dt><strong>urf_threshold</strong><span class="classifier">float, optional</span></dt><dd><p>Unbalanced Force Ratio convergence threshold.  When provided, the UFR
-is computed after every step and the simulation stops early once UFR
-drops below this value.  <code class="docutils literal notranslate"><span class="pre">None</span></code> (default) disables UFR tracking.
-Requires <code class="docutils literal notranslate"><span class="pre">solver.get_contacts()</span></code> to expose <code class="docutils literal notranslate"><span class="pre">&quot;body_ids&quot;</span></code> and
-<code class="docutils literal notranslate"><span class="pre">&quot;force_vectors&quot;</span></code> keys; a warning is printed and tracking is skipped
-if those keys are absent.</p>
+<dt><strong>urf_threshold</strong><span class="classifier">float, optional</span></dt><dd><p>Unbalanced Force Ratio convergence threshold.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_lmgc90.solver.Solver</span></code></dt><dd><p>A configured LMGC90 solver after running the simulation.
-<code class="docutils literal notranslate"><span class="pre">solver.urf_history</span></code> (list of float) is attached when <em>urf_threshold</em>
-is provided.</p>
-</dd>
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_lmgc90.solver.Solver</span></code></dt><dd></dd>
 </dl>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">solver</span> <span class="o">=</span> <span class="n">lmgc90_solve</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">solver</span> <span class="o">=</span> <span class="n">lmgc90_solve</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">solver</span> <span class="o">=</span> <span class="n">lmgc90_solve</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">solver</span> <span class="o">=</span> <span class="n">lmgc90_solve</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">urf_threshold</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
-</pre></div>
-</div>
 </dd></dl>
 
 </section>

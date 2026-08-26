@@ -52,7 +52,6 @@
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/compas_dem.analysis';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/blockresearchgroup/compas_dem/gh-pages/versions.json';
@@ -509,6 +508,7 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="compas_dem.models.html">compas_dem.models</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.models.BlockModel.html">BlockModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.models.Analysis.html">Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -525,13 +525,23 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="compas_dem.problem.html">compas_dem.problem</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Problem.html">Problem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.BoundaryConditionGroup.html">BoundaryConditionGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Load.html">Load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.PointLoad.html">PointLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.SurfaceLoad.html">SurfaceLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.BodyForce.html">BodyForce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Gravity.html">Gravity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Displacement.html">Displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Translation.html">Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Rotation.html">Rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Results.html">Results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.problem.Solver.html">Solver</a></li>
 </ul>
 </li>
 <li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">compas_dem.analysis</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.analysis.lmgc90_solve.html">lmgc90_solve</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.analysis.cra_penalty_solve.html">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.analysis.cra_solve.html">cra_solve</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
@@ -605,17 +615,23 @@ document.write(`
 <h1>compas_dem.analysis</h1>
 <p>Bindings to the numerical engines that actually solve a
 <a class="reference internal" href="generated/compas_dem.problem.Problem.html" title="compas_dem.problem.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code></a>. Each routine takes a configured problem
-and writes the results back onto its block model:</p>
+and a block model, and returns a <a class="reference internal" href="generated/compas_dem.problem.Results.html" title="compas_dem.problem.Results"><code class="xref py py-class docutils literal notranslate"><span class="pre">Results</span></code></a>:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="generated/compas_dem.analysis.lmgc90_solve.html" title="compas_dem.analysis.lmgc90_solve"><code class="xref py py-func docutils literal notranslate"><span class="pre">lmgc90_solve()</span></code></a> — dynamic relaxation through the LMGC90 contact
 dynamics library.</p></li>
-<li><p><a class="reference internal" href="generated/compas_dem.analysis.cra_penalty_solve.html" title="compas_dem.analysis.cra_penalty_solve"><code class="xref py py-func docutils literal notranslate"><span class="pre">cra_penalty_solve()</span></code></a> — coupled rigid-block analysis with a penalty
-formulation, suitable for limit-state checks.</p></li>
+<li><p><a class="reference internal" href="generated/compas_dem.analysis.cra_solve.html" title="compas_dem.analysis.cra_solve"><code class="xref py py-func docutils literal notranslate"><span class="pre">cra_solve()</span></code></a> — coupled rigid-block analysis, suitable for limit-state
+checks.</p></li>
 <li><p><a class="reference internal" href="generated/compas_dem.analysis.rbe_solve.html" title="compas_dem.analysis.rbe_solve"><code class="xref py py-func docutils literal notranslate"><span class="pre">rbe_solve()</span></code></a> — rigid-body equilibrium, the lightest-weight option,
 for quick stability assessments.</p></li>
 </ul>
+<p><code class="docutils literal notranslate"><span class="pre">prd_solve</span></code> (piecewise rigid displacement) and <code class="docutils literal notranslate"><span class="pre">bla_solve</span></code> (block limit
+analysis) round out the set, but their backends are not part of the
+documentation environment and so are not listed below.</p>
 <p>These routines are optional — they are only importable if the corresponding
-backend is installed (see <code class="docutils literal notranslate"><span class="pre">requirements-analysis.txt</span></code>).</p>
+backend is installed (see <code class="docutils literal notranslate"><span class="pre">requirements-analysis.txt</span></code>). Rather than calling
+them directly, configure a solver on the problem with
+<a class="reference internal" href="generated/compas_dem.problem.Problem.set_solver.html" title="compas_dem.problem.Problem.set_solver"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_solver()</span></code></a> and call
+<a class="reference internal" href="generated/compas_dem.problem.Problem.solve.html" title="compas_dem.problem.Problem.solve"><code class="xref py py-meth docutils literal notranslate"><span class="pre">solve()</span></code></a>, which dispatches to the right one.</p>
 <section id="functions">
 <h2>Functions</h2>
 <table class="autosummary longtable table autosummary">
@@ -623,11 +639,11 @@ backend is installed (see <code class="docutils literal notranslate"><span class
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/compas_dem.analysis.lmgc90_solve.html" title="compas_dem.analysis.lmgc90_solve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lmgc90_solve</span></code></a></p></td>
 <td><p>Translate a Problem into a configured LMGC90 Solver.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/compas_dem.analysis.cra_penalty_solve.html" title="compas_dem.analysis.cra_penalty_solve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cra_penalty_solve</span></code></a></p></td>
-<td><p>CRA solver with penalty formulation using Pyomo + IPOPT.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/compas_dem.analysis.cra_solve.html" title="compas_dem.analysis.cra_solve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cra_solve</span></code></a></p></td>
+<td><p>Solve a Problem with CRA and return the results.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/compas_dem.analysis.rbe_solve.html" title="compas_dem.analysis.rbe_solve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rbe_solve</span></code></a></p></td>
-<td><p>RBE solver with penalty formulation using Pyomo + IPOPT.</p></td>
+<td><p>Solve a Problem with RBE and return the results.</p></td>
 </tr>
 </tbody>
 </table>

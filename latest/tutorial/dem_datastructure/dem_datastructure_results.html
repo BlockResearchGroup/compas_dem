@@ -508,6 +508,7 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/compas_dem.models.html">compas_dem.models</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.models.BlockModel.html">BlockModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.models.Analysis.html">Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -524,13 +525,23 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/compas_dem.problem.html">compas_dem.problem</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Problem.html">Problem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.BoundaryConditionGroup.html">BoundaryConditionGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Load.html">Load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.PointLoad.html">PointLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.SurfaceLoad.html">SurfaceLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.BodyForce.html">BodyForce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Gravity.html">Gravity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Displacement.html">Displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Translation.html">Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Rotation.html">Rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Results.html">Results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.problem.Solver.html">Solver</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/compas_dem.analysis.html">compas_dem.analysis</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.analysis.lmgc90_solve.html">lmgc90_solve</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.analysis.cra_penalty_solve.html">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.analysis.cra_solve.html">cra_solve</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/generated/compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
@@ -634,7 +645,7 @@ Learn how to load analysis results and visualize force vectors on contact interf
 <section id="load-results">
 <h3>Load Results</h3>
 <p>Load analysis results from a JSON file containing force data for each contact interface.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">compas</span><span class="o">.</span><span class="n">json_load</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span> <span class="o">/</span> <span class="s2">&quot;dem_results.json&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">compas</span><span class="o">.</span><span class="n">json_load</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">"data"</span> <span class="o">/</span> <span class="s2">"dem_results.json"</span><span class="p">)</span>
 
 </pre></div>
 </div>
@@ -644,11 +655,11 @@ Learn how to load analysis results and visualize force vectors on contact interf
 <p>Attach the loaded force data to each contact object for easy access during visualization.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">contact</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">contacts</span><span class="p">()):</span>
     <span class="n">contact</span><span class="o">.</span><span class="n">forces</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;resultant_compression_by_interface&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;resultant_compression_by_interface&quot;</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span>
-        <span class="s2">&quot;resultant_tension_by_interface&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;resultant_tension_by_interface&quot;</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span>
-        <span class="s2">&quot;nodal_normal_compression_by_interface&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;nodal_normal_compression_by_interface&quot;</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span>
-        <span class="s2">&quot;nodal_normal_tension_by_interface&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;nodal_normal_tension_by_interface&quot;</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span>
-        <span class="s2">&quot;nodal_tangential_by_interface&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;nodal_tangential_by_interface&quot;</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span>
+        <span class="s2">"resultant_compression_by_interface"</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="s2">"resultant_compression_by_interface"</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span>
+        <span class="s2">"resultant_tension_by_interface"</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="s2">"resultant_tension_by_interface"</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span>
+        <span class="s2">"nodal_normal_compression_by_interface"</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="s2">"nodal_normal_compression_by_interface"</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span>
+        <span class="s2">"nodal_normal_tension_by_interface"</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="s2">"nodal_normal_tension_by_interface"</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span>
+        <span class="s2">"nodal_tangential_by_interface"</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="s2">"nodal_tangential_by_interface"</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span>
     <span class="p">}</span>
 
 </pre></div>
@@ -665,11 +676,11 @@ Learn how to load analysis results and visualize force vectors on contact interf
 
 <span class="c1"># Add contacts and forces</span>
 <span class="n">force_types</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span><span class="s2">&quot;resultant_compression_by_interface&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">&quot;resultant_tension_by_interface&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">&quot;nodal_normal_compression_by_interface&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Color</span><span class="o">.</span><span class="n">from_hex</span><span class="p">(</span><span class="s2">&quot;#00468b&quot;</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">&quot;nodal_normal_tension_by_interface&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">&quot;nodal_tangential_by_interface&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s2">"resultant_compression_by_interface"</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s2">"resultant_tension_by_interface"</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s2">"nodal_normal_compression_by_interface"</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Color</span><span class="o">.</span><span class="n">from_hex</span><span class="p">(</span><span class="s2">"#00468b"</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s2">"nodal_normal_tension_by_interface"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s2">"nodal_tangential_by_interface"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">Color</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
 <span class="p">]</span>
 
 <span class="k">for</span> <span class="n">contact</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">contacts</span><span class="p">():</span>

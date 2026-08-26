@@ -59,7 +59,7 @@
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Problem.add_bc" href="compas_dem.problem.Problem.add_bc.html" />
+    <link rel="next" title="Problem.add_boundary_condition" href="compas_dem.problem.Problem.add_boundary_condition.html" />
     <link rel="prev" title="compas_dem.problem" href="../compas_dem.problem.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -508,6 +508,7 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.models.html">compas_dem.models</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.models.BlockModel.html">BlockModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.models.Analysis.html">Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -524,13 +525,23 @@ document.write(`
 </li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.problem.html">compas_dem.problem</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Problem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryConditionGroup.html">BoundaryConditionGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Load.html">Load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.PointLoad.html">PointLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.SurfaceLoad.html">SurfaceLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BodyForce.html">BodyForce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Gravity.html">Gravity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Displacement.html">Displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Translation.html">Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Rotation.html">Rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Results.html">Results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Solver.html">Solver</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.analysis.html">compas_dem.analysis</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.lmgc90_solve.html">lmgc90_solve</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.cra_penalty_solve.html">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.cra_solve.html">cra_solve</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
@@ -610,10 +621,12 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_dem.problem.</span></span><span class="sig-name descname"><span class="pre">Problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Bases: <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.data.Data.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code></a></p>
 <p>Defines a structural problem over a block model.</p>
+<p>The problem holds boundary conditions (loads and prescribed displacements) and
+contact properties.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>model</strong><span class="classifier"><a class="reference internal" href="compas_dem.models.BlockModel.html#compas_dem.models.BlockModel" title="compas_dem.models.BlockModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_dem.models.BlockModel</span></code></a></span></dt><dd><p>The discrete element model.</p>
+<dt><strong>model</strong><span class="classifier"><a class="reference internal" href="compas_dem.models.BlockModel.html#compas_dem.models.BlockModel" title="compas_dem.models.BlockModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_dem.models.BlockModel</span></code></a></span></dt><dd><p>The discrete element model. Kept as a transient (non-serialized) reference.</p>
 </dd>
 <dt><strong>name</strong><span class="classifier">str, optional</span></dt><dd><p>Name of the problem.</p>
 </dd>
@@ -624,58 +637,65 @@ document.write(`
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">compas_dem.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockModel</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">BlockModel</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">problem</span> <span class="o">=</span> <span class="n">Problem</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">problem</span><span class="o">.</span><span class="n">add_gravity</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">problem</span><span class="o">.</span><span class="n">add_support</span><span class="p">(</span><span class="n">block_index</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  
-<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s2">&quot;LMGC90&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">problem</span><span class="o">.</span><span class="n">set_contact_model</span><span class="p">(</span><span class="s2">"MohrCoulomb"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">live</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">add_boundary_condition</span><span class="p">(</span><span class="s2">"Live"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">problem</span><span class="o">.</span><span class="n">set_solver</span><span class="p">(</span><span class="n">Solver</span><span class="o">.</span><span class="n">CRA</span><span class="p">())</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>  
 </pre></div>
 </div>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_bc.html#compas_dem.problem.Problem.add_bc" title="compas_dem.problem.Problem.add_bc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_bc</span></code></a></p></td>
-<td><p>Merge a pre-built boundary condition set into this problem.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_boundary_condition.html#compas_dem.problem.Problem.add_boundary_condition" title="compas_dem.problem.Problem.add_boundary_condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_boundary_condition</span></code></a></p></td>
+<td><p>Register a boundary condition on the problem.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_contact_model.html#compas_dem.problem.Problem.add_contact_model" title="compas_dem.problem.Problem.add_contact_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_contact_model</span></code></a></p></td>
-<td><p>Set the contact model by name.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_displacement.html#compas_dem.problem.Problem.add_displacement" title="compas_dem.problem.Problem.add_displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_displacement</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_displacement.html#compas_dem.problem.Problem.add_displacement" title="compas_dem.problem.Problem.add_displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_displacement</span></code></a></p></td>
 <td><p>Prescribe a displacement and/or rotation on a block.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_global_body_force.html#compas_dem.problem.Problem.add_global_body_force" title="compas_dem.problem.Problem.add_global_body_force"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_global_body_force</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_global_body_force.html#compas_dem.problem.Problem.add_global_body_force" title="compas_dem.problem.Problem.add_global_body_force"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_global_body_force</span></code></a></p></td>
 <td><p>Add a global body acceleration applied to all blocks.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_gravity.html#compas_dem.problem.Problem.add_gravity" title="compas_dem.problem.Problem.add_gravity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_gravity</span></code></a></p></td>
-<td><p>Changes applied gravity in the problem boundary conditions.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_moment.html#compas_dem.problem.Problem.add_moment" title="compas_dem.problem.Problem.add_moment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_moment</span></code></a></p></td>
+<td><p>Add a moment at the centroid of a block.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_joint_model.html#compas_dem.problem.Problem.add_joint_model" title="compas_dem.problem.Problem.add_joint_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_joint_model</span></code></a></p></td>
-<td><p>Set the joint stiffness model.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_point_load_at_centroid.html#compas_dem.problem.Problem.add_point_load_at_centroid" title="compas_dem.problem.Problem.add_point_load_at_centroid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_point_load_at_centroid</span></code></a></p></td>
+<td><p>Add a point load at the centroid of a block.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_point_load.html#compas_dem.problem.Problem.add_point_load" title="compas_dem.problem.Problem.add_point_load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_point_load</span></code></a></p></td>
-<td><p>Add a concentrated force to a specific block.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_point_load_at_face.html#compas_dem.problem.Problem.add_point_load_at_face" title="compas_dem.problem.Problem.add_point_load_at_face"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_point_load_at_face</span></code></a></p></td>
+<td><p>Add a point load at the centroid of a specific face of a block.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_rotation.html#compas_dem.problem.Problem.add_rotation" title="compas_dem.problem.Problem.add_rotation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_rotation</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_point_load_at_point.html#compas_dem.problem.Problem.add_point_load_at_point" title="compas_dem.problem.Problem.add_point_load_at_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_point_load_at_point</span></code></a></p></td>
+<td><p>Add a point load at an arbitrary point on a block.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_point_load_at_vertex.html#compas_dem.problem.Problem.add_point_load_at_vertex" title="compas_dem.problem.Problem.add_point_load_at_vertex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_point_load_at_vertex</span></code></a></p></td>
+<td><p>Add a point load at a specific vertex of a block.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_rotation.html#compas_dem.problem.Problem.add_rotation" title="compas_dem.problem.Problem.add_rotation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_rotation</span></code></a></p></td>
 <td><p>Prescribe a rotation on a block about its centroid.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_support.html#compas_dem.problem.Problem.add_support" title="compas_dem.problem.Problem.add_support"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_support</span></code></a></p></td>
-<td><p>Fix a block — zero translation and zero rotation.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_supports.html#compas_dem.problem.Problem.add_supports" title="compas_dem.problem.Problem.add_supports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_supports</span></code></a></p></td>
-<td><p>Fix a block — zero translation and zero rotation.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_supports_from_model.html#compas_dem.problem.Problem.add_supports_from_model" title="compas_dem.problem.Problem.add_supports_from_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_supports_from_model</span></code></a></p></td>
-<td><p>Fix all blocks whose <code class="docutils literal notranslate"><span class="pre">is_support</span></code> flag is <code class="docutils literal notranslate"><span class="pre">True</span></code> in the block model.</p></td>
-</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.add_surface_load.html#compas_dem.problem.Problem.add_surface_load" title="compas_dem.problem.Problem.add_surface_load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_surface_load</span></code></a></p></td>
-<td><p>Add a distributed pressure load over a polygon on a block face.</p></td>
+<td><p>Add a distributed pressure load over a block face.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.check_model_validity.html#compas_dem.problem.Problem.check_model_validity" title="compas_dem.problem.Problem.check_model_validity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_model_validity</span></code></a></p></td>
-<td><p>Check that the model is valid for solving.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.inspect_model.html#compas_dem.problem.Problem.inspect_model" title="compas_dem.problem.Problem.inspect_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inspect_model</span></code></a></p></td>
+<td><p>Visualize the block model with block indices, loads and boundary conditions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.inspect_model.html#compas_dem.problem.Problem.inspect_model" title="compas_dem.problem.Problem.inspect_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inspect_model</span></code></a></p></td>
-<td><p>Visualize the block model with block indices and point load vectors to assist with defining boundary conditions.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.load_model.html#compas_dem.problem.Problem.load_model" title="compas_dem.problem.Problem.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a></p></td>
+<td><p>Load the model into the problem, checking that the model ID matches.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.set_contact_model.html#compas_dem.problem.Problem.set_contact_model" title="compas_dem.problem.Problem.set_contact_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_contact_model</span></code></a></p></td>
+<td><p>Set the contact model by name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.set_joint_model.html#compas_dem.problem.Problem.set_joint_model" title="compas_dem.problem.Problem.set_joint_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_joint_model</span></code></a></p></td>
+<td><p>Set the joint stiffness model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.set_solve_order.html#compas_dem.problem.Problem.set_solve_order" title="compas_dem.problem.Problem.set_solve_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_solve_order</span></code></a></p></td>
+<td><p>Reorder the registered boundary conditions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.problem.Problem.set_solver.html#compas_dem.problem.Problem.set_solver" title="compas_dem.problem.Problem.set_solver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_solver</span></code></a></p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.problem.Problem.solve.html#compas_dem.problem.Problem.solve" title="compas_dem.problem.Problem.solve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve</span></code></a></p></td>
-<td><p>Solve the problem using the named solver.</p></td>
+<td><p>Solve the problem on the loaded model using the configured solver.</p></td>
 </tr>
 </tbody>
 </table>

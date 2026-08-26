@@ -508,6 +508,7 @@ document.write(`
 </li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_dem.models.html">compas_dem.models</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">BlockModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.models.Analysis.html">Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.material.html">compas_dem.material</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -524,13 +525,23 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.problem.html">compas_dem.problem</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Problem.html">Problem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryConditions.html">BoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryConditionGroup.html">BoundaryConditionGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Load.html">Load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.PointLoad.html">PointLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.SurfaceLoad.html">SurfaceLoad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.BodyForce.html">BodyForce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Gravity.html">Gravity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Displacement.html">Displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Translation.html">Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Rotation.html">Rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Results.html">Results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.problem.Solver.html">Solver</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_dem.analysis.html">compas_dem.analysis</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.lmgc90_solve.html">lmgc90_solve</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.cra_penalty_solve.html">cra_penalty_solve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.cra_solve.html">cra_solve</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_dem.analysis.rbe_solve.html">rbe_solve</a></li>
 </ul>
 </li>
@@ -616,65 +627,77 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.add_block_from_mesh.html#compas_dem.models.BlockModel.add_block_from_mesh" title="compas_dem.models.BlockModel.add_block_from_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_block_from_mesh</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.add_support_from_mesh.html#compas_dem.models.BlockModel.add_support_from_mesh" title="compas_dem.models.BlockModel.add_support_from_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_support_from_mesh</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.add_support.html#compas_dem.models.BlockModel.add_support" title="compas_dem.models.BlockModel.add_support"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_support</span></code></a></p></td>
+<td><p>Assign a block as a support.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.add_support_from_mesh.html#compas_dem.models.BlockModel.add_support_from_mesh" title="compas_dem.models.BlockModel.add_support_from_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_support_from_mesh</span></code></a></p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.add_supports.html#compas_dem.models.BlockModel.add_supports" title="compas_dem.models.BlockModel.add_supports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_supports</span></code></a></p></td>
+<td><p>Assign multiple blocks as supports.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.blocks.html#compas_dem.models.BlockModel.blocks" title="compas_dem.models.BlockModel.blocks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blocks</span></code></a></p></td>
 <td><p>Iterate over the regular blocks of this model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.compute_contacts.html#compas_dem.models.BlockModel.compute_contacts" title="compas_dem.models.BlockModel.compute_contacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_contacts</span></code></a></p></td>
-<td><p>Compute the contacts between the block elements of this model.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.clear_supports.html#compas_dem.models.BlockModel.clear_supports" title="compas_dem.models.BlockModel.clear_supports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_supports</span></code></a></p></td>
+<td><p>Turn all support blocks back into regular blocks.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.contacts.html#compas_dem.models.BlockModel.contacts" title="compas_dem.models.BlockModel.contacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contacts</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.compute_contacts.html#compas_dem.models.BlockModel.compute_contacts" title="compas_dem.models.BlockModel.compute_contacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_contacts</span></code></a></p></td>
+<td><p>Compute the contacts between blocks in the model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.contacts.html#compas_dem.models.BlockModel.contacts" title="compas_dem.models.BlockModel.contacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contacts</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.elements.html#compas_dem.models.BlockModel.elements" title="compas_dem.models.BlockModel.elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elements</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.elements.html#compas_dem.models.BlockModel.elements" title="compas_dem.models.BlockModel.elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elements</span></code></a></p></td>
 <td><p>Iterate over the elements contained in the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_arch.html#compas_dem.models.BlockModel.from_arch" title="compas_dem.models.BlockModel.from_arch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_arch</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_arch.html#compas_dem.models.BlockModel.from_arch" title="compas_dem.models.BlockModel.from_arch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_arch</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_barrelvault.html#compas_dem.models.BlockModel.from_barrelvault" title="compas_dem.models.BlockModel.from_barrelvault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_barrelvault</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_barrelvault.html#compas_dem.models.BlockModel.from_barrelvault" title="compas_dem.models.BlockModel.from_barrelvault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_barrelvault</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_boxes.html#compas_dem.models.BlockModel.from_boxes" title="compas_dem.models.BlockModel.from_boxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_boxes</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_boxes.html#compas_dem.models.BlockModel.from_boxes" title="compas_dem.models.BlockModel.from_boxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_boxes</span></code></a></p></td>
 <td><p>Construct a model from a collection of boxes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_crossvault.html#compas_dem.models.BlockModel.from_crossvault" title="compas_dem.models.BlockModel.from_crossvault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_crossvault</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_crossvault.html#compas_dem.models.BlockModel.from_crossvault" title="compas_dem.models.BlockModel.from_crossvault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_crossvault</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_fanvault.html#compas_dem.models.BlockModel.from_fanvault" title="compas_dem.models.BlockModel.from_fanvault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_fanvault</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_fanvault.html#compas_dem.models.BlockModel.from_fanvault" title="compas_dem.models.BlockModel.from_fanvault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_fanvault</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_meshpattern.html#compas_dem.models.BlockModel.from_meshpattern" title="compas_dem.models.BlockModel.from_meshpattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_meshpattern</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_meshpattern.html#compas_dem.models.BlockModel.from_meshpattern" title="compas_dem.models.BlockModel.from_meshpattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_meshpattern</span></code></a></p></td>
 <td><p>Construct a Block Model from the dual of an isotropically remeshed triangulation of the input mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_nurbssurface.html#compas_dem.models.BlockModel.from_nurbssurface" title="compas_dem.models.BlockModel.from_nurbssurface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_nurbssurface</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_nurbssurface.html#compas_dem.models.BlockModel.from_nurbssurface" title="compas_dem.models.BlockModel.from_nurbssurface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_nurbssurface</span></code></a></p></td>
 <td><p>Construct a model from Rhino polysurfaces.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_pavilionvault.html#compas_dem.models.BlockModel.from_pavilionvault" title="compas_dem.models.BlockModel.from_pavilionvault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_pavilionvault</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_pavilionvault.html#compas_dem.models.BlockModel.from_pavilionvault" title="compas_dem.models.BlockModel.from_pavilionvault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_pavilionvault</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_polyhedrons.html#compas_dem.models.BlockModel.from_polyhedrons" title="compas_dem.models.BlockModel.from_polyhedrons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_polyhedrons</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_polyhedrons.html#compas_dem.models.BlockModel.from_polyhedrons" title="compas_dem.models.BlockModel.from_polyhedrons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_polyhedrons</span></code></a></p></td>
 <td><p>Construct a model from a collection of polyhedrons.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_polysurfaces.html#compas_dem.models.BlockModel.from_polysurfaces" title="compas_dem.models.BlockModel.from_polysurfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_polysurfaces</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_polysurfaces.html#compas_dem.models.BlockModel.from_polysurfaces" title="compas_dem.models.BlockModel.from_polysurfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_polysurfaces</span></code></a></p></td>
 <td><p>Construct a model from Rhino polysurfaces.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_rhinomeshes.html#compas_dem.models.BlockModel.from_rhinomeshes" title="compas_dem.models.BlockModel.from_rhinomeshes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_rhinomeshes</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_rhinomeshes.html#compas_dem.models.BlockModel.from_rhinomeshes" title="compas_dem.models.BlockModel.from_rhinomeshes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_rhinomeshes</span></code></a></p></td>
 <td><p>Construct a model from Rhino meshes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_stack.html#compas_dem.models.BlockModel.from_stack" title="compas_dem.models.BlockModel.from_stack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_stack</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_stack.html#compas_dem.models.BlockModel.from_stack" title="compas_dem.models.BlockModel.from_stack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_stack</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_template.html#compas_dem.models.BlockModel.from_template" title="compas_dem.models.BlockModel.from_template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_template</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_template.html#compas_dem.models.BlockModel.from_template" title="compas_dem.models.BlockModel.from_template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_template</span></code></a></p></td>
 <td><p>Construct a block model from a template.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_triangulation_dual.html#compas_dem.models.BlockModel.from_triangulation_dual" title="compas_dem.models.BlockModel.from_triangulation_dual"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_triangulation_dual</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_triangulation_dual.html#compas_dem.models.BlockModel.from_triangulation_dual" title="compas_dem.models.BlockModel.from_triangulation_dual"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_triangulation_dual</span></code></a></p></td>
 <td><p>Construct a Block Model from the dual of an isotropically remeshed triangulation of the input mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_wall.html#compas_dem.models.BlockModel.from_wall" title="compas_dem.models.BlockModel.from_wall"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_wall</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.from_wall.html#compas_dem.models.BlockModel.from_wall" title="compas_dem.models.BlockModel.from_wall"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_wall</span></code></a></p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.remove_support.html#compas_dem.models.BlockModel.remove_support" title="compas_dem.models.BlockModel.remove_support"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_support</span></code></a></p></td>
+<td><p>Turn a support block back into a regular block.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_dem.models.BlockModel.supports.html#compas_dem.models.BlockModel.supports" title="compas_dem.models.BlockModel.supports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">supports</span></code></a></p></td>
 <td><p>Iterate over the support blocks of this model.</p></td>
