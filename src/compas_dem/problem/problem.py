@@ -31,7 +31,8 @@ class Problem(Data):
     >>> from compas_dem.models import BlockModel
     >>> model = BlockModel()
     >>> problem = Problem(model)
-    >>> _ = problem.add_boundary_condition("gravity").add_gravity()
+    >>> problem.set_contact_model("MohrCoulomb", mu=0.5)
+    >>> live = problem.add_boundary_condition("Live")
     >>> problem.set_solver(Solver.CRA())  # doctest: +SKIP
     >>> result = problem.solve()  # doctest: +SKIP
     """

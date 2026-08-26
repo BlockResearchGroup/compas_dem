@@ -153,3 +153,5 @@ src/compas_dem/utilities/
 
 # Rhino export — local only for now
 src/compas_dem/viewer/rhino_export.py
+
+.claude/

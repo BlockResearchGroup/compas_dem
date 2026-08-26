@@ -330,7 +330,9 @@ class BoundaryConditionGroup(Data):
     Examples
     --------
     >>> bc = BoundaryConditionGroup(name="Live")
-    >>> _ = bc.add_point_load(block_index=10, force=[0, 0, -5000])
+    >>> point_load = bc.add_point_load(block_index=10, force=[0, 0, -5000])
+    >>> len(bc.point_loads)
+    1
     """
 
     def __init__(self, name: Optional[str] = None, g: float = 9.81, **kwargs) -> None:

@@ -14,17 +14,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `loading_type` to `Load` and `block_index` to `Displacement`, shared by their subclasses.
 * Added optional 3DEC solver integration through `compas_3dec`, including solver configuration, problem dispatch, result conversion, an opt-in gravity smoke test, and a DEMViewer example.
 * Added 3DEC execution-stage configuration and responsive progress callback forwarding.
-
+* Added an `Analysis` class holding a model and its problems, so the model is serialized once and re-linked into each problem on load.
+* Changed boundary-condition logic: an explicit boundary-condition group is required on every load call, supports moved to the model, and `solve()` moved to `Problem`.
+* Removed active boundary-condition selection in favour of `set_solve_order()`, which reorders registered boundary conditions without dropping any.
+* Added load placement options for centroids, vertices, faces and arbitrary points, plus moments and `loading_type`.
+* Exposed `n_steps` and `open_tol` directly on BLA and PRD, and fixed BLA ignoring `n_steps`.
 
 ### Changed
 
-* Changed `BoundaryCondition` from a container of load dictionaries into a base class for a single boundary condition, with `Load` and `Displacement` deriving from it.
-* Changed `BoundaryConditionGroup.add_*` to build and store the matching `BoundaryCondition` subclass instead of a plain dictionary, and to return the instance it created.
-* Changed `Problem` to hold `BoundaryConditionGroup` instances; `add_boundary_condition` now returns a group.
-* Changed `resolve_centroidal_loads`, `resolve_centroidal_displacements` and `Problem.inspect_model` to read boundary condition attributes rather than dictionary keys.
+* Fixed the formatting issues.
 * Fixed tangential force direction in post-processing for vizualization.
 * Reorganized the `scripts/` examples folder for clarity.
 * Adapted the examples to the new API.
+* Adapted the Arch Workflow.
+
 
 
 ### Removed
