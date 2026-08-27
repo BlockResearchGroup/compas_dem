@@ -724,28 +724,27 @@ class Problem(Data):
             from compas_dem.analysis.lmgc90 import lmgc90_solve
 
             return lmgc90_solve(self, model, **params)
-        elif solver.name in ("3DEC", "threeDEC"):
+        if solver.name in ("3DEC", "threeDEC"):
             from compas_dem.analysis.threedec import threedec_solve
 
             return threedec_solve(self, model, **params)
-        elif solver.name == "CRA":
+        if solver.name == "CRA":
             from compas_dem.analysis.cra import cra_solve
 
             return cra_solve(self, model, **params)
-        elif solver.name == "RBE":
+        if solver.name == "RBE":
             from compas_dem.analysis.cra import rbe_solve
 
             return rbe_solve(self, model, **params)
-        elif solver.name == "PRD":
+        if solver.name == "PRD":
             from compas_dem.analysis.prd import prd_solve
 
             return prd_solve(self, model, **params)
-        elif solver.name == "BLA":
+        if solver.name == "BLA":
             from compas_dem.analysis.bla import bla_solve
 
             return bla_solve(self, model, **params)
-        else:
-            raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', '3DEC', 'CRA', 'RBE', 'PRD', 'BLA'.")
+        raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', '3DEC', 'CRA', 'RBE', 'PRD', 'BLA'.")
 
     # ============================================================================
     # Validation

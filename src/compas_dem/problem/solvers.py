@@ -3,6 +3,28 @@ from typing import Optional
 from compas.data import Data
 
 
+def _validate_threedec_stages(stages):
+    """Return a normalized 3DEC boundary-condition stage plan."""
+    if not isinstance(stages, (list, tuple)) or not stages:
+        raise ValueError("3DEC stages must be a non-empty sequence of stages.")
+    normalized = []
+    used = set()
+    for index, stage in enumerate(stages, start=1):
+        if not isinstance(stage, (list, tuple)) or not stage:
+            raise ValueError("3DEC stage {} must contain at least one boundary-condition name.".format(index))
+        names = []
+        for name in stage:
+            name = str(name).strip()
+            if not name:
+                raise ValueError("3DEC stage names cannot be empty.")
+            if name in used:
+                raise ValueError("Boundary condition {!r} occurs in more than one 3DEC stage.".format(name))
+            used.add(name)
+            names.append(name)
+        normalized.append(names)
+    return normalized
+
+
 class Solver(Data):
     """Container for solver configuration. Call one of the solver methods to set it up.
 
@@ -113,31 +135,9 @@ class Solver(Data):
             "suppress_output": suppress_output,
             "timeout": timeout,
             "gridpoint_tolerance": gridpoint_tolerance,
-            "stages": cls._validate_threedec_stages(stages) if stages is not None else None,
+            "stages": _validate_threedec_stages(stages) if stages is not None else None,
         }
         return self
-
-    @staticmethod
-    def _validate_threedec_stages(stages):
-        """Return a normalized 3DEC boundary-condition stage plan."""
-        if not isinstance(stages, (list, tuple)) or not stages:
-            raise ValueError("3DEC stages must be a non-empty sequence of stages.")
-        normalized = []
-        used = set()
-        for index, stage in enumerate(stages, start=1):
-            if not isinstance(stage, (list, tuple)) or not stage:
-                raise ValueError("3DEC stage {} must contain at least one boundary-condition name.".format(index))
-            names = []
-            for name in stage:
-                name = str(name).strip()
-                if not name:
-                    raise ValueError("3DEC stage names cannot be empty.")
-                if name in used:
-                    raise ValueError("Boundary condition {!r} occurs in more than one 3DEC stage.".format(name))
-                used.add(name)
-                names.append(name)
-            normalized.append(names)
-        return normalized
 
     def set_stages(self, stages):
         """Set the ordered 3DEC load-stage grouping.
@@ -147,7 +147,7 @@ class Solver(Data):
         """
         if self.name not in ("3DEC", "threeDEC"):
             raise ValueError("set_stages is only available for the 3DEC solver.")
-        self.parameters["stages"] = self._validate_threedec_stages(stages)
+        self.parameters["stages"] = _validate_threedec_stages(stages)
         return self
 
     @classmethod

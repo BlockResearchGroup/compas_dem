@@ -49,9 +49,15 @@ def threedec_solve(
         poll_interval=poll_interval,
     )
     analysis = ThreeDECAnalysisBuilder.from_dem_problem(problem).build()
+    analysis_parameters = {
+        "ratio": ratio,
+        "ratio_keyword": ratio_keyword,
+        "time": time,
+        "gravity_steps": gravity_steps,
+    }
+    if stages is not None:
+        analysis_parameters["stages"] = stages
+    analysis.solver_configuration["parameters"].update(analysis_parameters)
 
-    # These values live in Problem.solver and are picked up by
-    # ThreeDECAnalysisBuilder when it creates the portable snapshot.
-    _ = (ratio, ratio_keyword, time, gravity_steps, stages)
     raw_results = solver.solve(analysis)
     return raw_results.to_compas_dem_results(analysis)

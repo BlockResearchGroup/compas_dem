@@ -95,6 +95,7 @@ def test_threedec_adapter_builds_solves_and_converts():
     problem = Mock()
     problem.model = model
     analysis = Mock()
+    analysis.solver_configuration = {"parameters": {}}
     raw_results = Mock()
     dem_results = Mock()
     builder_type = Mock()
@@ -108,12 +109,28 @@ def test_threedec_adapter_builds_solves_and_converts():
     raw_results.to_compas_dem_results.return_value = dem_results
 
     with patch.dict(sys.modules, {"compas_3dec": compas_3dec}):
-        result = threedec_solve(problem, model, version="7.0")
+        result = threedec_solve(
+            problem,
+            model,
+            version="7.0",
+            ratio=2e-5,
+            ratio_keyword="ratio-average",
+            time=2.0,
+            gravity_steps=20,
+            stages=[["Gravity"], ["Live"]],
+        )
 
     assert result is dem_results
     builder_type.from_dem_problem.assert_called_once_with(problem)
     solver_type.return_value.solve.assert_called_once_with(analysis)
     raw_results.to_compas_dem_results.assert_called_once_with(analysis)
+    assert analysis.solver_configuration["parameters"] == {
+        "ratio": 2e-5,
+        "ratio_keyword": "ratio-average",
+        "time": 2.0,
+        "gravity_steps": 20,
+        "stages": [["Gravity"], ["Live"]],
+    }
 
 
 @pytest.mark.skipif(not os.getenv("COMPAS_3DEC_EXECUTABLE"), reason="Set COMPAS_3DEC_EXECUTABLE to run the real 3DEC smoke test.")
