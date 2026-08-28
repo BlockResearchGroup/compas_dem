@@ -623,10 +623,12 @@ document.write(`
 <h1>Problem.solve</h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_dem.problem.Problem.solve">
-<span class="sig-prename descclassname"><span class="pre">Problem.</span></span><span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<span class="sig-prename descclassname"><span class="pre">Problem.</span></span><span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">runtime_options</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Solve the problem on the loaded model using the configured solver.</p>
 <p>All boundary conditions registered on the problem are solved concurrently.
-To reorder them beforehand, call <a class="reference internal" href="compas_dem.problem.Problem.set_solve_order.html#compas_dem.problem.Problem.set_solve_order" title="compas_dem.problem.Problem.set_solve_order"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_solve_order()</span></code></a>.</p>
+To reorder them beforehand, call <a class="reference internal" href="compas_dem.problem.Problem.set_solve_order.html#compas_dem.problem.Problem.set_solve_order" title="compas_dem.problem.Problem.set_solve_order"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_solve_order()</span></code></a>.
+Runtime-only options, such as progress callbacks and UI event pumps,
+are forwarded without being stored in the solver configuration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
