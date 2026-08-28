@@ -35,6 +35,7 @@ else:
 
 extensions = sphinx_compas2_theme.default_extensions
 extensions.remove("sphinx.ext.linkcode")
+extensions.append("myst_parser")
 
 # numpydoc options
 

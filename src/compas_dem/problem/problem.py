@@ -696,11 +696,13 @@ class Problem(Data):
     def set_solver(self, solver: Solver) -> None:
         self._solver = solver
 
-    def solve(self):
+    def solve(self, **runtime_options):
         """Solve the problem on the loaded model using the configured solver.
 
         All boundary conditions registered on the problem are solved concurrently.
         To reorder them beforehand, call :meth:`set_solve_order`.
+        Runtime-only options, such as progress callbacks and UI event pumps,
+        are forwarded without being stored in the solver configuration.
 
         Returns
         -------
@@ -717,28 +719,32 @@ class Problem(Data):
         self._check_model_validity(model)
         solver = self._solver
         params = {k: v for k, v in solver.parameters.items() if v is not None}
+        params.update(runtime_options)
         if solver.name == "LMGC90":
             from compas_dem.analysis.lmgc90 import lmgc90_solve
 
             return lmgc90_solve(self, model, **params)
-        elif solver.name == "CRA":
+        if solver.name in ("3DEC", "threeDEC"):
+            from compas_dem.analysis.threedec import threedec_solve
+
+            return threedec_solve(self, model, **params)
+        if solver.name == "CRA":
             from compas_dem.analysis.cra import cra_solve
 
             return cra_solve(self, model, **params)
-        elif solver.name == "RBE":
+        if solver.name == "RBE":
             from compas_dem.analysis.cra import rbe_solve
 
             return rbe_solve(self, model, **params)
-        elif solver.name == "PRD":
+        if solver.name == "PRD":
             from compas_dem.analysis.prd import prd_solve
 
             return prd_solve(self, model, **params)
-        elif solver.name == "BLA":
+        if solver.name == "BLA":
             from compas_dem.analysis.bla import bla_solve
 
             return bla_solve(self, model, **params)
-        else:
-            raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE', 'PRD', 'BLA'.")
+        raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', '3DEC', 'CRA', 'RBE', 'PRD', 'BLA'.")
 
     # ============================================================================
     # Validation

@@ -149,4 +149,4 @@ class Block(Element):
         return box
 
     def compute_point(self) -> Point:
-        return Point(*self.modelgeometry.centroid())
+        return self.modelgeometry.centroid()
